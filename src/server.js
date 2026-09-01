@@ -52,6 +52,11 @@ app.use((req, res) => {
   res.status(404).render('404', { title: 'Halaman Tidak Ditemukan' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Aplikasi Perpustakaan Sekolah berjalan di http://localhost:${PORT}`);
-});
+export default app;
+
+const isServerless = process.env.VERCEL === '1';
+if (!isServerless) {
+  app.listen(PORT, () => {
+    console.log(`Aplikasi Perpustakaan Sekolah berjalan di http://localhost:${PORT}`);
+  });
+}
