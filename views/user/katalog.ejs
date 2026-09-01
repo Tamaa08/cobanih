@@ -64,7 +64,13 @@
             <div class="book-grid">
               <% buku.forEach((b) => { %>
                 <div class="book-card">
-                  <div class="book-cover">📖</div>
+                  <div class="book-cover">
+                    <% if (b.cover_url) { %>
+                      <img src="<%= b.cover_url %>" alt="<%= b.judul %>" class="cover-img">
+                    <% } else { %>
+                      <span class="cover-emoji">📖</span>
+                    <% } %>
+                  </div>
                   <div class="book-info">
                     <h3 class="book-title"><%= b.judul %></h3>
                     <p class="book-author"><%= b.penulis %></p>

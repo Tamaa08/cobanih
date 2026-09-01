@@ -15,6 +15,17 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+async function runMigrations() {
+  try {
+    const { supabase } = await import('./config/db.js');
+    await supabase.rpc('add_cover_url_column');
+    await supabase.rpc('ensure_covers_bucket');
+  } catch (e) {
+    // Abaikan bila RPC tidak tersedia (mis. belum menjalankan SQL migrasi).
+    console.error('[migrasi] Tidak dapat menjalankan auto-migrasi:', e?.message || e);
+  }
+}
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 
@@ -56,6 +67,7 @@ export default app;
 
 const isServerless = process.env.VERCEL === '1';
 if (!isServerless) {
+  runMigrations();
   app.listen(PORT, () => {
     console.log(`Aplikasi Perpustakaan Sekolah berjalan di http://localhost:${PORT}`);
   });

@@ -1,4 +1,46 @@
 import { supabase } from '../config/db.js';
+import crypto from 'crypto';
+
+const BUCKET = 'covers';
+
+async function ensureBucket() {
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const exists = (buckets || []).some((b) => b.name === BUCKET);
+  if (!exists) {
+    await supabase.storage.createBucket(BUCKET, { public: true });
+  }
+}
+
+function getPublicUrl(path) {
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+export async function uploadCoverImage(file) {
+  if (!file) return null;
+  await ensureBucket();
+  const ext = file.originalname.split('.').pop().toLowerCase();
+  const fileName = `${Date.now()}_${crypto.randomBytes(6).toString('hex')}.${ext}`;
+  const { error: upErr } = await supabase.storage
+    .from(BUCKET)
+    .upload(fileName, file.buffer, {
+      contentType: file.mimetype,
+      upsert: false,
+    });
+  if (upErr) throw new Error('Gagal upload sampul: ' + upErr.message);
+  return getPublicUrl(fileName);
+}
+
+export async function deleteCoverImage(url) {
+  if (!url) return;
+  try {
+    const path = decodeURIComponent(url.split('/').pop() || '');
+    if (!path) return;
+    await supabase.storage.from(BUCKET).remove([path]);
+  } catch {
+    // abaikan bila gagal menghapus file storage
+  }
+}
 
 export async function showBuku(req, res) {
   const search = req.query.search || '';
@@ -50,6 +92,8 @@ export async function createBuku(req, res) {
       return res.redirect('/admin/buku');
     }
 
+    const cover_url = await uploadCoverImage(req.file);
+
     const { error: err } = await supabase.from('buku').insert([
       {
         judul,
@@ -59,6 +103,7 @@ export async function createBuku(req, res) {
         kategori,
         stok: parseInt(stok) || 0,
         lokasi: lokasi || null,
+        cover_url,
       },
     ]);
 
@@ -90,6 +135,17 @@ export async function updateBuku(req, res) {
   const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi } = req.body;
 
   try {
+    const { data: current } = await supabase.from('buku').select('cover_url').eq('id', id).single();
+
+    let cover_url = current ? current.cover_url : null;
+    if (req.file) {
+      const newUrl = await uploadCoverImage(req.file);
+      if (newUrl) {
+        await deleteCoverImage(cover_url);
+        cover_url = newUrl;
+      }
+    }
+
     const { error: err } = await supabase
       .from('buku')
       .update({
@@ -100,6 +156,7 @@ export async function updateBuku(req, res) {
         kategori,
         stok: parseInt(stok) || 0,
         lokasi: lokasi || null,
+        cover_url,
       })
       .eq('id', id);
 
@@ -125,8 +182,10 @@ export async function deleteBuku(req, res) {
       return res.redirect('/admin/buku');
     }
 
+    const { data: bukuRow } = await supabase.from('buku').select('cover_url').eq('id', id).single();
     const { error: err } = await supabase.from('buku').delete().eq('id', id);
     if (err) throw err;
+    if (bukuRow) await deleteCoverImage(bukuRow.cover_url);
     req.session.message = 'Buku berhasil dihapus';
   } catch (e) {
     req.session.error = 'Gagal menghapus buku: ' + e.message;

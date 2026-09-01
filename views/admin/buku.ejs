@@ -49,7 +49,7 @@
           <div class="card-header">
             <h2>Tambah Buku Baru</h2>
           </div>
-          <form action="/admin/buku" method="POST" class="form-grid">
+          <form action="/admin/buku" method="POST" enctype="multipart/form-data" class="form-grid">
             <div class="form-group">
               <label>Judul Buku</label>
               <input type="text" name="judul" required>
@@ -79,6 +79,10 @@
               <input type="text" name="lokasi" placeholder="Mis. Rak A-1">
             </div>
             <div class="form-group form-group-full">
+              <label>Sampul Buku (opsional, JPG/PNG/WebP/GIF, max 5MB)</label>
+              <input type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/gif">
+            </div>
+            <div class="form-group form-group-full">
               <button type="submit" class="btn btn-primary">Tambah Buku</button>
             </div>
           </form>
@@ -100,6 +104,7 @@
               <thead>
                 <tr>
                   <th>No</th>
+                  <th>Sampul</th>
                   <th>Judul</th>
                   <th>Penulis</th>
                   <th>Kategori</th>
@@ -110,11 +115,18 @@
               </thead>
               <tbody>
                 <% if (buku.length === 0) { %>
-                  <tr><td colspan="7" class="empty">Tidak ada buku ditemukan</td></tr>
+                  <tr><td colspan="8" class="empty">Tidak ada buku ditemukan</td></tr>
                 <% } else { %>
                   <% buku.forEach((b, i) => { %>
                   <tr>
                     <td><%= i + 1 %></td>
+                    <td>
+                      <% if (b.cover_url) { %>
+                        <img src="<%= b.cover_url %>" alt="<%= b.judul %>" class="cover-thumb">
+                      <% } else { %>
+                        <span class="cover-placeholder">📖</span>
+                      <% } %>
+                    </td>
                     <td><strong><%= b.judul %></strong></td>
                     <td><%= b.penulis %></td>
                     <td><%= b.kategori %></td>

@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS buku (
     kategori VARCHAR(100) NOT NULL,
     stok INTEGER NOT NULL DEFAULT 0 CHECK (stok >= 0),
     lokasi VARCHAR(50),
+    cover_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -72,6 +73,36 @@ CREATE INDEX IF NOT EXISTS idx_anggota_nama ON anggota(lower(nama));
 CREATE INDEX IF NOT EXISTS idx_anggota_nis ON anggota(nis);
 CREATE INDEX IF NOT EXISTS idx_transaksi_status ON transaksi(status);
 CREATE INDEX IF NOT EXISTS idx_transaksi_anggota ON transaksi(id_anggota);
+
+-- Kolom cover_url (untuk buku yang tabelnya sudah ada sebelum fitur sampul)
+ALTER TABLE buku ADD COLUMN IF NOT EXISTS cover_url TEXT;
+
+-- RPC untuk menambah kolom cover_url dari aplikasi (auto-migrasi)
+CREATE OR REPLACE FUNCTION public.add_cover_url_column()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  ALTER TABLE public.buku ADD COLUMN IF NOT EXISTS cover_url TEXT;
+END;
+$$;
+
+-- RPC untuk membuat bucket 'covers' dari aplikasi (auto-provision storage)
+CREATE OR REPLACE FUNCTION public.ensure_covers_bucket()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM storage.buckets WHERE name = 'covers'
+  ) THEN
+    INSERT INTO storage.buckets (id, name, public)
+    VALUES ('covers', 'covers', true);
+  END IF;
+END;
+$$;
 
 -- ============================================================
 -- SEED DATA (contoh)
