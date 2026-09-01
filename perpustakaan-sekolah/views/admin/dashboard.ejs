@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-link active">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1><%= title %></h1>
+        <span class="badge badge-admin">Admin</span>
+      </header>
+
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📖</div>
+            <div class="stat-value"><%= stats.totalBuku %></div>
+            <div class="stat-label">Total Buku</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">👤</div>
+            <div class="stat-value"><%= stats.totalAnggota %></div>
+            <div class="stat-label">Total Anggota</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📤</div>
+            <div class="stat-value"><%= stats.totalPeminjaman %></div>
+            <div class="stat-label">Buku Dipinjam</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value"><%= stats.totalSelesai %></div>
+            <div class="stat-label">Dikembalikan</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Transaksi Terbaru</h2>
+            <a href="/admin/transaksi" class="btn btn-outline btn-sm">Lihat Semua</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Buku</th>
+                  <th>Anggota</th>
+                  <th>Tanggal Pinjam</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (recentTrx.length === 0) { %>
+                  <tr><td colspan="5" class="empty">Belum ada transaksi</td></tr>
+                <% } else { %>
+                  <% recentTrx.forEach((t, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td><%= t.buku ? t.buku.judul : '-' %></td>
+                    <td><%= t.anggota ? t.anggota.nama : '-' %></td>
+                    <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
+                    <td>
+                      <span class="badge <%= t.status === 'dipinjam' ? 'badge-warning' : 'badge-success' %>">
+                        <%= t.status %>
+                      </span>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link active">Transaksi</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1><%= title %></h1>
+        <span class="badge badge-admin">Admin</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Buat Peminjaman</h2>
+          </div>
+          <form action="/admin/transaksi/peminjaman" method="POST" class="form-grid">
+            <div class="form-group">
+              <label>Anggota</label>
+              <select name="id_anggota" required>
+                <option value="">-- Pilih Anggota --</option>
+                <% anggota.forEach((a) => { %>
+                  <option value="<%= a.id %>"><%= a.nama %> (<%= a.nis %>)</option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Buku</label>
+              <select name="id_buku" required>
+                <option value="">-- Pilih Buku --</option>
+                <% buku.forEach((b) => { %>
+                  <option value="<%= b.id %>"><%= b.judul %> - <%= b.penulis %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tanggal Pinjam</label>
+              <input type="date" name="tanggal_pinjam">
+            </div>
+            <div class="form-group form-group-full">
+              <button type="submit" class="btn btn-primary">Buat Peminjaman</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Daftar Transaksi</h2>
+            <form action="/admin/transaksi" method="GET" class="search-form">
+              <input type="text" name="search" value="<%= search %>" placeholder="Cari ID/status...">
+              <button type="submit" class="btn btn-outline">Cari</button>
+              <% if (search) { %>
+                <a href="/admin/transaksi" class="btn btn-outline btn-sm">Reset</a>
+              <% } %>
+            </form>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Buku</th>
+                  <th>Anggota</th>
+                  <th>Tanggal Pinjam</th>
+                  <th>Jatuh Tempo</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (transaksi.length === 0) { %>
+                  <tr><td colspan="7" class="empty">Tidak ada transaksi</td></tr>
+                <% } else { %>
+                  <% transaksi.forEach((t) => { %>
+                  <tr>
+                    <td>#<%= t.id %></td>
+                    <td><%= t.buku ? t.buku.judul : '-' %></td>
+                    <td><%= t.anggota ? t.anggota.nama : '-' %></td>
+                    <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
+                    <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
+                    <td>
+                      <span class="badge <%= t.status === 'dipinjam' ? 'badge-warning' : 'badge-success' %>">
+                        <%= t.status %>
+                      </span>
+                    </td>
+                    <td class="actions">
+                      <% if (t.status === 'dipinjam') { %>
+                        <form action="/admin/transaksi/<%= t.id %>/kembalikan" method="POST">
+                          <button type="submit" class="btn btn-success btn-sm">Terima Pengembalian</button>
+                        </form>
+                      <% } %>
+                      <form action="/admin/transaksi/<%= t.id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus transaksi ini?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                      </form>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% if (search) { %>
+            <p class="text-muted"><%= transaksi.length %> hasil ditemukan untuk "<%= search %>"</p>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

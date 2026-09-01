@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link active">Pengembalian</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Pengembalian Buku</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Buku yang Sedang Anda Pinjam</h2>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Buku</th>
+                  <th>Tanggal Pinjam</th>
+                  <th>Jatuh Tempo</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (myPinjam.length === 0) { %>
+                  <tr><td colspan="5" class="empty">Anda tidak memiliki buku yang sedang dipinjam</td></tr>
+                <% } else { %>
+                  <% myPinjam.forEach((t, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td><%= t.buku ? t.buku.judul : '-' %><br><small class="text-muted"><%= t.buku ? t.buku.penulis : '' %></small></td>
+                    <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
+                    <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
+                    <td>
+                      <form action="/user/pengembalian/<%= t.id %>" method="POST" onsubmit="return confirm('Kembalikan buku ini?')">
+                        <button type="submit" class="btn btn-success btn-sm">Kembalikan</button>
+                      </form>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link active">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1><%= title %></h1>
+        <span class="badge badge-admin">Admin</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Tambah Anggota Baru</h2>
+          </div>
+          <form action="/admin/anggota" method="POST" class="form-grid">
+            <div class="form-group">
+              <label>Nama Lengkap</label>
+              <input type="text" name="nama" required>
+            </div>
+            <div class="form-group">
+              <label>Kelas</label>
+              <input type="text" name="kelas" required>
+            </div>
+            <div class="form-group">
+              <label>NIS</label>
+              <input type="text" name="nis" required>
+            </div>
+            <div class="form-group">
+              <label>Username Login</label>
+              <input type="text" name="username" required>
+            </div>
+            <div class="form-group form-group-full">
+              <label>Password</label>
+              <input type="password" name="password" required>
+            </div>
+            <div class="form-group form-group-full">
+              <button type="submit" class="btn btn-primary">Tambah Anggota</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Daftar Anggota</h2>
+            <form action="/admin/anggota" method="GET" class="search-form">
+              <input type="text" name="search" value="<%= search %>" placeholder="Cari nama/NIS/kelas...">
+              <button type="submit" class="btn btn-outline">Cari</button>
+              <% if (search) { %>
+                <a href="/admin/anggota" class="btn btn-outline btn-sm">Reset</a>
+              <% } %>
+            </form>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>NIS</th>
+                  <th>Kelas</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (anggota.length === 0) { %>
+                  <tr><td colspan="6" class="empty">Tidak ada anggota ditemukan</td></tr>
+                <% } else { %>
+                  <% anggota.forEach((a, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td><strong><%= a.nama %></strong></td>
+                    <td><%= a.nis %></td>
+                    <td><%= a.kelas %></td>
+                    <td>
+                      <span class="badge <%= a.status === 'aktif' ? 'badge-success' : 'badge-danger' %>">
+                        <%= a.status %>
+                      </span>
+                    </td>
+                    <td class="actions">
+                      <a href="/admin/anggota/<%= a.id %>/edit" class="btn btn-warning btn-sm">Edit</a>
+                      <form action="/admin/anggota/<%= a.id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus anggota ini?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                      </form>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% if (search) { %>
+            <p class="text-muted"><%= anggota.length %> hasil ditemukan untuk "<%= search %>"</p>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

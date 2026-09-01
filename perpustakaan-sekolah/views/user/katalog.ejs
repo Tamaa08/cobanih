@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link active">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Katalog Buku</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Cari Buku</h2>
+            <form action="/user/katalog" method="GET" class="search-form">
+              <input type="text" name="search" value="<%= search %>" placeholder="Cari judul/kategori/penulis...">
+              <button type="submit" class="btn btn-outline">Cari</button>
+              <% if (search) { %>
+                <a href="/user/katalog" class="btn btn-outline btn-sm">Reset</a>
+              <% } %>
+            </form>
+          </div>
+
+          <% if (buku.length === 0) { %>
+            <p class="text-muted">Tidak ada buku ditemukan.</p>
+          <% } else { %>
+            <div class="book-grid">
+              <% buku.forEach((b) => { %>
+                <div class="book-card">
+                  <div class="book-cover">📖</div>
+                  <div class="book-info">
+                    <h3 class="book-title"><%= b.judul %></h3>
+                    <p class="book-author"><%= b.penulis %></p>
+                    <p class="book-meta">
+                      <span class="badge"><%= b.kategori %></span>
+                      <span class="badge <%= b.stok > 0 ? 'badge-success' : 'badge-danger' %>">
+                        Stok: <%= b.stok %>
+                      </span>
+                    </p>
+                  </div>
+                  <div class="book-actions">
+                    <% if (b.stok > 0 && !pinjamIds.has(b.id)) { %>
+                      <form action="/user/peminjaman" method="POST">
+                        <input type="hidden" name="id_buku" value="<%= b.id %>">
+                        <button type="submit" class="btn btn-primary btn-sm btn-block">Pinjam</button>
+                      </form>
+                    <% } else if (pinjamIds.has(b.id)) { %>
+                      <span class="badge badge-danger">Sedang Dipinjam</span>
+                    <% } else { %>
+                      <span class="badge badge-danger">Stok Habis</span>
+                    <% } %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+            <% if (search) { %>
+              <p class="text-muted"><%= buku.length %> hasil ditemukan untuk "<%= search %>"</p>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

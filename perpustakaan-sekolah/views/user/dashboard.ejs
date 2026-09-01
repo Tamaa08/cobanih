@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link active">Dashboard</a>
+        <a href="/user/katalog" class="nav-link">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Dashboard Siswa</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <div class="card">
+          <div class="card-header">
+            <h2>Selamat Datang, <%= nama %>! 👋</h2>
+          </div>
+          <p>Manfaatkan layanan perpustakaan untuk meminjam dan mengembalikan buku dengan mudah.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📤</div>
+            <div class="stat-value"><%= stats.totalPinjam %></div>
+            <div class="stat-label">Sedang Dipinjam</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value"><%= stats.totalKembali %></div>
+            <div class="stat-label">Sudah Dikembalikan</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Riwayat Peminjaman Saya</h2>
+            <a href="/user/riwayat" class="btn btn-outline btn-sm">Lihat Semua</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Buku</th>
+                  <th>Tanggal Pinjam</th>
+                  <th>Jatuh Tempo</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (myTrx.length === 0) { %>
+                  <tr><td colspan="5" class="empty">Belum ada transaksi. Mulai pinjam buku sekarang!</td></tr>
+                <% } else { %>
+                  <% myTrx.forEach((t, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td><%= t.buku ? t.buku.judul : '-' %></td>
+                    <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
+                    <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
+                    <td>
+                      <span class="badge <%= t.status === 'dipinjam' ? 'badge-warning' : 'badge-success' %>">
+                        <%= t.status %>
+                      </span>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/riwayat" class="nav-link active">Riwayat</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Riwayat Transaksi</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Daftar Transaksi Saya</h2>
+            <form action="/user/riwayat" method="GET" class="search-form">
+              <input type="text" name="search" value="<%= search %>" placeholder="Cari ID/status...">
+              <button type="submit" class="btn btn-outline">Cari</button>
+              <% if (search) { %>
+                <a href="/user/riwayat" class="btn btn-outline btn-sm">Reset</a>
+              <% } %>
+            </form>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Buku</th>
+                  <th>Tanggal Pinjam</th>
+                  <th>Tanggal Kembali</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (trx.length === 0) { %>
+                  <tr><td colspan="5" class="empty">Belum ada transaksi</td></tr>
+                <% } else { %>
+                  <% trx.forEach((t) => { %>
+                  <tr>
+                    <td>#<%= t.id %></td>
+                    <td><%= t.buku ? t.buku.judul : '-' %></td>
+                    <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
+                    <td>
+                      <%= t.tanggal_kembali_aktual ? new Date(t.tanggal_kembali_aktual).toLocaleDateString('id-ID') : '-' %>
+                    </td>
+                    <td>
+                      <span class="badge <%= t.status === 'dipinjam' ? 'badge-warning' : 'badge-success' %>">
+                        <%= t.status %>
+                      </span>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+          <% if (search) { %>
+            <p class="text-muted"><%= trx.length %> hasil ditemukan untuk "<%= search %>"</p>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

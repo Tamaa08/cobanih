@@ -1,0 +1,22 @@
+{
+  "name": "perpustakaan-sekolah",
+  "version": "1.0.0",
+  "description": "Aplikasi Perpustakaan Sekolah Digital - Peminjaman Buku",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  }
+}
