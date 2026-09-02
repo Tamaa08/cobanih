@@ -1,10 +1,11 @@
 -- ============================================================
--- MIGRASI: Rating & Deskripsi Buku
+-- MIGRASI: Sampul Buku + Rating & Deskripsi Buku
 -- Jalankan di SQL Editor Supabase (Dashboard → SQL Editor)
 -- Aman dijalankan berulang kali (idempotent).
 -- ============================================================
 
--- 1) Kolom baru di tabel buku
+-- 1) Kolom sampul + rating/deskripsi di tabel buku
+ALTER TABLE public.buku ADD COLUMN IF NOT EXISTS cover_url TEXT;
 ALTER TABLE public.buku ADD COLUMN IF NOT EXISTS rating DOUBLE PRECISION NOT NULL DEFAULT 0;
 ALTER TABLE public.buku ADD COLUMN IF NOT EXISTS rating_count INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE public.buku ADD COLUMN IF NOT EXISTS deskripsi TEXT;
@@ -31,3 +32,29 @@ UPDATE public.buku SET deskripsi = 'Kisah enam sahabat santri di Pondok Madani y
 UPDATE public.buku SET deskripsi = 'Sekuel Laskar Pelangi tentang Ikal, Arai, dan Jimbron yang bermimpi besar dari Belitung untuk melanjutkan pendidikan sampai ke luar negeri. Intinya: keberanian bermimpi besar dan setia kawan.', rating = 4.5, rating_count = 6 WHERE judul = 'Sang Pemimpi';
 UPDATE public.buku SET deskripsi = 'Buku teks matematika diskrit untuk mahasiswa informatika. Intinya: dasar-dasar logika, himpunan, relasi, graf, dan kombinatorik sebagai fondasi berpikir komputasional.', rating = 4.3, rating_count = 5 WHERE judul = 'Matematika Informatika';
 UPDATE public.buku SET deskripsi = 'Buku pemrograman web praktis untuk pemula. Intinya: langkah demi langkah membangun aplikasi web dinamis dari dasar, mulai dari HTML, CSS, PHP, hingga MySQL.', rating = 4.4, rating_count = 6 WHERE judul = 'Pemrograman Web';
+
+-- 4) RPC untuk auto-migrasi dall aplikasi saat server start (sampul)
+CREATE OR REPLACE FUNCTION public.add_cover_url_column()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  ALTER TABLE public.buku ADD COLUMN IF NOT EXISTS cover_url TEXT;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.ensure_covers_bucket()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM storage.buckets WHERE name = 'covers'
+  ) THEN
+    INSERT INTO storage.buckets (id, name, public)
+    VALUES ('covers', 'covers', true);
+  END IF;
+END;
+$$;
