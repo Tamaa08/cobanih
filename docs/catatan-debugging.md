@@ -40,10 +40,11 @@ perbaikannya.
 ### 8. Role-Based Access Control
 - **Gejala:** Awalnya route tidak membedakan admin dan siswa dengan tegas.
 - **Solusi:** Middleware `isAdmin` / `isSiswa` diterapkan pada seluruh route grup (`router.use(isAdmin)`), sehingga siswa tidak bisa mengakses `/admin/*` dan sebaliknya.
+- **Verifikasi:** Semua route `/admin/*` (dashboard, buku, anggota, transaksi, denda, statistik, laporan) mengembalikan **302** ketika diakses sesi siswa.
 
 ## Prosedur Verifikasi
 
 Untuk memastikan kualitas, dijalankan:
-1. `node scripts/test-templates.mjs` → memastikan semua 14 template EJS bebas error.
+1. `node scripts/test-templates.mjs` → memastikan semua 19 template EJS bebas error.
 2. Startup server (`node src/server.js`) → memastikan modul & rute termuat benar.
-3. Review manual alur login gagal/berhasil, CRUD, peminjaman, pengembalian, dan pencarian sesuai flowmap.
+3. Uji runtime end-to-end terhadap Supabase asli (login, transaksi, denda, rating, RBAC) dengan skrip tes sekali pakai di `scripts/` (dihapus setelah dijalankan).

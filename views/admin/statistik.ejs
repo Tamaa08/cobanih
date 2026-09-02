@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+        <a href="/admin/denda" class="nav-link">Denda</a>
+        <a href="/admin/statistik" class="nav-link active">Statistik & Grafik</a>
+        <a href="/admin/laporan" class="nav-link">Laporan</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Statistik & Grafik Peminjaman</h1>
+        <span class="badge badge-admin">Admin</span>
+      </header>
+
+      <div class="content">
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
+        <div class="stats-grid stats-grid-5">
+          <div class="stat-card">
+            <div class="stat-icon">🔁</div>
+            <div class="stat-value"><%= totalTransaksi %></div>
+            <div class="stat-label">Total Transaksi</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📤</div>
+            <div class="stat-value"><%= totalDipinjam %></div>
+            <div class="stat-label">Sedang Dipinjam</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value"><%= totalDikembalikan %></div>
+            <div class="stat-label">Dikembalikan</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value stat-value-sm"><%= topBook.nama %></div>
+            <div class="stat-label">Buku Terpopuler (<%= topBook.count %>× dipinjam)</div>
+          </div>
+          <div class="stat-card stat-card-warn">
+            <div class="stat-icon">💸</div>
+            <div class="stat-value"><%= dendaStats.belum %></div>
+            <div class="stat-label">Denda Belum Bayar · Rp <%= formatRupiah(dendaStats.nominalBelum) %></div>
+          </div>
+        </div>
+
+        <div class="chart-grid">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>📈 Peminjaman 14 Hari Terakhir</h2>
+            </div>
+            <div class="chart-box tall">
+              <canvas id="chartDaily"></canvas>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>🍩 Status Transaksi</h2>
+            </div>
+            <div class="chart-box">
+              <canvas id="chartStatus"></canvas>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>📚 Buku Paling Sering Dipinjam (Top 10)</h2>
+            </div>
+            <div class="chart-box tall">
+              <canvas id="chartBook"></canvas>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>👤 Anggota Paling Aktif Meminjam (Top 10)</h2>
+            </div>
+            <div class="chart-box tall">
+              <canvas id="chartMember"></canvas>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>📋 Kategori Buku Paling Dipinjam</h2>
+            </div>
+            <div class="chart-box">
+              <canvas id="chartCategory"></canvas>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>💸 Ringkasan Denda</h2>
+            </div>
+            <div class="denda-summary">
+              <div class="denda-summary-item">
+                <span>Sudah Dibayar (Lunas)</span>
+                <strong><%= dendaStats.lunas %> denda</strong>
+                <strong class="text-success">Rp <%= formatRupiah(dendaStats.nominalLunas) %></strong>
+              </div>
+              <div class="denda-summary-item">
+                <span>Belum Dibayar</span>
+                <strong><%= dendaStats.belum %> denda</strong>
+                <strong class="text-danger-color">Rp <%= formatRupiah(dendaStats.nominalBelum) %></strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>📌 Siapa yang Sedang Meminjam Buku</h2>
+            <a href="/admin/transaksi" class="btn btn-outline btn-sm">Halaman Transaksi</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Buku</th>
+                  <th>Peminjam</th>
+                  <th>Kelas / NIS</th>
+                  <th>Tanggal Pinjam</th>
+                  <th>Jatuh Tempo</th>
+                  <th>Sisa Hari</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (loans.length === 0) { %>
+                  <tr><td colspan="8" class="empty">Tidak ada buku yang sedang dipinjam</td></tr>
+                <% } else { %>
+                  <% loans.forEach((t, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td>
+                      <div class="denda-buku">
+                        <% if (t.buku && t.buku.cover_url) { %>
+                          <img src="<%= t.buku.cover_url %>" alt="<%= t.buku.judul %>" class="cover-thumb">
+                        <% } %>
+                        <%= t.buku ? t.buku.judul : '-' %>
+                      </div>
+                    </td>
+                    <td><%= t.anggota ? t.anggota.nama : '-' %></td>
+                    <td><small class="text-muted"><%= t.anggota ? (t.anggota.kelas + ' · NIS ' + t.anggota.nis) : '-' %></small></td>
+                    <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
+                    <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
+                    <td>
+                      <% if (t.overdue) { %>
+                        <span class="badge badge-danger">Terlambat <%= Math.abs(t.sisaHari) %> hari</span>
+                      <% } else { %>
+                        <span class="badge badge-success"><%= t.sisaHari %> hari</span>
+                      <% } %>
+                    </td>
+                    <td><span class="badge badge-warning">Dipinjam</span></td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    const CHART_DATA = <%- JSON.stringify(chart).replace(/</g, '\\u003c') %>;
+    const isEmpty = (arr) => !arr || arr.length === 0;
+    const PALETTE = ['#3498db', '#f5a623', '#2ecc71', '#e74c3c', '#9b59b6', '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b'];
+    function labelsValues(arr, vkey) {
+      return { labels: arr.map((x) => x[vkey] || x), values: arr.map((x) => x.count || x.nilai || x) };
+    }
+
+    if (typeof Chart !== 'undefined') {
+      Chart.defaults.font.family = 'system-ui, sans-serif';
+
+      if (CHART_DATA.labels.length) {
+        new Chart(document.getElementById('chartDaily'), {
+          type: 'bar',
+          data: { labels: CHART_DATA.labels, datasets: [{ label: 'Peminjaman', data: CHART_DATA.daily, backgroundColor: '#3498db88', borderColor: '#3498db', borderWidth: 2, borderRadius: 6 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+        });
+      }
+
+      const st = CHART_DATA.status || { dipinjam: 0, dikembalikan: 0 };
+      new Chart(document.getElementById('chartStatus'), {
+        type: 'doughnut',
+        data: { labels: ['Sedang Dipinjam', 'Dikembalikan'], datasets: [{ data: [st.dipinjam, st.dikembalikan], backgroundColor: ['#f5a623', '#2ecc71'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+      });
+
+      if (CHART_DATA.byBook && CHART_DATA.byBook.length) {
+        const bb = labelsValues(CHART_DATA.byBook, 'nama');
+        new Chart(document.getElementById('chartBook'), {
+          type: 'bar',
+          data: { labels: bb.labels, datasets: [{ label: 'Jumlah Peminjaman', data: bb.values, backgroundColor: '#9b59b6aa', borderColor: '#9b59b6', borderWidth: 2, borderRadius: 6 }] },
+          options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
+        });
+      }
+
+      if (CHART_DATA.byMember && CHART_DATA.byMember.length) {
+        const bm = labelsValues(CHART_DATA.byMember, 'nama');
+        new Chart(document.getElementById('chartMember'), {
+          type: 'bar',
+          data: { labels: bm.labels, datasets: [{ label: 'Jumlah Peminjaman', data: bm.values, backgroundColor: '#1abc9caa', borderColor: '#1abc9c', borderWidth: 2, borderRadius: 6 }] },
+          options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } },
+        });
+      }
+
+      if (CHART_DATA.byCategory && CHART_DATA.byCategory.length) {
+        const cat = CHART_DATA.byCategory;
+        new Chart(document.getElementById('chartCategory'), {
+          type: 'pie',
+          data: { labels: cat.map((c) => c.kategori), datasets: [{ data: cat.map((c) => c.nilai), backgroundColor: PALETTE }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+        });
+      }
+    }
+  </script>
+</body>
+</html>

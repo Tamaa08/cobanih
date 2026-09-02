@@ -23,6 +23,7 @@ import {
   deleteTransaksi,
 } from '../controllers/transaksiController.js';
 import { showLaporan, generateLaporanPdf } from '../controllers/laporanController.js';
+import { showStatistik } from '../controllers/statistikController.js';
 import {
   showDenda,
   createDendaRusakHilang,
@@ -55,6 +56,8 @@ router.post('/transaksi/:id/delete', deleteTransaksi);
 
 router.get('/laporan', showLaporan);
 router.get('/laporan/pdf', generateLaporanPdf);
+
+router.get('/statistik', showStatistik);
 
 router.get('/denda', showDenda);
 router.post('/denda', createDendaRusakHilang);

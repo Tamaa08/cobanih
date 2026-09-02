@@ -67,6 +67,14 @@ Dokumentasi fungsi/endpoint penting pada aplikasi
 
 ---
 
+## 4d. Admin — Statistik & Grafik (`statistikController.js`)
+
+| Fungsi | Endpoint | Deskripsi |
+|---|---|---|
+| `showStatistik` | GET `/admin/statistik` | Render dashboard grafik: 5 grafik Chart.js (peminjaman 14 hari, status transaksi donut, top 10 buku, top 10 anggota, kategori pie), statistik denda (lunas/belum bayar), dan tabel **"Siapa yang Sedang Meminjam Buku"** (peminjam, kelas/NIS, jatuh tempo, sisa hari, penanda terlambat). |
+
+Semua halaman admin hanya bisa diakses role **admin** (`middleware/auth.js` → `isAdmin`); akses siswa diarahkan kembali ke login.
+
 ## 4c. Admin — Denda (`adminDendaController.js`)
 
 | Fungsi | Endpoint | Deskripsi |
@@ -89,7 +97,7 @@ Dokumentasi fungsi/endpoint penting pada aplikasi
 
 | Fungsi | Endpoint | Deskripsi |
 |---|---|---|
-| `showDashboardAdmin` | GET `/admin/dashboard` | Statistik (buku, anggota, dipinjam, dikembalikan) + transaksi terbaru. |
+| `showDashboardAdmin` | GET `/admin/dashboard` | Statistik (buku, anggota, dipinjam, dikembalikan) + grafik peminjaman 7 hari terakhir (Chart.js) + daftar **"Sedang Dipinjam Sekarang"** (siapa peminjam, sisa hari, penanda terlambat) + transaksi terbaru. |
 
 ---
 

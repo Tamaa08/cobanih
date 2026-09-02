@@ -16,6 +16,7 @@
         <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
         <a href="/admin/transaksi" class="nav-link">Transaksi</a>
         <a href="/admin/denda" class="nav-link">Denda</a>
+        <a href="/admin/statistik" class="nav-link">Statistik & Grafik</a>
         <a href="/admin/laporan" class="nav-link">Laporan</a>
       </nav>
       <div class="sidebar-user">
@@ -62,6 +63,44 @@
           </div>
         </div>
 
+        <div class="chart-grid">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>📈 Peminjaman 7 Hari Terakhir</h2>
+              <a href="/admin/statistik" class="btn btn-outline btn-sm">Grafik Lengkap</a>
+            </div>
+            <div class="chart-box">
+              <canvas id="chartWeek"></canvas>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <div class="card-header">
+              <h2>📌 Sedang Dipinjam Sekarang</h2>
+              <a href="/admin/transaksi" class="btn btn-outline btn-sm">Kelola</a>
+            </div>
+            <% if (activeLoans.length === 0) { %>
+              <div class="card-body empty">Tidak ada buku yang sedang dipinjam</div>
+            <% } else { %>
+              <ul class="loan-list">
+                <% activeLoans.forEach((t) => { %>
+                <li>
+                  <div class="loan-info">
+                    <strong><%= t.buku ? t.buku.judul : '-' %></strong>
+                    <span><%= t.anggota ? t.anggota.nama : '-' %> · <%= t.anggota ? t.anggota.kelas : '' %></span>
+                  </div>
+                  <% if (t.overdue) { %>
+                    <span class="badge badge-danger">Telat <%= Math.abs(t.sisaHari) %> hari</span>
+                  <% } else { %>
+                    <span class="badge badge-success">Sisa <%= t.sisaHari %> hari</span>
+                  <% } %>
+                </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </div>
+
         <div class="card">
           <div class="card-header">
             <h2>Transaksi Terbaru</h2>
@@ -103,5 +142,32 @@
       </div>
     </main>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    const WEEK = <%- JSON.stringify(chart).replace(/</g, '\\u003c') %>;
+    if (typeof Chart !== 'undefined' && WEEK.tokens.length) {
+      new Chart(document.getElementById('chartWeek'), {
+        type: 'bar',
+        data: {
+          labels: WEEK.tokens,
+          datasets: [{
+            label: 'Peminjaman',
+            data: WEEK.daily,
+            backgroundColor: '#3498db88',
+            borderColor: '#3498db',
+            borderWidth: 2,
+            borderRadius: 6,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+      });
+    }
+  </script>
 </body>
 </html>

@@ -20,6 +20,7 @@ keanggotaan siswa, transaksi peminjaman, dan pengembalian buku.
 8. **Role-Based Access Control** — siswa TIDAK dapat mengakses menu admin.
 9. **Rating & Deskripsi Buku** — siswa dapat memberi nilai bintang 1–5 (hanya untuk buku yang sudah dikembalikan) dan melihat rating rata-rata serta ringkasan/inti buku di halaman detail/katalog.
 10. **Denda** — siswa terlambat mengembalikan buku otomatis dikenakan **Rp 10.000 per hari**; buku rusak/hilang dikenakan **Rp 5.000.000** (dibuat admin). Denda muncul di akun siswa dan bisa dibayar dengan **Cash**, **QRIS**, atau **Transfer** (dengan tampilan barcode QRIS & rekening contoh).
+11. **Statistik & Grafik Admin** — halaman `/admin/statistik` menampilkan grafik interaktif Chart.js (peminjaman 14 hari, status transaksi donut, top 10 buku, top 10 anggota, kategori pie), ringkasan denda, dan tabel **"Siapa yang Sedang Meminjam Buku"**. Dashboard admin menampilkan grafik 7 hari + daftar **"Sedang Dipinjam Sekarang"**.
 
 ## Alur Sistem (Flowmap)
 
@@ -27,7 +28,7 @@ keanggotaan siswa, transaksi peminjaman, dan pengembalian buku.
 ```
 Login (admin) → Dashboard Admin
   → Kelola Data Buku (CRUD) ─┐
-  → Transaksi (CRUD)         ├─→ kembali ke menu (loop) → Logout
+  → Transaksi (CRUD)         ├─→ Statistik & Grafik → Laporan PDF → kembali (loop) → Logout
   → Kelola Anggota (CRUD)   ─┘
 ```
 
@@ -63,7 +64,12 @@ Sudah anggota? → Login → Dashboard Siswa
    - **Denda:** jika terlambat, otomatis muncul denda; siswa dapat membayar via
      Cash / QRIS / Transfer dan melihat status pembayaran.
    - **Riwayat:** menampilkan riwayat transaksi pribadi.
-6. **Validasi bisnis:**
+6. **Statistik & grafik admin:** agregasi otomatis dari tabel `transaksi` —
+   peminjaman per hari (7 & 14 hari terakhir), per buku (top 10), per anggota
+   (top 10), status transaksi, dan kategori; data disajikan sebagai grafik
+   interaktif Chart.js (library CDN) serta tabel peminjam aktif dengan penanda
+   keterlambatan.
+7. **Validasi bisnis:**
    - Menolak peminjaman bila stok habis / buku sedang dipinjam orang lain.
    - Menolak penghapusan buku/anggota yang masih memiliki peminjaman aktif.
    - Setiap peminjaman mengurangi stok; pengembalian menambah stok.
@@ -92,6 +98,7 @@ Sudah anggota? → Login → Dashboard Siswa
 | POST | `/admin/transaksi/:id/delete` | Hapus transaksi | Admin |
 | GET | `/admin/laporan` | Halaman form laporan | Admin |
 | GET | `/admin/laporan/pdf` | Generate/download PDF laporan | Admin |
+| GET | `/admin/statistik` | Statistik & grafik peminjaman | Admin |
 | GET | `/user/dashboard` | Dashboard siswa | Siswa |
 | GET | `/user/katalog` | Katalog + pencarian buku | Siswa |
 | GET | `/user/buku/:id` | Detail buku + form rating | Siswa |

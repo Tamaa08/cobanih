@@ -19,6 +19,21 @@ const contexts = {
     stats: { totalBuku: 1, totalAnggota: 1, totalPeminjaman: 1, totalSelesai: 1 },
     totalDendaBelum: 1, nominalDendaBelum: 10000,
     recentTrx: [{ buku: { judul: 'B1' }, anggota: { nama: 'A' }, tanggal_pinjam: new Date().toISOString(), status: 'dipinjam' }],
+    activeLoans: [{ buku: { judul: 'B1' }, anggota: { nama: 'A', kelas: 'X' }, tanggal_kembali: new Date().toISOString(), overdue: false, sisaHari: 3 }],
+    chart: { tokens: ['01 Sep', '02 Sep'], daily: [1, 0] },
+  },
+  'admin/statistik.ejs': {
+    title: 'Statistik', currentUser: sampleUser,
+    totalTransaksi: 5, totalDipinjam: 2, totalDikembalikan: 3,
+    topBook: { nama: 'B1', count: 3 },
+    dendaStats: { belum: 1, lunas: 2, nominalBelum: 10000, nominalLunas: 20000 },
+    formatRupiah: (v) => v.toLocaleString('id-ID'),
+    chart: {
+      labels: ['01 Sep', '02 Sep'], daily: [1, 1],
+      byBook: [{ nama: 'B1', count: 3 }], byMember: [{ nama: 'Budi', count: 2 }],
+      status: { dipinjam: 2, dikembalikan: 3 }, byCategory: [{ kategori: 'Fiksi', nilai: 2 }],
+    },
+    loans: [{ id: 1, buku: { judul: 'B1', cover_url: null }, anggota: { nama: 'Budi', nis: 'N', kelas: 'X' }, tanggal_pinjam: new Date().toISOString(), tanggal_kembali: new Date().toISOString(), overdue: false, sisaHari: 3 }],
   },
   'admin/buku.ejs': {
     title: 'Buku', currentUser: sampleUser, buku: [{ id: 1, judul: 'J', penulis: 'P', kategori: 'K', stok: 2, lokasi: 'L', cover_url: null, rating: 4.2, rating_count: 3, deskripsi: 'Desc' }],
