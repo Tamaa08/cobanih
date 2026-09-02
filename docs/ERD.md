@@ -9,7 +9,7 @@ berbasis PostgreSQL (Supabase).
 │ ├─ id (UUID, PK)                                           │
 │ ├─ username (VARCHAR, UNIQUE)                              │
 │ ├─ password_hash (TEXT)                                    │
-│ ├─ role (VARCHAR: 'admin'|'siswa')                         │
+│ ├─ role (VARCHAR: 'admin'|'petugas'|'siswa')               │
 │ ├─ nama (VARCHAR)                                          │
 │ ├─ kelas (VARCHAR)                                         │
 │ ├─ nis (VARCHAR)                                           │
@@ -97,7 +97,7 @@ berbasis PostgreSQL (Supabase).
 
 ## Constraint Penting
 
-- `role` dibatasi `'admin'` / `'siswa'` (CHECK).
+- `role` dibatasi `'admin'` / `'petugas'` / `'siswa'` (CHECK). Admin bisa kelola akun staf (`/admin/akun`); petugas bisa mengakses semua halaman admin kecuali Kelola Akun.
 - `status` anggota dibatasi `'aktif'` / `'nonaktif'`.
 - `status` transaksi dibatasi `'dipinjam'` / `'dikembalikan'`.
 - `stok >= 0` (CHECK) — mencegah stok negatif.

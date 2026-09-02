@@ -1,14 +1,8 @@
 import { supabase } from '../config/db.js';
 import PDFDocument from 'pdfkit';
+import * as XLSX from 'xlsx';
 
-export async function showLaporan(req, res) {
-  const message = req.session.message || null;
-  const error = req.session.error || null;
-  delete req.session.message;
-  delete req.session.error;
-
-  res.render('admin/laporan', { message, error, title: 'Laporan Peminjaman Buku' });
-}
+const STATUS_LABEL = { dipinjam: 'Dipinjam', dikembalikan: 'Dikembalikan' };
 
 function parseDate(value) {
   if (!value) return null;
@@ -37,30 +31,144 @@ function fmtTanggalOnly(value) {
   });
 }
 
-export async function generateLaporanPdf(req, res) {
-  const { tanggal_mulai, tanggal_selesai, status } = req.query;
-
+async function queryLaporan({ tanggal_mulai, tanggal_selesai, status }) {
   const mulai = parseDate(tanggal_mulai);
   const selesai = parseDate(tanggal_selesai);
 
+  let query = supabase
+    .from('transaksi')
+    .select('*, buku(judul, penulis, kategori), anggota(nama, nis, kelas)')
+    .order('tanggal_pinjam', { ascending: false });
+
+  if (mulai) query = query.gte('tanggal_pinjam', mulai.toISOString());
+  if (selesai) {
+    const end = new Date(selesai);
+    end.setDate(end.getDate() + 1); // sampai akhir hari
+    query = query.lte('tanggal_pinjam', end.toISOString());
+  }
+  if (status) query = query.eq('status', status);
+
+  const { data: transaksi, error: err } = await query;
+  if (err) throw err;
+  return { data: transaksi || [], mulai, selesai, status };
+}
+
+function namaFile(prefix, mulai, selesai, ext) {
+  return `${prefix}-${mulai ? mulai.toISOString().slice(0, 10) : 'semua'}-${selesai ? selesai.toISOString().slice(0, 10) : 'semua'}.${ext}`;
+}
+
+export async function showLaporan(req, res) {
+  const message = req.session.message || null;
+  const error = req.session.error || null;
+  delete req.session.message;
+  delete req.session.error;
+
+  res.render('admin/laporan', { message, error, title: 'Laporan Peminjaman Buku' });
+}
+
+export async function generateLaporanExcel(req, res) {
   try {
-    let query = supabase
-      .from('transaksi')
-      .select('*, buku(judul, penulis, kategori), anggota(nama, nis, kelas)')
-      .order('tanggal_pinjam', { ascending: false });
+    const { data, mulai, selesai } = await queryLaporan(req.query);
 
-    if (mulai) query = query.gte('tanggal_pinjam', mulai.toISOString());
-    if (selesai) {
-      const end = new Date(selesai);
-      end.setDate(end.getDate() + 1); // sampai akhir hari
-      query = query.lte('tanggal_pinjam', end.toISOString());
-    }
-    if (status) query = query.eq('status', status);
+    const periode = mulai || selesai
+      ? `${mulai ? fmtTanggalOnly(mulai) : 'Awal'} s/d ${selesai ? fmtTanggalOnly(selesai) : 'Sekarang'}`
+      : 'Semua Periode';
 
-    const { data: transaksi, error: err } = await query;
-    if (err) throw err;
+    const totalDenda = data.reduce((s, t) => {
+      if (t.status === 'dipinjam' && t.tanggal_kembali && new Date(t.tanggal_kembali).getTime() < Date.now()) {
+        const telat = Math.ceil((Date.now() - new Date(t.tanggal_kembali).getTime()) / (1000 * 60 * 60 * 24));
+        return s + Math.max(0, telat) * 10000;
+      }
+      return s;
+    }, 0);
 
-    const data = transaksi || [];
+    const wsData = [
+      ['LAPORAN TRANSAKSI PERPUSTAKAAN SMA N 1 SLEMAN'],
+      [`Periode: ${periode}`],
+      [`Total Transaksi: ${data.length}`, `Total Denda: Rp ${totalDenda.toLocaleString('id-ID')}`],
+      [],
+      ['No', 'Tgl Pinjam', 'Jatuh Tempo', 'Tgl Kembali', 'Peminjam', 'Kelas', 'Buku', 'Status', 'Denda'],
+    ];
+
+    data.forEach((t, i) => {
+      wsData.push([
+        i + 1,
+        fmtTanggalOnly(t.tanggal_pinjam),
+        fmtTanggalOnly(t.tanggal_kembali),
+        t.tanggal_kembali_aktual ? fmtTanggalOnly(t.tanggal_kembali_aktual) : '-',
+        t.anggota ? t.anggota.nama : '-',
+        t.anggota ? t.anggota.kelas : '-',
+        t.buku ? t.buku.judul : '-',
+        STATUS_LABEL[t.status] || t.status,
+        'Rp ' + formatRupiah(dendaTransaksi(t)),
+      ]);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{ wch: 5 }, ...[{ wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 22 }, { wch: 12 }, { wch: 34 }, { wch: 14 }, { wch: 14 }]];
+    XLSX.utils.book_append_sheet(wb, ws, 'Transaksi');
+
+    const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${namaFile('laporan-transaksi', mulai, selesai, 'xlsx')}"`);
+    res.send(buffer);
+  } catch (e) {
+    res.status(500).send('Gagal membuat laporan Excel: ' + e.message);
+  }
+}
+
+export async function renderLaporanCetak(req, res) {
+  try {
+    const { data, mulai, selesai, status } = await queryLaporan(req.query);
+    const rows = data.map((t) => ({ ...t, denda_total: dendaTransaksi(t) }));
+    const totalDenda = rows.reduce((s, t) => s + t.denda_total, 0);
+    const dipinjam = rows.filter((t) => t.status === 'dipinjam').length;
+    const dikembalikan = rows.filter((t) => t.status === 'dikembalikan').length;
+
+    res.render('admin/laporan-cetak', {
+      data: rows,
+      total: rows.length,
+      dipinjam,
+      dikembalikan,
+      totalDenda,
+      statusLabel: status || 'Semua',
+      tanggalCetak: new Date().toLocaleDateString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      mulai: mulai ? fmtTanggalOnly(mulai) : 'Awal',
+      selesai: selesai ? fmtTanggalOnly(selesai) : 'Sekarang',
+    });
+  } catch (e) {
+    res.status(500).send('Gagal membuat halaman cetak: ' + e.message);
+  }
+}
+
+function dendaTransaksi(t) {
+  if (t.status === 'dipinjam' && t.tanggal_kembali && new Date(t.tanggal_kembali).getTime() < Date.now()) {
+    const telat = Math.ceil((Date.now() - new Date(t.tanggal_kembali).getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, telat) * 10000;
+  }
+  if (t.status === 'dikembalikan' && t.tanggal_kembali_aktual && t.tanggal_kembali) {
+    const telat = Math.ceil((new Date(t.tanggal_kembali_aktual).getTime() - new Date(t.tanggal_kembali).getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(0, telat) * 10000;
+  }
+  return 0;
+}
+
+function formatRupiah(n) {
+  return (n || 0).toLocaleString('id-ID');
+}
+
+export async function generateLaporanPdf(req, res) {
+  try {
+    const { data, mulai, selesai } = await queryLaporan(req.query);
+    const transaksi = data;
 
     const doc = new PDFDocument({ size: 'A4', margins: { top: 45, bottom: 45, left: 40, right: 40 } });
 
@@ -76,13 +184,19 @@ export async function generateLaporanPdf(req, res) {
       .font('Helvetica-Bold')
       .fontSize(16)
       .fillColor('#1e3f73')
-      .text('PERPUSTAKAAN SEKOLAH DIGITAL', { align: 'center' })
+      .text('PERPUSTAKAAN SMA N 1 SLEMAN', { align: 'center' })
       .moveDown(0.2);
     doc
       .font('Helvetica')
       .fontSize(11)
       .fillColor('#333')
       .text('LAPORAN PEMINJAMAN BUKU', { align: 'center' })
+      .moveDown(0.2);
+    doc
+      .font('Helvetica')
+      .fontSize(10)
+      .fillColor('#666')
+      .text('SMA Negeri 1 Sleman · Jl. Kemasan No. 36, Triharjo, Sleman, Yogyakarta', { align: 'center' })
       .moveDown(0.4);
 
     const periode = `Periode: ${mulai ? fmtTanggalOnly(mulai) : 'Awal'} s/d ${selesai ? fmtTanggalOnly(selesai) : 'Sekarang'}`;

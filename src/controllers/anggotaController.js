@@ -100,15 +100,34 @@ export async function renderEditAnggota(req, res) {
 
 export async function updateAnggota(req, res) {
   const { id } = req.params;
-  const { nama, kelas, nis, status } = req.body;
+  const { nama, kelas, nis, status, password } = req.body;
 
   try {
+    if (password && password.length > 0 && password.length < 6) {
+      req.session.error = 'Password baru minimal 6 karakter';
+      return res.redirect('/admin/anggota/' + id + '/edit');
+    }
+
     const { error: err } = await supabase
       .from('anggota')
       .update({ nama, kelas, nis, status })
       .eq('id', id);
 
     if (err) throw err;
+
+    if (password && password.length > 0) {
+      const { data: anggota } = await supabase.from('anggota').select('user_id').eq('id', id).single();
+      if (anggota && anggota.user_id) {
+        const bcrypt = (await import('bcryptjs')).default;
+        const passwordHash = await bcrypt.hash(password, 10);
+        const { error: pwdErr } = await supabase
+          .from('users')
+          .update({ password_hash: passwordHash })
+          .eq('id', anggota.user_id);
+        if (pwdErr) throw pwdErr;
+      }
+    }
+
     req.session.message = 'Anggota berhasil diperbarui';
   } catch (e) {
     req.session.error = 'Gagal memperbarui anggota: ' + e.message;

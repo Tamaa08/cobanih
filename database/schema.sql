@@ -9,13 +9,13 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ------------------------------------------------------------
 -- Tabel : users (autentikasi & role)
--- role : 'admin' atau 'siswa'
+-- role : 'admin', 'petugas', atau 'siswa'
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'siswa')),
+    role VARCHAR(10) NOT NULL CHECK (role IN ('admin', 'petugas', 'siswa')),
     nama VARCHAR(100),
     kelas VARCHAR(20),
     nis VARCHAR(20),
@@ -53,6 +53,9 @@ CREATE TABLE IF NOT EXISTS buku (
     deskripsi TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Kolom ISBN (untuk pencarian buku berdasarkan ISBN)
+ALTER TABLE buku ADD COLUMN IF NOT EXISTS isbn VARCHAR(30);
 
 -- ------------------------------------------------------------
 -- Tabel : rating (penilaian buku oleh anggota)
@@ -154,17 +157,23 @@ CREATE INDEX IF NOT EXISTS idx_denda_status ON denda(status);
 
 -- ============================================================
 -- Password default:
---   admin  -> admin123
---   budi   -> budi123
+--   admin   -> smasleman1
+--   petugas1 -> petugassma1
+--   budi    -> budi123
 -- Hashes di bawah adalah bcrypt (10 rounds) dari password tersebut.
 -- ============================================================
 
 -- 1) Buat User Admin
 INSERT INTO users (username, password_hash, role, nama)
-VALUES ('admin', '$2b$10$Z8g/jwzTwk7kErMY82Z/VOphQs22VU1LA3mfTIJOhYymo2O/GLTp.', 'admin', 'Administrator')
+VALUES ('admin', '$2a$10$3SWKMUib4aPGhEKKXDHdf.aHleUTYYnAVkeNRg0Cyd5Xyb6qsNF.m', 'admin', 'Administrator')
 ON CONFLICT (username) DO NOTHING;
 
--- 2) Buat User Siswa (buddi)
+-- 2) Buat User Petugas
+INSERT INTO users (username, password_hash, role, nama)
+VALUES ('petugas1', '$2a$10$N3sUDDBZ6z1cYO4GRcLTXeOzrfZoUKO4rIY5jql3OvsUPDdd36LJC', 'petugas', 'Petugas Perpustakaan')
+ON CONFLICT (username) DO NOTHING;
+
+-- 3) Buat User Siswa (budi)
 INSERT INTO users (username, password_hash, role, nama, kelas, nis)
 VALUES ('budi', '$2b$10$hjHfs0zWQYuvBYER19McjuZnVnFhsoUiEkwxrvEjn2zf7Jud10Wom', 'siswa', 'Budi Santoso', 'XI RPL 1', '20230001')
 ON CONFLICT (username) DO NOTHING;
@@ -184,15 +193,15 @@ VALUES (NULL, 'Andi Wijaya', 'X RPL 2', '20230003')
 ON CONFLICT (nis) DO NOTHING;
 
 -- 3) Data contoh buku
-INSERT INTO buku (judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, rating, rating_count, deskripsi) VALUES
-  ('Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2005, 'Fiksi', 5, 'Rak A-1', 4.8, 12, 'Novel ikonik yang menceritakan perjuangan sejumlah anak Belitung dalam mengejar pendidikan di SD Muhammadiyah yang sederhana. Intinya: semangat, persahabatan, dan tekad melawan keterbatasan demi meraih mimpi.'),
-  ('Bumi Manusia', 'Pramoedya Ananta Toer', 'Hasta Mitra', 1980, 'Fiksi', 3, 'Rak A-2', 4.7, 9, 'Novel sejarah kolonial tentang Minke, pemuda pribumi terdidik di era Hindia Belanda. Intinya: kritik terhadap kolonialisme, diskriminasi rasial, dan pencarian jati diri bangsa.'),
-  ('Filosofi Teras', 'Henry Manampiring', 'Kompas', 2018, 'Nonfiksi', 4, 'Rak B-1', 4.6, 8, 'Buku praktis tentang filsafat Stoisisme yang relevan untuk kehidupan modern. Intinya: mengendalikan apa yang bisa dikendalikan, menjaga ketenangan batin, dan tidak larut dalam hal di luar kendali.'),
-  ('Atomic Habits', 'James Clear', 'Avery', 2018, 'Pengembangan Diri', 2, 'Rak B-2', 4.7, 10, 'Buku pengembangan diri tentang kekuatan kebiasaan kecil. Intinya: perubahan besar datang dari perbaikan 1% setiap hari secara konsisten, bukan dari tujuan besar yang instan.'),
-  ('Negeri 5 Menara', 'Ahmad Fuadi', 'Gramedia', 2009, 'Fiksi', 6, 'Rak A-3', 4.6, 7, 'Kisah enam sahabat santri di Pondok Madani yang masing-masing bermimpi menaklukkan dunia. Intinya: semangat pantang menyerah dengan prinsip "Man Jadda Wajada" (siapa yang bersungguh-sungguh pasti berhasil).'),
-  ('Sang Pemimpi', 'Andrea Hirata', 'Bentang Pustaka', 2006, 'Fiksi', 4, 'Rak A-1', 4.5, 6, 'Sekuel Laskar Pelangi tentang Ikal, Arai, dan Jimbron yang bermimpi besar dari Belitung untuk melanjutkan pendidikan sampai ke luar negeri. Intinya: keberanian bermimpi besar dan setia kawan.'),
-  ('Matematika Informatika', 'Rinaldi Munir', 'Informatika', 2016, 'Teknologi', 2, 'Rak C-1', 4.3, 5, 'Buku teks matematika diskrit untuk mahasiswa informatika. Intinya: dasar-dasar logika, himpunan, relasi, graf, dan kombinatorik sebagai fondasi berpikir komputasional.'),
-  ('Pemrograman Web', 'Budi Raharjo', 'Informatika', 2020, 'Teknologi', 3, 'Rak C-2', 4.4, 6, 'Buku pemrograman web praktis untuk pemula. Intinya: langkah demi langkah membangun aplikasi web dinamis dari dasar, mulai dari HTML, CSS, PHP, hingga MySQL.');
+INSERT INTO buku (judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, rating, rating_count, deskripsi, isbn) VALUES
+  ('Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2005, 'Fiksi', 5, 'Rak A-1', 4.8, 12, 'Novel ikonik yang menceritakan perjuangan sejumlah anak Belitung dalam mengejar pendidikan di SD Muhammadiyah yang sederhana. Intinya: semangat, persahabatan, dan tekad melawan keterbatasan demi meraih mimpi.', '978-979-3062-92-1'),
+  ('Bumi Manusia', 'Pramoedya Ananta Toer', 'Hasta Mitra', 1980, 'Fiksi', 3, 'Rak A-2', 4.7, 9, 'Novel sejarah kolonial tentang Minke, pemuda pribumi terdidik di era Hindia Belanda. Intinya: kritik terhadap kolonialisme, diskriminasi rasial, dan pencarian jati diri bangsa.', '978-979-9731-23-4'),
+  ('Filosofi Teras', 'Henry Manampiring', 'Kompas', 2018, 'Nonfiksi', 4, 'Rak B-1', 4.6, 8, 'Buku praktis tentang filsafat Stoisisme yang relevan untuk kehidupan modern. Intinya: mengendalikan apa yang bisa dikendalikan, menjaga ketenangan batin, dan tidak larut dalam hal di luar kendali.', '978-602-412-518-9'),
+  ('Atomic Habits', 'James Clear', 'Avery', 2018, 'Pengembangan Diri', 2, 'Rak B-2', 4.7, 10, 'Buku pengembangan diri tentang kekuatan kebiasaan kecil. Intinya: perubahan besar datang dari perbaikan 1% setiap hari secara konsisten, bukan dari tujuan besar yang instan.', '978-073-521-129-2'),
+  ('Negeri 5 Menara', 'Ahmad Fuadi', 'Gramedia', 2009, 'Fiksi', 6, 'Rak A-3', 4.6, 7, 'Kisah enam sahabat santri di Pondok Madani yang masing-masing bermimpi menaklukkan dunia. Intinya: semangat pantang menyerah dengan prinsip "Man Jadda Wajada" (siapa yang bersungguh-sungguh pasti berhasil).', '978-979-2232-79-8'),
+  ('Sang Pemimpi', 'Andrea Hirata', 'Bentang Pustaka', 2006, 'Fiksi', 4, 'Rak A-1', 4.5, 6, 'Sekuel Laskar Pelangi tentang Ikal, Arai, dan Jimbron yang bermimpi besar dari Belitung untuk melanjutkan pendidikan sampai ke luar negeri. Intinya: keberanian bermimpi besar dan setia kawan.', '978-979-3062-94-5'),
+  ('Matematika Informatika', 'Rinaldi Munir', 'Informatika', 2016, 'Teknologi', 2, 'Rak C-1', 4.3, 5, 'Buku teks matematika diskrit untuk mahasiswa informatika. Intinya: dasar-dasar logika, himpunan, relasi, graf, dan kombinatorik sebagai fondasi berpikir komputasional.', '978-602-8758-63-5'),
+  ('Pemrograman Web', 'Budi Raharjo', 'Informatika', 2020, 'Teknologi', 3, 'Rak C-2', 4.4, 6, 'Buku pemrograman web praktis untuk pemula. Intinya: langkah demi langkah membangun aplikasi web dinamis dari dasar, mulai dari HTML, CSS, PHP, hingga MySQL.', '978-602-8758-64-2');
 
 -- Update untuk buku yang sudah ada di database lama (setelah migrasi kolom rating/deskripsi)
 UPDATE buku SET deskripsi = 'Novel ikonik yang menceritakan perjuangan sejumlah anak Belitung dalam mengejar pendidikan di SD Muhammadiyah yang sederhana. Intinya: semangat, persahabatan, dan tekad melawan keterbatasan demi meraih mimpi.', rating = 4.8, rating_count = 12 WHERE judul = 'Laskar Pelangi';

@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - Perpustakaan Sekolah</title>
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
       <nav class="sidebar-nav">
         <a href="/user/dashboard" class="nav-link active">Dashboard</a>
         <a href="/user/katalog" class="nav-link">Katalog Buku</a>
@@ -30,8 +30,26 @@
     <main class="main">
       <header class="topbar">
         <h1>Dashboard Siswa</h1>
-        <span class="badge badge-siswa">Siswa</span>
+        <div class="topbar-right">
+          <div class="live-clock" id="liveClock">--:--:-- WIB</div>
+          <span class="badge badge-siswa">Siswa</span>
+        </div>
       </header>
+
+      <script>
+        function tickClock() {
+          const el = document.getElementById('liveClock');
+          if (el) {
+            try {
+              el.textContent = new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB';
+            } catch (e) {
+              el.textContent = new Date().toLocaleTimeString('id-ID') + ' WIB';
+            }
+          }
+        }
+        tickClock();
+        setInterval(tickClock, 1000);
+      </script>
 
       <div class="content">
         <div class="card">

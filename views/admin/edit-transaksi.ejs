@@ -16,8 +16,8 @@
         <% } %>
         <a href="/admin/dashboard" class="nav-link">Dashboard</a>
         <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
-        <a href="/admin/anggota" class="nav-link active">Kelola Anggota</a>
-        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link active">Transaksi</a>
         <a href="/admin/denda" class="nav-link">Denda</a>
         <a href="/admin/statistik" class="nav-link">Statistik & Grafik</a>
         <a href="/admin/laporan" class="nav-link">Laporan</a>
@@ -30,40 +30,52 @@
         </form>
       </div>
     </aside>
+
     <main class="main">
       <header class="topbar">
-        <h1>Edit Anggota</h1>
+        <h1>Edit Transaksi</h1>
         <span class="badge <%= currentUser.role === 'petugas' ? 'badge-petugas' : 'badge-admin' %>"><%= currentUser.role === 'petugas' ? 'Petugas' : 'Admin' %></span>
       </header>
+
       <div class="content">
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
         <div class="card">
           <div class="card-header">
-            <h2>Form Edit Anggota</h2>
-            <a href="/admin/anggota" class="btn btn-outline btn-sm">Kembali</a>
+            <h2>Ubah Data Transaksi</h2>
+            <a href="/admin/transaksi" class="btn btn-outline btn-sm">← Kembali</a>
           </div>
-          <form action="/admin/anggota/<%= anggota.id %>/edit" method="POST" class="form-grid">
+          <form action="/admin/transaksi/<%= trx.id %>/edit" method="POST" class="form-grid">
             <div class="form-group">
-              <label>Nama Lengkap</label>
-              <input type="text" name="nama" value="<%= anggota.nama %>" required>
+              <label>Buku</label>
+              <input type="text" value="<%= trx.buku ? trx.buku.judul : '-' %>" disabled>
             </div>
             <div class="form-group">
-              <label>Kelas</label>
-              <input type="text" name="kelas" value="<%= anggota.kelas %>" required>
+              <label>Anggota</label>
+              <input type="text" value="<%= trx.anggota ? trx.anggota.nama : '-' %>" disabled>
             </div>
             <div class="form-group">
-              <label>NIS</label>
-              <input type="text" name="nis" value="<%= anggota.nis %>" required>
+              <label>Tanggal Pinjam</label>
+              <input type="date" name="tanggal_pinjam" value="<%= new Date(trx.tanggal_pinjam).toISOString().slice(0,10) %>" required>
             </div>
+            <div class="form-group">
+              <label>Jatuh Tempo</label>
+              <input type="date" name="tanggal_kembali" value="<%= new Date(trx.tanggal_kembali).toISOString().slice(0,10) %>" required>
+            </div>
+            <% if (trx.status === 'dikembalikan') { %>
+              <div class="form-group">
+                <label>Tanggal Dikembalikan</label>
+                <input type="date" name="tanggal_kembali_aktual" value="<%= trx.tanggal_kembali_aktual ? new Date(trx.tanggal_kembali_aktual).toISOString().slice(0,10) : '' %>">
+              </div>
+            <% } %>
             <div class="form-group">
               <label>Status</label>
               <select name="status">
-                <option value="aktif" <%= anggota.status === 'aktif' ? 'selected' : '' %>>Aktif</option>
-                <option value="nonaktif" <%= anggota.status === 'nonaktif' ? 'selected' : '' %>>Nonaktif</option>
+                <option value="dipinjam" <%= trx.status === 'dipinjam' ? 'selected' : '' %>>Dipinjam</option>
+                <option value="dikembalikan" <%= trx.status === 'dikembalikan' ? 'selected' : '' %>>Dikembalikan</option>
               </select>
-            </div>
-            <div class="form-group">
-              <label>Password baru (opsional — reset password akun siswa)</label>
-              <input type="password" name="password" minlength="6" placeholder="Kosongkan jika tidak diubah">
             </div>
             <div class="form-group form-group-full">
               <button type="submit" class="btn btn-primary">Simpan Perubahan</button>

@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Perpustakaan Sekolah</title>
+  <title>Login - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="auth-body">
   <div class="auth-card">
     <div class="auth-header">
       <div class="auth-logo">📚</div>
-      <h1>Perpustakaan Sekolah Digital</h1>
-      <p>Silakan login untuk melanjutkan</p>
+      <h1>Perpustakaan Digital SMA N 1 Sleman</h1>
+      <p>SMA Negeri 1 Sleman · Yogyakarta</p>
     </div>
 
     <% if (error) { %>
@@ -21,7 +21,14 @@
       <div class="alert alert-success"><%= message %></div>
     <% } %>
 
+    <div class="role-tabs">
+      <button type="button" class="role-tab active" data-role="siswa">Siswa</button>
+      <button type="button" class="role-tab" data-role="petugas">Petugas</button>
+      <button type="button" class="role-tab" data-role="admin">Admin</button>
+    </div>
+
     <form action="/login" method="POST" class="auth-form">
+      <input type="hidden" name="role" id="role-input" value="siswa">
       <div class="form-group">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required placeholder="Masukkan username">
@@ -38,5 +45,16 @@
       <a href="/register">Daftar di sini</a>
     </p>
   </div>
+
+  <script>
+    const roleInput = document.getElementById('role-input');
+    document.querySelectorAll('.role-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.role-tab').forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        roleInput.value = tab.dataset.role;
+      });
+    });
+  </script>
 </body>
 </html>

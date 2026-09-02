@@ -69,12 +69,17 @@ npm start
 ```
 Buka `http://localhost:3000`
 
-## Akun Demo (dari seed data)
+## Akun Demo (dari seed data / migrasi)
 
 | Role | Username | Password |
 |---|---|---|
-| Admin | `admin` | `admin123` |
+| Admin | `admin` | `smasleman1` |
+| Petugas | `petugas1` | `petugassma1` |
 | Siswa | `budi` | `budi123` |
+
+Setelah menambahkan role **petugas**, aktifkan kolom `isbn` (untuk pencarian ISBN), password admin baru,
+dan akun `petugas1` dengan menjalankan **`database/migration-petugas-sma.sql`** di SQL Editor Supabase
+(DDL migrasi tidak bisa dijalankan dari aplikasi).
 
 ## Fitur Laporan Peminjaman (PDF)
 
@@ -88,6 +93,10 @@ Admin dapat membuat **laporan peminjaman buku dalam format PDF** yang bisa di-do
 Isi laporan: header sekolah, periode & status filter, ringkasan (total/dipinjam/kembali),
 tabel transaksi (No, Buku, Anggota, Tanggal Pinjam, Tanggal Kembali, Status),
 dan lembar tanda tangan Kepala Perpustakaan.
+
+Selain PDF, admin juga bisa **Download Excel** (`/admin/laporan/excel`, format `.xlsx`)
+dan **Cetak Langsung** (`/admin/laporan/cetak`) — halaman HTML siap-print dengan ringkasan
+dan total denda.
 
 Untuk upload sampul buku: pada form tambah/edit buku, pilih gambar (JPG/PNG/WebP/GIF, max 5MB).
 Sampul otomatis muncul di daftar buku (admin) dan kartu buku (katalog/peminjaman siswa).

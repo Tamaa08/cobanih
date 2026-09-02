@@ -44,6 +44,7 @@ export async function deleteCoverImage(url) {
 
 export async function showBuku(req, res) {
   const search = req.query.search || '';
+  const kategori = req.query.kategori || '';
   const message = req.session.message || null;
   const error = req.session.error || null;
   delete req.session.message;
@@ -53,17 +54,25 @@ export async function showBuku(req, res) {
     let query = supabase.from('buku').select('*').order('judul', { ascending: true });
 
     if (search) {
-      query = query.or(`judul.ilike.%${search}%,kategori.ilike.%${search}%,penulis.ilike.%${search}%`);
+      query = query.or(`judul.ilike.%${search}%,kategori.ilike.%${search}%,penulis.ilike.%${search}%,isbn.ilike.%${search}%`);
+    }
+    if (kategori) {
+      query = query.eq('kategori', kategori);
     }
 
     const { data: buku, error: err } = await query;
     if (err) throw err;
 
-    res.render('admin/buku', { buku, search, message, error, title: 'Kelola Data Buku' });
+    const { data: katRows } = await supabase.from('buku').select('kategori');
+    const kategoriList = [...new Set((katRows || []).map((k) => k.kategori))].sort();
+
+    res.render('admin/buku', { buku, search, kategori, kategoriList, message, error, title: 'Kelola Data Buku' });
   } catch (e) {
     res.render('admin/buku', {
       buku: [],
       search,
+      kategori,
+      kategoriList: [],
       message: null,
       error: e.message,
       title: 'Kelola Data Buku',
@@ -72,7 +81,7 @@ export async function showBuku(req, res) {
 }
 
 export async function createBuku(req, res) {
-  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, rating } = req.body;
+  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, rating, isbn } = req.body;
 
   if (!judul || !penulis || !kategori || !stok) {
     req.session.error = 'Judul, penulis, kategori, dan stok wajib diisi';
@@ -109,6 +118,7 @@ export async function createBuku(req, res) {
         lokasi: lokasi || null,
         cover_url,
         deskripsi: deskripsi || null,
+        isbn: isbn || null,
         rating: initialRating,
         rating_count: initialCount,
       },
@@ -139,7 +149,7 @@ export async function renderEditBuku(req, res) {
 
 export async function updateBuku(req, res) {
   const { id } = req.params;
-  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi } = req.body;
+  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, isbn } = req.body;
 
   try {
     const { data: current } = await supabase.from('buku').select('cover_url').eq('id', id).single();
@@ -165,6 +175,7 @@ export async function updateBuku(req, res) {
         lokasi: lokasi || null,
         cover_url,
         deskripsi: deskripsi || null,
+        isbn: isbn || null,
       })
       .eq('id', id);
 

@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - Perpustakaan Sekolah</title>
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
       <nav class="sidebar-nav">
+        <% if (currentUser.role === 'admin') { %>
+        <a href="/admin/akun" class="nav-link">Kelola Akun</a>
+        <% } %>
         <a href="/admin/dashboard" class="nav-link">Dashboard</a>
         <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
         <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
@@ -20,7 +23,7 @@
         <a href="/admin/laporan" class="nav-link">Laporan</a>
       </nav>
       <div class="sidebar-user">
-        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-role"><%= currentUser.role === 'petugas' ? 'Petugas Perpustakaan' : 'Admin' %></span>
         <span class="sidebar-user-name"><%= currentUser.username %></span>
         <form action="/logout" method="POST">
           <button type="submit" class="btn btn-outline btn-sm">Logout</button>
@@ -31,7 +34,7 @@
     <main class="main">
       <header class="topbar">
         <h1><%= title %></h1>
-        <span class="badge badge-admin">Admin</span>
+        <span class="badge <%= currentUser.role === 'petugas' ? 'badge-petugas' : 'badge-admin' %>"><%= currentUser.role === 'petugas' ? 'Petugas' : 'Admin' %></span>
       </header>
 
       <div class="content">
@@ -75,6 +78,10 @@
               <label>Tanggal Pinjam</label>
               <input type="date" name="tanggal_pinjam">
             </div>
+            <div class="form-group">
+              <label>Jatuh Tempo (kosongkan = 7 hari)</label>
+              <input type="date" name="tanggal_kembali">
+            </div>
             <div class="form-group form-group-full">
               <button type="submit" class="btn btn-primary">Buat Peminjaman</button>
             </div>
@@ -85,9 +92,14 @@
           <div class="card-header">
             <h2>Daftar Transaksi</h2>
             <form action="/admin/transaksi" method="GET" class="search-form">
-              <input type="text" name="search" value="<%= search %>" placeholder="Cari ID/status...">
+              <input type="text" name="search" value="<%= search %>" placeholder="Cari ID/status/anggota...">
+              <select name="status" class="filter-select">
+                <option value="">Semua Status</option>
+                <option value="dipinjam" <%= status === 'dipinjam' ? 'selected' : '' %>>Dipinjam</option>
+                <option value="dikembalikan" <%= status === 'dikembalikan' ? 'selected' : '' %>>Dikembalikan</option>
+              </select>
               <button type="submit" class="btn btn-outline">Cari</button>
-              <% if (search) { %>
+              <% if (search || status) { %>
                 <a href="/admin/transaksi" class="btn btn-outline btn-sm">Reset</a>
               <% } %>
             </form>
@@ -122,6 +134,7 @@
                       </span>
                     </td>
                     <td class="actions">
+                      <a href="/admin/transaksi/<%= t.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
                       <% if (t.status === 'dipinjam') { %>
                         <form action="/admin/transaksi/<%= t.id %>/kembalikan" method="POST">
                           <button type="submit" class="btn btn-success btn-sm">Terima Pengembalian</button>
@@ -137,8 +150,8 @@
               </tbody>
             </table>
           </div>
-          <% if (search) { %>
-            <p class="text-muted"><%= transaksi.length %> hasil ditemukan untuk "<%= search %>"</p>
+          <% if (search || status) { %>
+            <p class="text-muted"><%= transaksi.length %> hasil ditemukan</p>
           <% } %>
         </div>
       </div>

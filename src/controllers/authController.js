@@ -5,8 +5,13 @@ export async function showLogin(req, res) {
   res.render('login', { error: null, message: null, title: 'Login' });
 }
 
+const ROLE_LABEL = { admin: 'Admin', petugas: 'Petugas', siswa: 'Siswa' };
+
 export async function login(req, res) {
-  const { username, password } = req.body;
+  const { username, password, role: selectedRole } = req.body;
+  const chosenRole = selectedRole === 'petugas' || selectedRole === 'admin' || selectedRole === 'siswa'
+    ? selectedRole
+    : null;
   let error = null;
 
   try {
@@ -29,16 +34,22 @@ export async function login(req, res) {
       return res.render('login', { error, message: null, title: 'Login' });
     }
 
+    if (chosenRole && user.role !== chosenRole) {
+      const pokok = chosenRole === 'siswa' ? 'login sebagai Siswa' : `pilih tab ${ROLE_LABEL[chosenRole]}`;
+      error = `Login role tidak cocok. Akun ini berperan ${ROLE_LABEL[user.role]}, silakan ${pokok} pada tab di atas.`;
+      return res.render('login', { error, message: null, title: 'Login' });
+    }
+
     req.session.user = {
       id: user.id,
       username: user.username,
       role: user.role,
     };
 
-    if (user.role === 'admin') {
-      return res.redirect('/admin/dashboard');
+    if (user.role === 'siswa') {
+      return res.redirect('/user/dashboard');
     }
-    return res.redirect('/user/dashboard');
+    return res.redirect('/admin/dashboard');
   } catch (e) {
     error = 'Terjadi kesalahan: ' + e.message;
     return res.render('login', { error, message: null, title: 'Login' });

@@ -2,6 +2,7 @@ import { supabase } from '../config/db.js';
 
 export async function showPeminjamanBooking(req, res) {
   const search = req.query.search || '';
+  const kategori = req.query.kategori || '';
   const message = req.session.message || null;
   const error = req.session.error || null;
   delete req.session.message;
@@ -21,23 +22,31 @@ export async function showPeminjamanBooking(req, res) {
       .order('judul', { ascending: true });
 
     if (search) {
-      query = query.or(`judul.ilike.%${search}%,kategori.ilike.%${search}%,penulis.ilike.%${search}%`);
+      query = query.or(`judul.ilike.%${search}%,kategori.ilike.%${search}%,penulis.ilike.%${search}%,isbn.ilike.%${search}%`);
+    }
+    if (kategori) {
+      query = query.eq('kategori', kategori);
     }
 
     const { data: buku, error: err } = await query;
     if (err) throw err;
 
+    const { data: katRows } = await supabase.from('buku').select('kategori');
+    const kategoriList = [...new Set((katRows || []).map((k) => k.kategori))].sort();
+
     const { data: sudahDipinjam, error: err2 } = await supabase
       .from('transaksi')
-      .select('id_buku')
+      .select('id_buku, id_anggota')
       .eq('status', 'dipinjam');
 
-    const pinjamIds = new Set((sudahDipinjam || []).map((t) => t.id_buku));
+    const pinjamIds = new Set((sudahDipinjam || []).filter((t) => t.id_anggota === anggota?.id).map((t) => t.id_buku));
 
     res.render('user/peminjaman', {
       buku,
       pinjamIds,
       search,
+      kategori,
+      kategoriList,
       message,
       error,
       title: 'Peminjaman Buku',
@@ -47,6 +56,8 @@ export async function showPeminjamanBooking(req, res) {
       buku: [],
       pinjamIds: new Set(),
       search,
+      kategori,
+      kategoriList: [],
       message: null,
       error: e.message,
       title: 'Peminjaman Buku',
@@ -56,9 +67,15 @@ export async function showPeminjamanBooking(req, res) {
 
 export async function createPeminjamanUser(req, res) {
   const { id_buku } = req.body;
+  const durasiHari = Math.floor(Number(req.body.durasi));
 
   if (!id_buku) {
     req.session.error = 'Buku belum dipilih';
+    return res.redirect('/user/peminjaman');
+  }
+
+  if (!Number.isFinite(durasiHari) || durasiHari < 1 || durasiHari > 30) {
+    req.session.error = 'Durasi peminjaman harus antara 1 sampai 30 hari';
     return res.redirect('/user/peminjaman');
   }
 
@@ -89,11 +106,12 @@ export async function createPeminjamanUser(req, res) {
       .from('transaksi')
       .select('id')
       .eq('id_buku', id_buku)
+      .eq('id_anggota', anggota.id)
       .eq('status', 'dipinjam')
       .maybeSingle();
 
     if (existing) {
-      req.session.error = 'Buku sedang dipinjam oleh orang lain';
+      req.session.error = 'Anda masih meminjam buku ini. Kembalikan dulu sebelum meminjam lagi';
       return res.redirect('/user/peminjaman');
     }
 
@@ -104,7 +122,8 @@ export async function createPeminjamanUser(req, res) {
 
     const now = new Date();
     const kembali = new Date(now);
-    kembali.setDate(kembali.getDate() + 7);
+    kembali.setDate(kembali.getDate() + durasiHari);
+    kembali.setHours(23, 59, 59, 999);
 
     const { error: err } = await supabase.from('transaksi').insert([
       {

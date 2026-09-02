@@ -2,6 +2,7 @@ import { supabase } from '../config/db.js';
 
 export async function showKatalog(req, res) {
   const search = req.query.search || '';
+  const kategori = req.query.kategori || '';
   const message = req.session.message || null;
   const error = req.session.error || null;
   delete req.session.message;
@@ -11,26 +12,42 @@ export async function showKatalog(req, res) {
     let query = supabase.from('buku').select('*').order('judul', { ascending: true });
 
     if (search) {
-      query = query.or(`judul.ilike.%${search}%,kategori.ilike.%${search}%,penulis.ilike.%${search}%`);
+      query = query.or(`judul.ilike.%${search}%,kategori.ilike.%${search}%,penulis.ilike.%${search}%,isbn.ilike.%${search}%`);
+    }
+    if (kategori) {
+      query = query.eq('kategori', kategori);
     }
 
     const { data: buku, error: err } = await query;
     if (err) throw err;
 
+    const { data: katRows } = await supabase.from('buku').select('kategori');
+    const kategoriList = [...new Set((katRows || []).map((k) => k.kategori))].sort();
+
+    const { data: anggota } = await supabase
+      .from('anggota')
+      .select('*')
+      .eq('user_id', req.session.user.id)
+      .maybeSingle();
+
     const { data: dipinjam, error: err2 } = await supabase
       .from('transaksi')
-      .select('id_buku')
+      .select('id_buku, id_anggota')
       .eq('status', 'dipinjam');
     if (err2) throw err2;
 
-    const pinjamIds = new Set((dipinjam || []).map((t) => t.id_buku));
+    const pinjamIds = new Set(
+      (dipinjam || []).filter((t) => t.id_anggota === anggota?.id).map((t) => t.id_buku)
+    );
 
-    res.render('user/katalog', { buku, pinjamIds, search, message, error, title: 'Katalog Buku' });
+    res.render('user/katalog', { buku, pinjamIds, search, kategori, kategoriList, message, error, title: 'Katalog Buku' });
   } catch (e) {
     res.render('user/katalog', {
       buku: [],
       pinjamIds: new Set(),
       search,
+      kategori,
+      kategoriList: [],
       message: null,
       error: e.message,
       title: 'Katalog Buku',
@@ -81,11 +98,11 @@ export async function showBukuDetail(req, res) {
 
     const { data: dipinjam, error: err2 } = await supabase
       .from('transaksi')
-      .select('id_buku')
+      .select('id_anggota')
       .eq('id_buku', id)
       .eq('status', 'dipinjam');
 
-    const terpinjam = dipinjam && dipinjam.length > 0;
+    const terpinjam = (dipinjam || []).some((t) => t.id_anggota === anggota?.id);
 
     res.render('user/detail', {
       buku,

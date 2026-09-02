@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { isAdmin } from '../middleware/auth.js';
+import { isStaff } from '../middleware/auth.js';
 import { uploadCover } from '../middleware/upload.js';
 import { showDashboardAdmin } from '../controllers/dashboardController.js';
 import {
@@ -20,9 +20,17 @@ import {
   showTransaksi,
   createPeminjamanAdmin,
   updateStatusPengembalian,
+  renderEditTransaksi,
+  updateTransaksi,
   deleteTransaksi,
 } from '../controllers/transaksiController.js';
-import { showLaporan, generateLaporanPdf } from '../controllers/laporanController.js';
+import { showLaporan, generateLaporanPdf, generateLaporanExcel, renderLaporanCetak } from '../controllers/laporanController.js';
+import {
+  showAkun,
+  createAkun,
+  updateAkun,
+  deleteAkun,
+} from '../controllers/akunController.js';
 import { showStatistik } from '../controllers/statistikController.js';
 import {
   showDenda,
@@ -33,7 +41,19 @@ import {
 
 const router = Router();
 
-router.use(isAdmin);
+// Admin ATAU Petugas dapat membuka halaman /admin/*
+router.use(isStaff);
+
+// Kelola akun Admin/Petugas: khusus Admin
+const adminOnly = (req, res, next) => {
+  if (req.session && req.session.user && req.session.user.role === 'admin') return next();
+  return res.redirect('/admin/dashboard');
+};
+
+router.get('/akun', adminOnly, showAkun);
+router.post('/akun', adminOnly, createAkun);
+router.post('/akun/:id/edit', adminOnly, updateAkun);
+router.post('/akun/:id/delete', adminOnly, deleteAkun);
 
 router.get('/dashboard', showDashboardAdmin);
 
@@ -51,11 +71,15 @@ router.post('/anggota/:id/delete', deleteAnggota);
 
 router.get('/transaksi', showTransaksi);
 router.post('/transaksi/peminjaman', createPeminjamanAdmin);
+router.get('/transaksi/:id/edit', renderEditTransaksi);
+router.post('/transaksi/:id/edit', updateTransaksi);
 router.post('/transaksi/:id/kembalikan', updateStatusPengembalian);
 router.post('/transaksi/:id/delete', deleteTransaksi);
 
 router.get('/laporan', showLaporan);
 router.get('/laporan/pdf', generateLaporanPdf);
+router.get('/laporan/excel', generateLaporanExcel);
+router.get('/laporan/cetak', renderLaporanCetak);
 
 router.get('/statistik', showStatistik);
 

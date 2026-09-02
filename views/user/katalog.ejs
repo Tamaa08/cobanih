@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - Perpustakaan Sekolah</title>
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
       <nav class="sidebar-nav">
         <a href="/user/dashboard" class="nav-link">Dashboard</a>
         <a href="/user/katalog" class="nav-link active">Katalog Buku</a>
@@ -51,9 +51,15 @@
           <div class="card-header">
             <h2>Cari Buku</h2>
             <form action="/user/katalog" method="GET" class="search-form">
-              <input type="text" name="search" value="<%= search %>" placeholder="Cari judul/kategori/penulis...">
+              <input type="text" name="search" value="<%= search %>" placeholder="Cari judul/kategori/penulis/isbn...">
+              <select name="kategori" class="filter-select">
+                <option value="">Semua Kategori</option>
+                <% kategoriList.forEach((k) => { %>
+                  <option value="<%= k %>" <%= kategori === k ? 'selected' : '' %>><%= k %></option>
+                <% }) %>
+              </select>
               <button type="submit" class="btn btn-outline">Cari</button>
-              <% if (search) { %>
+              <% if (search || kategori) { %>
                 <a href="/user/katalog" class="btn btn-outline btn-sm">Reset</a>
               <% } %>
             </form>
@@ -87,6 +93,7 @@
                     <% } %>
                     <p class="book-meta">
                       <span class="badge"><%= b.kategori %></span>
+                      <% if (b.isbn) { %><span class="badge">ISBN: <%= b.isbn %></span><% } %>
                       <span class="badge <%= b.stok > 0 ? 'badge-success' : 'badge-danger' %>">
                         Stok: <%= b.stok %>
                       </span>
@@ -95,8 +102,16 @@
                   <div class="book-actions">
                     <a href="/user/buku/<%= b.id %>" class="btn btn-outline btn-sm btn-block" style="margin-bottom:6px;">Detail & Rating</a>
                     <% if (b.stok > 0 && !pinjamIds.has(b.id)) { %>
-                      <form action="/user/peminjaman" method="POST">
+                      <form action="/user/peminjaman" method="POST" class="pinjam-form">
                         <input type="hidden" name="id_buku" value="<%= b.id %>">
+                        <div class="durasi-row">
+                          <label class="durasi-label">Durasi (hari)</label>
+                          <select name="durasi" class="durasi-select" required>
+                            <% for (let d = 1; d <= 30; d++) { %>
+                              <option value="<%= d %>" <%= d === 7 ? 'selected' : '' %>><%= d %> hari</option>
+                            <% } %>
+                          </select>
+                        </div>
                         <button type="submit" class="btn btn-primary btn-sm btn-block">Pinjam</button>
                       </form>
                     <% } else if (pinjamIds.has(b.id)) { %>
@@ -108,8 +123,8 @@
                 </div>
               <% }) %>
             </div>
-            <% if (search) { %>
-              <p class="text-muted"><%= buku.length %> hasil ditemukan untuk "<%= search %>"</p>
+            <% if (search || kategori) { %>
+              <p class="text-muted"><%= buku.length %> hasil ditemukan</p>
             <% } %>
           <% } %>
         </div>

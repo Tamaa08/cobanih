@@ -122,6 +122,29 @@ a:hover { text-decoration: underline; }
 .card-header h2 { font-size: 16px; color: var(--primary-dark); }
 .card-body { padding: 0 4px; }
 
+/* ===== Login role tabs ===== */
+.role-tabs {
+  display: flex;
+  background: var(--primary-light);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 18px;
+  gap: 4px;
+}
+.role-tab {
+  flex: 1;
+  padding: 9px 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  cursor: pointer;
+  transition: .15s;
+}
+.role-tab.active { background: var(--primary); color: #fff; box-shadow: var(--shadow); }
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -252,6 +275,7 @@ a:hover { text-decoration: underline; }
   color: var(--text-muted);
 }
 .badge-admin { background: var(--primary); color: #fff; }
+.badge-petugas { background: #6a5acd; color: #fff; }
 .badge-siswa { background: #3949ab; color: #fff; }
 .badge-success { background: var(--success-light); color: var(--success); }
 .badge-warning { background: var(--warning-light); color: var(--warning); }
@@ -518,3 +542,20 @@ a:hover { text-decoration: underline; }
   .payment-grid,
   .stats-grid { grid-template-columns: 1fr !important; }
 }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.topbar h1 { margin: 0; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.live-clock { font-variant-numeric: tabular-nums; background: #eef2f8; border: 1px solid #d8e0ec; color: #22365c; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; }
+.filter-select { padding: 8px 10px; border: 1px solid #d0d7e2; border-radius: 8px; background: #fff; font-size: 13px; }
+.durasi-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+.durasi-label { font-size: 12px; color: #55637a; }
+.durasi-select { padding: 5px 8px; border: 1px solid #d0d7e2; border-radius: 6px; font-size: 12px; }
+.pinjam-form select, .pinjam-form button { width: 100%; }
+.akun-edit { margin: 0 4px; }
+.akun-edit summary { cursor: pointer; list-style: none; }
+.akun-edit summary::-webkit-details-marker { display: none; }
+.akun-edit-form { margin-top: 8px; padding: 10px; border: 1px dashed #c8d2e2; border-radius: 8px; background: #f8fafd; min-width: 220px; }
+.akun-edit-form .form-group { margin-bottom: 8px; }
+.akun-edit-form .form-group label { display: block; font-size: 12px; color: #55637a; margin-bottom: 3px; }
+.akun-edit-form select, .akun-edit-form input { width: 100%; }

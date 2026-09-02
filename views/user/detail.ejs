@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - Perpustakaan Sekolah</title>
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
       <nav class="sidebar-nav">
         <a href="/user/dashboard" class="nav-link">Dashboard</a>
         <a href="/user/katalog" class="nav-link active">Katalog Buku</a>
@@ -65,6 +65,7 @@
               <span class="badge"><%= buku.kategori %></span>
               <span class="badge">Tahun: <%= buku.tahun_terbit || '-' %></span>
               <span class="badge">Penerbit: <%= buku.penerbit || '-' %></span>
+              <% if (buku.isbn) { %><span class="badge">ISBN: <%= buku.isbn %></span><% } %>
               <span class="badge <%= buku.stok > 0 ? 'badge-success' : 'badge-danger' %>">Stok: <%= buku.stok %></span>
             </p>
 
@@ -88,8 +89,16 @@
 
             <div class="detail-actions">
               <% if (buku.stok > 0 && !terpinjam) { %>
-                <form action="/user/peminjaman" method="POST">
+                <form action="/user/peminjaman" method="POST" class="pinjam-form detail-pinjam">
                   <input type="hidden" name="id_buku" value="<%= buku.id %>">
+                  <div class="durasi-row">
+                    <label class="durasi-label">Durasi pinjam (hari)</label>
+                    <select name="durasi" class="durasi-select" required>
+                      <% for (let d = 1; d <= 30; d++) { %>
+                        <option value="<%= d %>" <%= d === 7 ? 'selected' : '' %>><%= d %> hari</option>
+                      <% } %>
+                    </select>
+                  </div>
                   <button type="submit" class="btn btn-primary">📖 Pinjam Buku Ini</button>
                 </form>
               <% } else if (terpinjam) { %>

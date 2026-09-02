@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> - Perpustakaan Sekolah</title>
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
       <nav class="sidebar-nav">
+        <% if (currentUser.role === 'admin') { %>
+        <a href="/admin/akun" class="nav-link">Kelola Akun</a>
+        <% } %>
         <a href="/admin/dashboard" class="nav-link">Dashboard</a>
         <a href="/admin/buku" class="nav-link active">Kelola Data Buku</a>
         <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
@@ -20,7 +23,7 @@
         <a href="/admin/laporan" class="nav-link">Laporan</a>
       </nav>
       <div class="sidebar-user">
-        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-role"><%= currentUser.role === 'petugas' ? 'Petugas Perpustakaan' : 'Admin' %></span>
         <span class="sidebar-user-name"><%= currentUser.username %></span>
         <form action="/logout" method="POST">
           <button type="submit" class="btn btn-outline btn-sm">Logout</button>
@@ -31,7 +34,7 @@
     <main class="main">
       <header class="topbar">
         <h1><%= title %></h1>
-        <span class="badge badge-admin">Admin</span>
+        <span class="badge <%= currentUser.role === 'petugas' ? 'badge-petugas' : 'badge-admin' %>"><%= currentUser.role === 'petugas' ? 'Petugas' : 'Admin' %></span>
       </header>
 
       <div class="content">
@@ -74,6 +77,10 @@
               <input type="text" name="kategori" required placeholder="Mis. Fiksi, Sains">
             </div>
             <div class="form-group">
+              <label>ISBN</label>
+              <input type="text" name="isbn" placeholder="Mis. 978-979-3062-92-1">
+            </div>
+            <div class="form-group">
               <label>Stok</label>
               <input type="number" name="stok" min="0" required>
             </div>
@@ -103,9 +110,15 @@
           <div class="card-header">
             <h2>Daftar Buku</h2>
             <form action="/admin/buku" method="GET" class="search-form">
-              <input type="text" name="search" value="<%= search %>" placeholder="Cari judul/kategori/penulis...">
+              <input type="text" name="search" value="<%= search %>" placeholder="Cari judul/kategori/penulis/isbn...">
+              <select name="kategori" class="filter-select">
+                <option value="">Semua Kategori</option>
+                <% kategoriList.forEach((k) => { %>
+                  <option value="<%= k %>" <%= kategori === k ? 'selected' : '' %>><%= k %></option>
+                <% }) %>
+              </select>
               <button type="submit" class="btn btn-outline">Cari</button>
-              <% if (search) { %>
+              <% if (search || kategori) { %>
                 <a href="/admin/buku" class="btn btn-outline btn-sm">Reset</a>
               <% } %>
             </form>
@@ -117,6 +130,7 @@
                   <th>No</th>
                   <th>Sampul</th>
                   <th>Judul</th>
+                  <th>ISBN</th>
                   <th>Kategori</th>
                   <th>Rating</th>
                   <th>Deskripsi</th>
@@ -126,7 +140,7 @@
               </thead>
               <tbody>
                 <% if (buku.length === 0) { %>
-                  <tr><td colspan="8" class="empty">Tidak ada buku ditemukan</td></tr>
+                  <tr><td colspan="9" class="empty">Tidak ada buku ditemukan</td></tr>
                 <% } else { %>
                   <% buku.forEach((b, i) => { %>
                   <tr>
@@ -139,6 +153,7 @@
                       <% } %>
                     </td>
                     <td><strong><%= b.judul %></strong><br><small class="text-muted"><%= b.penulis %></small></td>
+                    <td><%= b.isbn || '-' %></td>
                     <td><%= b.kategori %></td>
                     <td>
                       <div class="stars">
@@ -163,8 +178,8 @@
               </tbody>
             </table>
           </div>
-          <% if (search) { %>
-            <p class="text-muted"><%= buku.length %> hasil ditemukan untuk "<%= search %>"</p>
+          <% if (search || kategori) { %>
+            <p class="text-muted"><%= buku.length %> hasil ditemukan</p>
           <% } %>
         </div>
       </div>

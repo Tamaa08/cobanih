@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
+      <nav class="sidebar-nav">
+        <% if (currentUser.role === 'admin') { %>
+        <a href="/admin/akun" class="nav-link active">Kelola Akun</a>
+        <% } %>
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+        <a href="/admin/denda" class="nav-link">Denda</a>
+        <a href="/admin/statistik" class="nav-link">Statistik & Grafik</a>
+        <a href="/admin/laporan" class="nav-link">Laporan</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role"><%= currentUser.role === 'petugas' ? 'Petugas Perpustakaan' : 'Admin' %></span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1><%= title %></h1>
+        <span class="badge <%= currentUser.role === 'petugas' ? 'badge-petugas' : 'badge-admin' %>"><%= currentUser.role === 'petugas' ? 'Petugas' : 'Admin' %></span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Tambah Akun Admin / Petugas</h2>
+          </div>
+          <form action="/admin/akun" method="POST" class="form-grid">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" name="username" required placeholder="Username">
+            </div>
+            <div class="form-group">
+              <label>Nama Lengkap</label>
+              <input type="text" name="nama" required placeholder="Nama lengkap">
+            </div>
+            <div class="form-group">
+              <label>Password (min. 6 karakter)</label>
+              <input type="password" name="password" required placeholder="Password baru">
+            </div>
+            <div class="form-group">
+              <label>Peran</label>
+              <select name="role">
+                <option value="petugas">Petugas</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="form-group form-group-full">
+              <button type="submit" class="btn btn-primary">Simpan Akun</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Daftar Akun Admin & Petugas</h2>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Username</th>
+                  <th>Nama</th>
+                  <th>Peran</th>
+                  <th>Dibuat</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (akun.length === 0) { %>
+                  <tr><td colspan="6" class="empty">Belum ada akun staf</td></tr>
+                <% } else { %>
+                  <% akun.forEach((a, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td><strong><%= a.username %></strong><% if (a.id === currentUser.id) { %> <span class="badge badge-petugas">Anda</span><% } %></td>
+                    <td><%= a.nama || '-' %></td>
+                    <td><span class="badge <%= a.role === 'admin' ? 'badge-admin' : 'badge-petugas' %>"><%= a.role %></span></td>
+                    <td><%= new Date(a.created_at).toLocaleDateString('id-ID') %></td>
+                    <td class="actions">
+                      <details class="akun-edit">
+                        <summary class="btn btn-outline btn-sm">Ubah</summary>
+                        <form action="/admin/akun/<%= a.id %>/edit" method="POST" class="akun-edit-form">
+                          <div class="form-group">
+                            <label>Nama</label>
+                            <input type="text" name="nama" value="<%= a.nama || '' %>" required>
+                          </div>
+                          <div class="form-group">
+                            <label>Peran</label>
+                            <select name="role">
+                              <option value="petugas" <%= a.role === 'petugas' ? 'selected' : '' %>>Petugas</option>
+                              <option value="admin" <%= a.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Password baru (kosongkan jika tidak diubah)</label>
+                            <input type="password" name="password" placeholder="Min. 6 karakter">
+                          </div>
+                          <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
+                        </form>
+                      </details>
+                      <% if (a.id !== currentUser.id) { %>
+                        <form action="/admin/akun/<%= a.id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus akun <%= a.username %>?')">
+                          <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                        </form>
+                      <% } %>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
