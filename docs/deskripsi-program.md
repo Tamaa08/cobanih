@@ -13,11 +13,12 @@ keanggotaan siswa, transaksi peminjaman, dan pengembalian buku.
 1. **Autentikasi (Login)** — dua peran: **Admin** dan **Siswa/User**.
 2. **Registrasi Anggota (Daftar)** — calon siswa dapat membuat akun sendiri.
 3. **Dashboard terpisah** untuk Admin dan Siswa.
-4. **CRUD Data Buku** (khusus Admin) — tambah, lihat, ubah, hapus.
+4. **CRUD Data Buku** (khusus Admin) — tambah, lihat, ubah, hapus (termasuk sampul buku, deskripsi/inti buku, dan rating awal).
 5. **CRUD Kelola Anggota** (khusus Admin).
 6. **CRUD Transaksi** (Peminjaman / Pengembalian).
 7. **Pencarian** (buku, anggota, transaksi) tersedia di kedua sisi.
 8. **Role-Based Access Control** — siswa TIDAK dapat mengakses menu admin.
+9. **Rating & Deskripsi Buku** — siswa dapat memberi nilai bintang 1–5 (hanya untuk buku yang sudah dikembalikan) dan melihat rating rata-rata serta ringkasan/inti buku di halaman detail/katalog.
 
 ## Alur Sistem (Flowmap)
 
@@ -47,12 +48,16 @@ Sudah anggota? → Login → Dashboard Siswa
 3. Semua route `/admin/*` dilindungi middleware `isAdmin`; route `/user/*`
    dilindungi `isSiswa`. User yang tidak berhak akan dilempar kembali ke login.
 4. Halaman admin menyediakan form CRUD:
-   - **Buku:** judul, penulis, penerbit, tahun terbit, kategori, stok, lokasi.
+   - **Buku:** judul, penulis, penerbit, tahun terbit, kategori, stok, lokasi,
+     sampul buku, deskripsi/inti buku, dan rating awal.
    - **Anggota:** nama, kelas, NIS, username, password.
    - **Transaksi:** membuat peminjaman (pilih anggota + buku) & menandai
      pengembalian.
 5. Halaman siswa menyediakan:
-   - **Katalog & Peminjaman:** melihat buku tersedia, klik "Pinjam".
+   - **Katalog & Peminjaman:** melihat buku tersedia (beserta rating bintang dan
+     ringkasan deskripsi), klik "Pinjam" atau buka halaman Detail & Rating.
+   - **Detail Buku:** deskripsi lengkap, rating rata-rata, form penilaian
+     bintang 1–5 (hanya aktif bila buku sudah dikembalikan).
    - **Pengembalian:** melihat buku yang sedang dipinjam, klik "Kembalikan".
    - **Riwayat:** menampilkan riwayat transaksi pribadi.
 6. **Validasi bisnis:**
@@ -84,7 +89,9 @@ Sudah anggota? → Login → Dashboard Siswa
 | GET | `/admin/laporan/pdf` | Generate/download PDF laporan | Admin |
 | GET | `/user/dashboard` | Dashboard siswa | Siswa |
 | GET | `/user/katalog` | Katalog + pencarian buku | Siswa |
+| GET | `/user/buku/:id` | Detail buku + form rating | Siswa |
 | GET/POST | `/user/peminjaman` | Lihat / pinjam buku | Siswa |
 | GET | `/user/pengembalian` | Daftar buku dipinjam | Siswa |
 | POST | `/user/pengembalian/:id` | Proses pengembalian | Siswa |
 | GET | `/user/riwayat` | Riwayat transaksi pribadi | Siswa |
+| POST | `/user/rate` | Simpan rating bintang buku | Siswa |

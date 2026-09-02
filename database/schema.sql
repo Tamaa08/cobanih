@@ -48,7 +48,23 @@ CREATE TABLE IF NOT EXISTS buku (
     stok INTEGER NOT NULL DEFAULT 0 CHECK (stok >= 0),
     lokasi VARCHAR(50),
     cover_url TEXT,
+    rating DOUBLE PRECISION NOT NULL DEFAULT 0,
+    rating_count INTEGER NOT NULL DEFAULT 0,
+    deskripsi TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ------------------------------------------------------------
+-- Tabel : rating (penilaian buku oleh anggota)
+-- Satu anggota hanya boleh menilai buku yang sama satu kali.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS rating (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_buku UUID NOT NULL REFERENCES buku(id) ON DELETE CASCADE,
+    id_anggota UUID NOT NULL REFERENCES anggota(id) ON DELETE CASCADE,
+    nilai INTEGER NOT NULL CHECK (nilai BETWEEN 1 AND 5),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (id_buku, id_anggota)
 );
 
 -- ------------------------------------------------------------
@@ -76,6 +92,15 @@ CREATE INDEX IF NOT EXISTS idx_transaksi_anggota ON transaksi(id_anggota);
 
 -- Kolom cover_url (untuk buku yang tabelnya sudah ada sebelum fitur sampul)
 ALTER TABLE buku ADD COLUMN IF NOT EXISTS cover_url TEXT;
+
+-- Kolom rating & deskripsi (untuk tabel buku yang sudah ada)
+ALTER TABLE buku ADD COLUMN IF NOT EXISTS rating DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE buku ADD COLUMN IF NOT EXISTS rating_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE buku ADD COLUMN IF NOT EXISTS deskripsi TEXT;
+
+-- Indeks rating
+CREATE INDEX IF NOT EXISTS idx_rating_buku ON rating(id_buku);
+CREATE INDEX IF NOT EXISTS idx_rating_anggota ON rating(id_anggota);
 
 -- RPC untuk menambah kolom cover_url dari aplikasi (auto-migrasi)
 CREATE OR REPLACE FUNCTION public.add_cover_url_column()
@@ -137,12 +162,22 @@ VALUES (NULL, 'Andi Wijaya', 'X RPL 2', '20230003')
 ON CONFLICT (nis) DO NOTHING;
 
 -- 3) Data contoh buku
-INSERT INTO buku (judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi) VALUES
-  ('Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2005, 'Fiksi', 5, 'Rak A-1'),
-  ('Bumi Manusia', 'Pramoedya Ananta Toer', 'Hasta Mitra', 1980, 'Fiksi', 3, 'Rak A-2'),
-  ('Filosofi Teras', 'Henry Manampiring', 'Kompas', 2018, 'Nonfiksi', 4, 'Rak B-1'),
-  ('Atomic Habits', 'James Clear', 'Avery', 2018, 'Pengembangan Diri', 2, 'Rak B-2'),
-  ('Negeri 5 Menara', 'Ahmad Fuadi', 'Gramedia', 2009, 'Fiksi', 6, 'Rak A-3'),
-  ('Sang Pemimpi', 'Andrea Hirata', 'Bentang Pustaka', 2006, 'Fiksi', 4, 'Rak A-1'),
-  ('Matematika Informatika', 'Rinaldi Munir', 'Informatika', 2016, 'Teknologi', 2, 'Rak C-1'),
-  ('Pemrograman Web', 'Budi Raharjo', 'Informatika', 2020, 'Teknologi', 3, 'Rak C-2');
+INSERT INTO buku (judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, rating, rating_count, deskripsi) VALUES
+  ('Laskar Pelangi', 'Andrea Hirata', 'Bentang Pustaka', 2005, 'Fiksi', 5, 'Rak A-1', 4.8, 12, 'Novel ikonik yang menceritakan perjuangan sejumlah anak Belitung dalam mengejar pendidikan di SD Muhammadiyah yang sederhana. Intinya: semangat, persahabatan, dan tekad melawan keterbatasan demi meraih mimpi.'),
+  ('Bumi Manusia', 'Pramoedya Ananta Toer', 'Hasta Mitra', 1980, 'Fiksi', 3, 'Rak A-2', 4.7, 9, 'Novel sejarah kolonial tentang Minke, pemuda pribumi terdidik di era Hindia Belanda. Intinya: kritik terhadap kolonialisme, diskriminasi rasial, dan pencarian jati diri bangsa.'),
+  ('Filosofi Teras', 'Henry Manampiring', 'Kompas', 2018, 'Nonfiksi', 4, 'Rak B-1', 4.6, 8, 'Buku praktis tentang filsafat Stoisisme yang relevan untuk kehidupan modern. Intinya: mengendalikan apa yang bisa dikendalikan, menjaga ketenangan batin, dan tidak larut dalam hal di luar kendali.'),
+  ('Atomic Habits', 'James Clear', 'Avery', 2018, 'Pengembangan Diri', 2, 'Rak B-2', 4.7, 10, 'Buku pengembangan diri tentang kekuatan kebiasaan kecil. Intinya: perubahan besar datang dari perbaikan 1% setiap hari secara konsisten, bukan dari tujuan besar yang instan.'),
+  ('Negeri 5 Menara', 'Ahmad Fuadi', 'Gramedia', 2009, 'Fiksi', 6, 'Rak A-3', 4.6, 7, 'Kisah enam sahabat santri di Pondok Madani yang masing-masing bermimpi menaklukkan dunia. Intinya: semangat pantang menyerah dengan prinsip "Man Jadda Wajada" (siapa yang bersungguh-sungguh pasti berhasil).'),
+  ('Sang Pemimpi', 'Andrea Hirata', 'Bentang Pustaka', 2006, 'Fiksi', 4, 'Rak A-1', 4.5, 6, 'Sekuel Laskar Pelangi tentang Ikal, Arai, dan Jimbron yang bermimpi besar dari Belitung untuk melanjutkan pendidikan sampai ke luar negeri. Intinya: keberanian bermimpi besar dan setia kawan.'),
+  ('Matematika Informatika', 'Rinaldi Munir', 'Informatika', 2016, 'Teknologi', 2, 'Rak C-1', 4.3, 5, 'Buku teks matematika diskrit untuk mahasiswa informatika. Intinya: dasar-dasar logika, himpunan, relasi, graf, dan kombinatorik sebagai fondasi berpikir komputasional.'),
+  ('Pemrograman Web', 'Budi Raharjo', 'Informatika', 2020, 'Teknologi', 3, 'Rak C-2', 4.4, 6, 'Buku pemrograman web praktis untuk pemula. Intinya: langkah demi langkah membangun aplikasi web dinamis dari dasar, mulai dari HTML, CSS, PHP, hingga MySQL.');
+
+-- Update untuk buku yang sudah ada di database lama (setelah migrasi kolom rating/deskripsi)
+UPDATE buku SET deskripsi = 'Novel ikonik yang menceritakan perjuangan sejumlah anak Belitung dalam mengejar pendidikan di SD Muhammadiyah yang sederhana. Intinya: semangat, persahabatan, dan tekad melawan keterbatasan demi meraih mimpi.', rating = 4.8, rating_count = 12 WHERE judul = 'Laskar Pelangi';
+UPDATE buku SET deskripsi = 'Novel sejarah kolonial tentang Minke, pemuda pribumi terdidik di era Hindia Belanda. Intinya: kritik terhadap kolonialisme, diskriminasi rasial, dan pencarian jati diri bangsa.', rating = 4.7, rating_count = 9 WHERE judul = 'Bumi Manusia';
+UPDATE buku SET deskripsi = 'Buku praktis tentang filsafat Stoisisme yang relevan untuk kehidupan modern. Intinya: mengendalikan apa yang bisa dikendalikan, menjaga ketenangan batin, dan tidak larut dalam hal di luar kendali.', rating = 4.6, rating_count = 8 WHERE judul = 'Filosofi Teras';
+UPDATE buku SET deskripsi = 'Buku pengembangan diri tentang kekuatan kebiasaan kecil. Intinya: perubahan besar datang dari perbaikan 1% setiap hari secara konsisten, bukan dari tujuan besar yang instan.', rating = 4.7, rating_count = 10 WHERE judul = 'Atomic Habits';
+UPDATE buku SET deskripsi = 'Kisah enam sahabat santri di Pondok Madani yang masing-masing bermimpi menaklukkan dunia. Intinya: semangat pantang menyerah dengan prinsip "Man Jadda Wajada" (siapa yang bersungguh-sungguh pasti berhasil).', rating = 4.6, rating_count = 7 WHERE judul = 'Negeri 5 Menara';
+UPDATE buku SET deskripsi = 'Sekuel Laskar Pelangi tentang Ikal, Arai, dan Jimbron yang bermimpi besar dari Belitung untuk melanjutkan pendidikan sampai ke luar negeri. Intinya: keberanian bermimpi besar dan setia kawan.', rating = 4.5, rating_count = 6 WHERE judul = 'Sang Pemimpi';
+UPDATE buku SET deskripsi = 'Buku teks matematika diskrit untuk mahasiswa informatika. Intinya: dasar-dasar logika, himpunan, relasi, graf, dan kombinatorik sebagai fondasi berpikir komputasional.', rating = 4.3, rating_count = 5 WHERE judul = 'Matematika Informatika';
+UPDATE buku SET deskripsi = 'Buku pemrograman web praktis untuk pemula. Intinya: langkah demi langkah membangun aplikasi web dinamis dari dasar, mulai dari HTML, CSS, PHP, hingga MySQL.', rating = 4.4, rating_count = 6 WHERE judul = 'Pemrograman Web';

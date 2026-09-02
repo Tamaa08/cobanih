@@ -83,6 +83,14 @@
               <label>Sampul Buku (opsional, JPG/PNG/WebP/GIF, max 5MB)</label>
               <input type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/gif">
             </div>
+            <div class="form-group">
+              <label>Rating Awal (0-5, opsional)</label>
+              <input type="number" name="rating" min="0" max="5" step="0.1" placeholder="Mis. 4.5">
+            </div>
+            <div class="form-group">
+              <label>Deskripsi / Inti Buku</label>
+              <input type="text" name="deskripsi" placeholder="Singkat, jelaskan inti buku">
+            </div>
             <div class="form-group form-group-full">
               <button type="submit" class="btn btn-primary">Tambah Buku</button>
             </div>
@@ -107,10 +115,10 @@
                   <th>No</th>
                   <th>Sampul</th>
                   <th>Judul</th>
-                  <th>Penulis</th>
                   <th>Kategori</th>
+                  <th>Rating</th>
+                  <th>Deskripsi</th>
                   <th>Stok</th>
-                  <th>Lokasi</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -128,11 +136,19 @@
                         <span class="cover-placeholder">📖</span>
                       <% } %>
                     </td>
-                    <td><strong><%= b.judul %></strong></td>
-                    <td><%= b.penulis %></td>
+                    <td><strong><%= b.judul %></strong><br><small class="text-muted"><%= b.penulis %></small></td>
                     <td><%= b.kategori %></td>
+                    <td>
+                      <div class="stars">
+                        <% const rounded = Math.round((b.rating || 0)); %>
+                        <% for (let s = 1; s <= 5; s++) { %>
+                          <span class="star <%= s <= rounded ? 'star-on' : 'star-off' %>">★</span>
+                        <% } %>
+                        <span class="stars-text"><%= (b.rating || 0).toFixed(1) %> (<%= b.rating_count || 0 %>)</span>
+                      </div>
+                    </td>
+                    <td class="desc-cell"><%= b.deskripsi || '-' %></td>
                     <td><%= b.stok %></td>
-                    <td><%= b.lokasi || '-' %></td>
                     <td class="actions">
                       <a href="/admin/buku/<%= b.id %>/edit" class="btn btn-warning btn-sm">Edit</a>
                       <form action="/admin/buku/<%= b.id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus buku ini?')">

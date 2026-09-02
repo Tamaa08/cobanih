@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link active">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Detail Buku</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <a href="/user/katalog" class="btn btn-outline btn-sm" style="margin-bottom:16px;">← Kembali ke Katalog</a>
+
+        <div class="detail-grid">
+          <div class="detail-cover">
+            <% if (buku.cover_url) { %>
+              <img src="<%= buku.cover_url %>" alt="<%= buku.judul %>" class="detail-cover-img">
+            <% } else { %>
+              <div class="detail-cover-placeholder">📖</div>
+            <% } %>
+          </div>
+
+          <div class="detail-info">
+            <h2><%= buku.judul %></h2>
+            <p class="detail-author">oleh <strong><%= buku.penulis %></strong></p>
+            <p class="detail-meta">
+              <span class="badge"><%= buku.kategori %></span>
+              <span class="badge">Tahun: <%= buku.tahun_terbit || '-' %></span>
+              <span class="badge">Penerbit: <%= buku.penerbit || '-' %></span>
+              <span class="badge <%= buku.stok > 0 ? 'badge-success' : 'badge-danger' %>">Stok: <%= buku.stok %></span>
+            </p>
+
+            <div class="detail-rating">
+              <div class="stars stars-lg">
+                <% const rounded = Math.round((buku.rating || 0)); %>
+                <% for (let s = 1; s <= 5; s++) { %>
+                  <span class="star <%= s <= rounded ? 'star-on' : 'star-off' %>">★</span>
+                <% } %>
+              </div>
+              <span class="detail-rating-text">
+                <%= (buku.rating || 0).toFixed(1) %> / 5
+                (<%= buku.rating_count || 0 %> ulasan)
+              </span>
+            </div>
+
+            <div class="detail-desc">
+              <h3>Ringkasan / Inti Buku</h3>
+              <p><%= buku.deskripsi || 'Belum ada deskripsi untuk buku ini.' %></p>
+            </div>
+
+            <div class="detail-actions">
+              <% if (buku.stok > 0 && !terpinjam) { %>
+                <form action="/user/peminjaman" method="POST">
+                  <input type="hidden" name="id_buku" value="<%= buku.id %>">
+                  <button type="submit" class="btn btn-primary">📖 Pinjam Buku Ini</button>
+                </form>
+              <% } else if (terpinjam) { %>
+                <span class="badge badge-danger">Sedang Dipinjam</span>
+              <% } else { %>
+                <span class="badge badge-danger">Stok Habis</span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Beri Rating Buku Ini</h2>
+          </div>
+          <% if (!canRate) { %>
+            <p class="text-muted">
+              Rating hanya bisa diberikan setelah Anda <strong>mengembalikan</strong> buku ini.
+              Silakan pinjam & kembalikan buku terlebih dahulu.
+            </p>
+          <% } else { %>
+            <form action="/user/rate" method="POST" class="rate-form">
+              <input type="hidden" name="id_buku" value="<%= buku.id %>">
+              <div class="star-input" id="star-input">
+                <% for (let s = 5; s >= 1; s--) { %>
+                  <input type="radio" name="nilai" id="star<%= s %>" value="<%= s %>" <%= myRating === s ? 'checked' : '' %>>
+                  <label for="star<%= s %>" title="<%= s %> bintang">★</label>
+                <% } %>
+              </div>
+              <% if (myRating) { %>
+                <p class="text-muted">Rating Anda saat ini: <%= myRating %> / 5. Pilih lagi untuk mengubah.</p>
+              <% } %>
+              <button type="submit" class="btn btn-primary">Simpan Rating</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -112,8 +112,17 @@ Dokumentasi fungsi/endpoint penting pada aplikasi
 
 | Fungsi | Endpoint | Deskripsi |
 |---|---|---|
-| `showKatalog` | GET `/user/katalog` | Katalog buku + pencarian; menampilkan status "sedang dipinjam". |
+| `showKatalog` | GET `/user/katalog` | Katalog buku + pencarian; menampilkan rating bintang, ringkasan deskripsi, dan status "sedang dipinjam". |
+| `showBukuDetail` | GET `/user/buku/:id` | Detail buku (deskripsi lengkap, rating rata-rata, stok) + status rating pribadi & hak untuk menilai (hanya jika buku sudah dikembalikan). |
 | `showRiwayat` | GET `/user/riwayat` | Riwayat transaksi pribadi + pencarian (ID/status). |
+
+---
+
+## 9b. Siswa — Rating Buku (`ratingController.js`)
+
+| Fungsi | Endpoint | Deskripsi |
+|---|---|---|
+| `rateBook` | POST `/user/rate` | Validasi anggota, pastikan siswa pernah mengembalikan buku tsb, simpan/pakai ulang penilaian 1–5 bintang (upsert `id_buku`+`id_anggota`), lalu hitung ulang `rating` (rata-rata) & `rating_count` pada tabel `buku`. |
 
 ---
 

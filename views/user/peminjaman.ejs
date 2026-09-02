@@ -74,6 +74,16 @@
                   <div class="book-info">
                     <h3 class="book-title"><%= b.judul %></h3>
                     <p class="book-author"><%= b.penulis %></p>
+                    <div class="stars">
+                      <% const rounded = Math.round((b.rating || 0)); %>
+                      <% for (let s = 1; s <= 5; s++) { %>
+                        <span class="star <%= s <= rounded ? 'star-on' : 'star-off' %>">★</span>
+                      <% } %>
+                      <span class="stars-text"><%= (b.rating || 0).toFixed(1) %></span>
+                    </div>
+                    <% if (b.deskripsi) { %>
+                      <p class="book-desc"><%= b.deskripsi.length > 90 ? b.deskripsi.slice(0, 90) + '...' : b.deskripsi %></p>
+                    <% } %>
                     <p class="book-meta">
                       <span class="badge"><%= b.kategori %></span>
                       <span class="badge <%= b.stok > 0 ? 'badge-success' : 'badge-danger' %>">
@@ -82,6 +92,7 @@
                     </p>
                   </div>
                   <div class="book-actions">
+                    <a href="/user/buku/<%= b.id %>" class="btn btn-outline btn-sm btn-block" style="margin-bottom:6px;">Detail & Rating</a>
                     <% if (b.stok > 0 && !pinjamIds.has(b.id)) { %>
                       <form action="/user/peminjaman" method="POST">
                         <input type="hidden" name="id_buku" value="<%= b.id %>">

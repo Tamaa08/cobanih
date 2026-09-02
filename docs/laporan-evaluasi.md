@@ -11,11 +11,12 @@ specifikasi (flowmap resmi dan matriks fitur). Seluruh alur sistem terimplementa
 - ✅ Registrasi anggota (Daftar).
 - ✅ Pencarian tersedia di sisi Admin (buku, anggota, transaksi) & Siswa (katalog, riwayat).
 - ✅ Koneksi database (Supabase/PostgreSQL) dengan relasi & constraint yang wajar.
+- ✅ Rating bintang 1–5 oleh siswa (hanya untuk buku yang sudah dikembalikan) + deskripsi/inti buku pada katalog & halaman detail.
 - ✅ Dokumentasi lengkap: ERD, deskripsi program, dokumentasi fungsi, catatan debugging.
 
 ### Hasil Uji
 
-- **Template EJS:** 14/14 template berhasil dirender (skrip `scripts/test-templates.mjs`).
+- **Template EJS:** 15/15 template berhasil dirender (skrip `scripts/test-templates.mjs`).
 - **Modul/server:** Termuat tanpa syntax error (koneksi DB bergantung kredensial Supabase).
 
 ## Kendala
@@ -36,6 +37,7 @@ specifikasi (flowmap resmi dan matriks fitur). Seluruh alur sistem terimplementa
 5. **Upload cover buku** (stored di Supabase Storage) untuk tampilan katalog lebih menarik.
 6. **Halaman profil** untuk siswa mengubah data diri/password.
 7. **Manajemen admin multi-user** dan pemisahan hak akses lebih granular.
+8. **Moderasi rating** — halaman admin untuk melihat/menghapus rating yang tidak wajar.
 
 ## Kesimpulan
 

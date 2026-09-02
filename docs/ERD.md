@@ -49,7 +49,21 @@ berbasis PostgreSQL (Supabase).
 │ ├─ kategori (VARCHAR, NOT NULL)                            │
 │ ├─ stok (INTEGER, NOT NULL, CHECK stok >= 0)               │
 │ ├─ lokasi (VARCHAR)                                        │
+│ ├─ cover_url (TEXT)                                        │
+│ ├─ rating (DOUBLE PRECISION, DEFAULT 0)                    │
+│ ├─ rating_count (INTEGER, DEFAULT 0)                       │
+│ ├─ deskripsi (TEXT)                                        │
 │ └─ created_at (TIMESTAMPTZ)                                │
+└────────────────────────────────────────────────────────────┘
+                │ 1 : N (id_buku, FK → buku.id, ON DELETE CASCADE)
+┌───────────────┴────────────────────────────────────────────┐
+│                         rating                             │
+│ ├─ id (UUID, PK)                                           │
+│ ├─ id_buku (UUID, FK → buku.id, ON DELETE CASCADE)         │
+│ ├─ id_anggota (UUID, FK → anggota.id, ON DELETE CASCADE)   │
+│ ├─ nilai (INTEGER, CHECK 1..5)                             │
+│ ├─ created_at (TIMESTAMPTZ)                                │
+│ └─ UNIQUE (id_buku, id_anggota)                            │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -60,6 +74,8 @@ berbasis PostgreSQL (Supabase).
 | `users` | `anggota` | 1 : 1 | Satu user siswa terhubung ke satu profil anggota (user_id UNIQUE). Admin tidak punya baris di anggota. |
 | `anggota` | `transaksi` | 1 : N | Satu anggota dapat memiliki banyak transaksi peminjaman. |
 | `buku` | `transaksi` | 1 : N | Satu buku dapat muncul di banyak transaksi (peminjaman berkali-kali). |
+| `buku` | `rating` | 1 : N | Satu buku dapat dinilai banyak anggota (setiap anggota 1× untuk buku yang sama). |
+| `anggota` | `rating` | 1 : N | Satu anggota dapat menilai banyak buku (1× per buku, UNIQUE id_buku+id_anggota). |
 
 ## Constraint Penting
 

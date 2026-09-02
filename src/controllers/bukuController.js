@@ -72,7 +72,7 @@ export async function showBuku(req, res) {
 }
 
 export async function createBuku(req, res) {
-  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi } = req.body;
+  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, rating } = req.body;
 
   if (!judul || !penulis || !kategori || !stok) {
     req.session.error = 'Judul, penulis, kategori, dan stok wajib diisi';
@@ -94,6 +94,10 @@ export async function createBuku(req, res) {
 
     const cover_url = await uploadCoverImage(req.file);
 
+    const ratingNum = parseFloat(rating);
+    const initialRating = !isNaN(ratingNum) && ratingNum >= 0 && ratingNum <= 5 ? ratingNum : 0;
+    const initialCount = initialRating > 0 ? 1 : 0;
+
     const { error: err } = await supabase.from('buku').insert([
       {
         judul,
@@ -104,6 +108,9 @@ export async function createBuku(req, res) {
         stok: parseInt(stok) || 0,
         lokasi: lokasi || null,
         cover_url,
+        deskripsi: deskripsi || null,
+        rating: initialRating,
+        rating_count: initialCount,
       },
     ]);
 
@@ -132,7 +139,7 @@ export async function renderEditBuku(req, res) {
 
 export async function updateBuku(req, res) {
   const { id } = req.params;
-  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi } = req.body;
+  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi } = req.body;
 
   try {
     const { data: current } = await supabase.from('buku').select('cover_url').eq('id', id).single();
@@ -157,6 +164,7 @@ export async function updateBuku(req, res) {
         stok: parseInt(stok) || 0,
         lokasi: lokasi || null,
         cover_url,
+        deskripsi: deskripsi || null,
       })
       .eq('id', id);
 
