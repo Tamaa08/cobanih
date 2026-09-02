@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+        <a href="/admin/denda" class="nav-link active">Denda</a>
+        <a href="/admin/laporan" class="nav-link">Laporan</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Data Denda</h1>
+        <span class="badge badge-admin">Admin</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Form Denda Buku Rusak / Hilang</h2>
+          </div>
+          <form action="/admin/denda" method="POST" class="form-grid">
+            <div class="form-group">
+              <label>Transaksi Peminjaman (sudah dikembalikan)</label>
+              <select name="id_transaksi" required>
+                <option value="">-- Pilih transaksi --</option>
+                <% transaksiDikembalikan.forEach((t) => { %>
+                  <option value="<%= t.id %>"><%= (t.anggota ? t.anggota.nama : '-') %> — <%= (t.buku ? t.buku.judul : '-') %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Nominal (default Rp 5.000.000)</label>
+              <input type="number" name="jumlah" min="0" placeholder="5000000">
+            </div>
+            <div class="form-group form-group-full">
+              <label>Keterangan</label>
+              <input type="text" name="keterangan" placeholder="Mis. Buku rusak parah / buku hilang">
+            </div>
+            <div class="form-group form-group-full">
+              <button type="submit" class="btn btn-primary">✅ Tambah Denda (Rusak/Hilang)</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Daftar Denda</h2>
+            <div class="filter-bar">
+              <a href="/admin/denda" class="badge <%= filter === '' ? 'badge-admin' : 'badge-default' %>">Semua</a>
+              <a href="/admin/denda?status=belum_bayar" class="badge <%= filter === 'belum_bayar' ? 'badge-admin' : 'badge-default' %>">Belum Bayar</a>
+              <a href="/admin/denda?status=lunas" class="badge <%= filter === 'lunas' ? 'badge-admin' : 'badge-default' %>">Lunas</a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Anggota</th>
+                  <th>Buku</th>
+                  <th>Jenis</th>
+                  <th>Jumlah</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (denda.length === 0) { %>
+                  <tr><td colspan="7" class="empty">Belum ada denda</td></tr>
+                <% } else { %>
+                  <% denda.forEach((d, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td>
+                      <%= d.anggota ? d.anggota.nama : '-' %><br>
+                      <small class="text-muted"><%= d.anggota ? (d.anggota.nis + ' • ' + d.anggota.kelas) : '' %></small>
+                    </td>
+                    <td><%= d.buku ? d.buku.judul : '-' %></td>
+                    <td>
+                      <span class="badge <%= d.jenis === 'telat' ? 'badge-warning' : 'badge-danger' %>">
+                        <%= d.jenis === 'telat' ? ('Telat ' + (d.hari_keterlambatan || 0) + ' hari') : 'Rusak/Hilang' %>
+                      </span>
+                    </td>
+                    <td class="text-bold">Rp <%= d.jumlah.toLocaleString('id-ID') %></td>
+                    <td>
+                      <span class="badge <%= d.status === 'lunas' ? 'badge-success' : 'badge-danger' %>">
+                        <%= d.status === 'lunas' ? 'Lunas' : 'Belum Bayar' %>
+                      </span>
+                      <% if (d.metode) { %>
+                        <br><small class="text-muted">Via <%= d.metode %></small>
+                      <% } %>
+                    </td>
+                    <td class="actions">
+                      <% if (d.status === 'belum_bayar') { %>
+                        <form action="/admin/denda/<%= d.id %>/lunas" method="POST" onsubmit="return confirm('Tandai denda ini lunas (cash)?')">
+                          <button type="submit" class="btn btn-success btn-sm">Tandai Lunas</button>
+                        </form>
+                      <% } %>
+                      <form action="/admin/denda/<%= d.id %>/delete" method="POST" onsubmit="return confirm('Hapus denda ini?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                      </form>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

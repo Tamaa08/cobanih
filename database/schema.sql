@@ -129,8 +129,30 @@ BEGIN
 END;
 $$;
 
+-- ------------------------------------------------------------
+-- Tabel : denda (keterlambatan & buku rusak/hilang)
+-- jenis  : 'telat' | 'rusak_hilang'
+-- status : 'belum_bayar' | 'lunas'
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS denda (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_transaksi UUID NOT NULL REFERENCES transaksi(id) ON DELETE CASCADE,
+    id_anggota UUID NOT NULL REFERENCES anggota(id) ON DELETE CASCADE,
+    id_buku UUID NOT NULL REFERENCES buku(id) ON DELETE CASCADE,
+    jenis VARCHAR(15) NOT NULL CHECK (jenis IN ('telat', 'rusak_hilang')),
+    jumlah BIGINT NOT NULL CHECK (jumlah >= 0),
+    hari_keterlambatan INTEGER DEFAULT 0,
+    status VARCHAR(15) NOT NULL DEFAULT 'belum_bayar' CHECK (status IN ('belum_bayar', 'lunas')),
+    metode VARCHAR(15),
+    tanggal_bayar TIMESTAMPTZ,
+    keterangan TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_denda_anggota ON denda(id_anggota);
+CREATE INDEX IF NOT EXISTS idx_denda_status ON denda(status);
+
 -- ============================================================
--- SEED DATA (contoh)
 -- Password default:
 --   admin  -> admin123
 --   budi   -> budi123

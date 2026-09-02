@@ -12,11 +12,12 @@ specifikasi (flowmap resmi dan matriks fitur). Seluruh alur sistem terimplementa
 - ✅ Pencarian tersedia di sisi Admin (buku, anggota, transaksi) & Siswa (katalog, riwayat).
 - ✅ Koneksi database (Supabase/PostgreSQL) dengan relasi & constraint yang wajar.
 - ✅ Rating bintang 1–5 oleh siswa (hanya untuk buku yang sudah dikembalikan) + deskripsi/inti buku pada katalog & halaman detail.
+- ✅ Denda keterlambatan (Rp 10.000/hari) & denda rusak/hilang (Rp 5.000.000) dengan pembayaran Cash/QRIS/Transfer (barcode & rekening contoh).
 - ✅ Dokumentasi lengkap: ERD, deskripsi program, dokumentasi fungsi, catatan debugging.
 
 ### Hasil Uji
 
-- **Template EJS:** 15/15 template berhasil dirender (skrip `scripts/test-templates.mjs`).
+- **Template EJS:** 18/18 template berhasil dirender (skrip `scripts/test-templates.mjs`).
 - **Modul/server:** Termuat tanpa syntax error (koneksi DB bergantung kredensial Supabase).
 
 ## Kendala

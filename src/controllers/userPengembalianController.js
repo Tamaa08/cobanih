@@ -1,4 +1,5 @@
 import { supabase } from '../config/db.js';
+import { buatDendaTelat } from '../utils/fungsiDenda.js';
 
 export async function showPengembalian(req, res) {
   const message = req.session.message || null;
@@ -80,7 +81,14 @@ export async function processPengembalian(req, res) {
     const { data: buku } = await supabase.from('buku').select('stok').eq('id', trx.id_buku).single();
     await supabase.from('buku').update({ stok: buku.stok + 1 }).eq('id', trx.id_buku);
 
-    req.session.message = 'Buku berhasil dikembalikan';
+    try {
+      const denda = await buatDendaTelat(trx);
+      req.session.message = denda
+        ? 'Buku berhasil dikembalikan, namun Anda terkena denda keterlambatan'
+        : 'Buku berhasil dikembalikan';
+    } catch {
+      req.session.message = 'Buku berhasil dikembalikan';
+    }
   } catch (e) {
     req.session.error = 'Gagal mengembalikan buku: ' + e.message;
   }

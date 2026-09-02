@@ -1,4 +1,5 @@
 import { supabase } from '../config/db.js';
+import { buatDendaTelat } from '../utils/fungsiDenda.js';
 
 export async function showTransaksi(req, res) {
   const search = req.query.search || '';
@@ -148,7 +149,15 @@ export async function updateStatusPengembalian(req, res) {
       .eq('id', trx.id_buku);
 
     if (stokErr) throw stokErr;
-    req.session.message = 'Buku berhasil dikembalikan';
+
+    try {
+      const denda = await buatDendaTelat(trx);
+      req.session.message = denda
+        ? 'Buku berhasil dikembalikan, anggota terkena denda keterlambatan'
+        : 'Buku berhasil dikembalikan';
+    } catch {
+      req.session.message = 'Buku berhasil dikembalikan';
+    }
   } catch (e) {
     req.session.error = 'Gagal memproses pengembalian: ' + e.message;
   }

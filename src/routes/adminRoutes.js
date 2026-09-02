@@ -23,6 +23,12 @@ import {
   deleteTransaksi,
 } from '../controllers/transaksiController.js';
 import { showLaporan, generateLaporanPdf } from '../controllers/laporanController.js';
+import {
+  showDenda,
+  createDendaRusakHilang,
+  markDendaLunas,
+  deleteDenda,
+} from '../controllers/adminDendaController.js';
 
 const router = Router();
 
@@ -49,5 +55,10 @@ router.post('/transaksi/:id/delete', deleteTransaksi);
 
 router.get('/laporan', showLaporan);
 router.get('/laporan/pdf', generateLaporanPdf);
+
+router.get('/denda', showDenda);
+router.post('/denda', createDendaRusakHilang);
+router.post('/denda/:id/lunas', markDendaLunas);
+router.post('/denda/:id/delete', deleteDenda);
 
 export default router;

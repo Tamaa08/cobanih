@@ -62,8 +62,19 @@ Dokumentasi fungsi/endpoint penting pada aplikasi
 |---|---|---|
 | `showTransaksi` | GET `/admin/transaksi` | Daftar transaksi + pencarian (ID/status) + data buku & anggota utk form. |
 | `createPeminjamanAdmin` | POST `/admin/transaksi/peminjaman` | Validasi, cek stok & status dipinjam, insert transaksi, kurangi stok buku 1. |
-| `updateStatusPengembalian` | POST `/admin/transaksi/:id/kembalikan` | Ubah status jadi 'dikembalikan', catat tanggal kembali aktual, tambah stok 1. |
+| `updateStatusPengembalian` | POST `/admin/transaksi/:id/kembalikan` | Ubah status jadi 'dikembalikan', catat tanggal kembali aktual, tambah stok 1, dan otomatis membuat denda keterlambatan bila melewati jatuh tempo. |
 | `deleteTransaksi` | POST `/admin/transaksi/:id/delete` | Hapus transaksi; jika 'dipinjam', stok dikembalikan dulu. |
+
+---
+
+## 4c. Admin — Denda (`adminDendaController.js`)
+
+| Fungsi | Endpoint | Deskripsi |
+|---|---|---|
+| `showDenda` | GET `/admin/denda` | Daftar seluruh denda + filter status (semua/belum bayar/lunas) + data transaksi sudah dikembalikan untuk form denda rusak/hilang. |
+| `createDendaRusakHilang` | POST `/admin/denda` | Membuat denda buku rusak/hilang (default Rp 5.000.000) untuk transaksi yang sudah dikembalikan; mencegah duplikat per transaksi. |
+| `markDendaLunas` | POST `/admin/denda/:id/lunas` | Menandai denda lunas (pembayaran tunai ke admin). |
+| `deleteDenda` | POST `/admin/denda/:id/delete` | Menghapus catatan denda. |
 
 ---
 
@@ -104,7 +115,25 @@ Dokumentasi fungsi/endpoint penting pada aplikasi
 | Fungsi | Endpoint | Deskripsi |
 |---|---|---|
 | `showPengembalian` | GET `/user/pengembalian` | Menampilkan buku yang sedang dipinjam oleh siswa tsb. |
-| `processPengembalian` | POST `/user/pengembalian/:id` | Memverifikasi kepemilikan transaksi, ubah status jadi 'dikembalikan', tambah stok. |
+| `processPengembalian` | POST `/user/pengembalian/:id` | Memverifikasi kepemilikan transaksi, ubah status jadi 'dikembalikan', tambah stok, dan otomatis membuat denda keterlambatan bila melewati jatuh tempo (Rp 10.000/hari). |
+
+---
+
+## 8b. Siswa — Denda & Pembayaran (`userDendaController.js`)
+
+| Fungsi | Endpoint | Deskripsi |
+|---|---|---|
+| `showDendaUser` | GET `/user/denda` | Menampilkan daftar denda milik siswa (telat & rusak/hilang) beserta status & total belum bayar. |
+| `showBayarDenda` | GET `/user/denda/:id/bayar` | Halaman pembayaran: pilih metode **Cash / QRIS / Transfer**; QRIS menampilkan barcode contoh & kode QRIS, Transfer menampilkan rekening contoh. |
+| `prosesBayarDenda` | POST `/user/denda/:id/bayar` | Validasi kepemilikan denda & metode, tandai `lunas`, catat metode & waktu pembayaran. |
+
+### `utils/fungsiDenda.js`
+
+| Fungsi | Deskripsi |
+|---|---|
+| `hitungHariTelat` | Menghitung selisih hari antara `tanggal_kembali_aktual` dan jatuh tempo (min 0). |
+| `buatDendaTelat` | Membuat baris denda `telat` (Rp 10.000/hari) bila keterlambatan > 0 hari. |
+| `formatRupiah` | Memformat angka menjadi teks Rupiah. |
 
 ---
 

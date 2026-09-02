@@ -15,8 +15,8 @@
         <a href="/user/katalog" class="nav-link">Katalog Buku</a>
         <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
         <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
-        <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
-        <a href="/user/riwayat" class="nav-link active">Riwayat</a>
+        <a href="/user/denda" class="nav-link active">Denda & Pembayaran</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
       </nav>
       <div class="sidebar-user">
         <span class="sidebar-user-role">Siswa</span>
@@ -29,7 +29,7 @@
 
     <main class="main">
       <header class="topbar">
-        <h1>Riwayat Transaksi</h1>
+        <h1>Denda Saya</h1>
         <span class="badge badge-siswa">Siswa</span>
       </header>
 
@@ -47,44 +47,60 @@
           </div>
         <% } %>
 
+        <div class="denda-total card">
+          <div class="denda-total-label">Total Denda Belum Dibayar</div>
+          <div class="denda-total-value" id="denda-total"><%= (typeof totalBelumBayar !== 'undefined' ? totalBelumBayar : 0).toLocaleString('id-ID') %></div>
+          <div class="denda-total-currency">Rupiah (Rp)</div>
+        </div>
+
         <div class="card">
           <div class="card-header">
-            <h2>Daftar Transaksi Saya</h2>
-            <form action="/user/riwayat" method="GET" class="search-form">
-              <input type="text" name="search" value="<%= search %>" placeholder="Cari ID/status...">
-              <button type="submit" class="btn btn-outline">Cari</button>
-              <% if (search) { %>
-                <a href="/user/riwayat" class="btn btn-outline btn-sm">Reset</a>
-              <% } %>
-            </form>
+            <h2>Riwayat Denda</h2>
           </div>
           <div class="table-responsive">
-            <table class="table">
+            <table class="table denda-table" data-total="<%= (typeof totalBelumBayar !== 'undefined' ? totalBelumBayar : 0) %>">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th>No</th>
                   <th>Buku</th>
-                  <th>Tanggal Pinjam</th>
-                  <th>Tanggal Kembali</th>
+                  <th>Jenis</th>
+                  <th>Jumlah</th>
                   <th>Status</th>
+                  <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                <% if (trx.length === 0) { %>
-                  <tr><td colspan="5" class="empty">Belum ada transaksi</td></tr>
+                <% if (denda.length === 0) { %>
+                  <tr><td colspan="6" class="empty">Tidak ada denda. Pertahankan ya! 😄</td></tr>
                 <% } else { %>
-                  <% trx.forEach((t) => { %>
+                  <% denda.forEach((d, i) => { %>
                   <tr>
-                    <td>#<%= t.id %></td>
-                    <td><%= t.buku ? t.buku.judul : '-' %></td>
-                    <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
+                    <td><%= i + 1 %></td>
                     <td>
-                      <%= t.tanggal_kembali_aktual ? new Date(t.tanggal_kembali_aktual).toLocaleDateString('id-ID') : '-' %>
+                      <div class="denda-buku">
+                        <% if (d.buku && d.buku.cover_url) { %>
+                          <img src="<%= d.buku.cover_url %>" alt="<%= d.buku.judul %>" class="cover-thumb">
+                        <% } %>
+                        <%= d.buku ? d.buku.judul : '-' %>
+                      </div>
                     </td>
                     <td>
-                      <span class="badge <%= t.status === 'dipinjam' ? 'badge-warning' : 'badge-success' %>">
-                        <%= t.status %>
+                      <span class="badge <%= d.jenis === 'telat' ? 'badge-warning' : 'badge-danger' %>">
+                        <%= d.jenis === 'telat' ? 'Telat ' + d.hari_keterlambatan + ' hari' : 'Rusak/Hilang' %>
                       </span>
+                    </td>
+                    <td class="text-bold">Rp <%= d.jumlah.toLocaleString('id-ID') %></td>
+                    <td>
+                      <span class="badge <%= d.status === 'lunas' ? 'badge-success' : 'badge-danger' %>">
+                        <%= d.status === 'lunas' ? 'Lunas' : 'Belum Bayar' %>
+                      </span>
+                    </td>
+                    <td>
+                      <% if (d.status === 'belum_bayar') { %>
+                        <a href="/user/denda/<%= d.id %>/bayar" class="btn btn-primary btn-sm">Bayar</a>
+                      <% } else { %>
+                        <span class="text-success">✓ Paid</span>
+                      <% } %>
                     </td>
                   </tr>
                   <% }) %>
@@ -92,9 +108,6 @@
               </tbody>
             </table>
           </div>
-          <% if (search) { %>
-            <p class="text-muted"><%= trx.length %> hasil ditemukan untuk "<%= search %>"</p>
-          <% } %>
         </div>
       </div>
     </main>

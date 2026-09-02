@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/denda" class="nav-link active">Denda & Pembayaran</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Pembayaran Denda</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <a href="/user/denda" class="btn btn-outline btn-sm" style="margin-bottom:16px;">← Kembali ke Denda</a>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Ringkasan Tagihan</h2>
+          </div>
+          <div class="tagihan-grid">
+            <div>
+              <div class="tagihan-label">Buku</div>
+              <div class="tagihan-nilai"><%= denda.buku ? denda.buku.judul : '-' %></div>
+            </div>
+            <div>
+              <div class="tagihan-label">Jenis Denda</div>
+              <div class="tagihan-nilai">
+                <%= denda.jenis === 'telat' ? ('Keterlambatan ' + denda.hari_keterlambatan + ' hari') : 'Buku Rusak / Hilang' %>
+              </div>
+              </div>
+            <div>
+              <div class="tagihan-label">Keterangan</div>
+              <div class="tagihan-nilai tagihan-ket"><%= denda.keterangan || '-' %></div>
+            </div>
+            <div>
+              <div class="tagihan-label">Total Dibayar</div>
+              <div class="tagihan-nilai tagihan-total">Rp <%= denda.jumlah.toLocaleString('id-ID') %></div>
+            </div>
+          </div>
+        </div>
+
+        <form action="/user/denda/<%= denda.id %>/bayar" method="POST">
+          <div class="payment-grid">
+            <% Object.keys(metodeList).forEach((key) => { %>
+              <input type="radio" name="metode" id="metode-<%= key %>" value="<%= key %>" class="method-radio" <%= key === 'qris' ? 'checked' : '' %>>
+              <label for="metode-<%= key %>" class="method-card">
+                <div class="method-icon">
+                  <% if (key === 'cash') { %>💵<% } else if (key === 'qris') { %>📱<% } else { %>🏦<% } %>
+                </div>
+                <div class="method-name"><%= metodeList[key] %></div>
+              </label>
+            <% }) %>
+          </div>
+
+          <div class="payment-detail" id="detail-cash">
+            <div class="card card-inner">
+              <h3>💵 Pembayaran Tunai</h3>
+              <p>Serahkan denda secara tunai sebesar <strong>Rp <%= denda.jumlah.toLocaleString('id-ID') %></strong> kepada petugas perpustakaan. Kemudian konfirmasi pembayaran di bawah ini.</p>
+            </div>
+          </div>
+
+          <div class="payment-detail active" id="detail-qris">
+            <div class="card card-inner">
+              <h3>📱 Scan QRIS</h3>
+              <p class="text-muted">Buka aplikasi e-wallet atau mobile banking Anda, pilih menu <strong>Scan QR</strong>, lalu arahkan kamera ke barcode berikut:</p>
+              <div class="qris-fake" title="QRIS (tampilan contoh)"><%= infoQris.kode %></div>
+              <p class="qris-nama"><%= infoQris.nama %></p>
+              <p class="qris-kode">Kode QRIS: <code><%= infoQris.kode %></code></p>
+              <p class="tagihan-total">Total: Rp <%= denda.jumlah.toLocaleString('id-ID') %></p>
+            </div>
+          </div>
+
+          <div class="payment-detail" id="detail-transfer">
+            <div class="card card-inner">
+              <h3>🏦 Transfer Bank</h3>
+              <div class="rekening-card">
+                <div>Bank</div>
+                <strong><%= infoRekening.bank %></strong>
+              </div>
+              <div class="rekening-card">
+                <div>Nomor Rekening</div>
+                <strong><%= infoRekening.nomor %></strong>
+              </div>
+              <div class="rekening-card">
+                <div>Atas Nama</div>
+                <strong><%= infoRekening.atasNama %></strong>
+              </div>
+              <p class="tagihan-total">Total: Rp <%= denda.jumlah.toLocaleString('id-ID') %></p>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">✅ Konfirmasi Pembayaran</button>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script>
+    function showMethod(metode) {
+      ['cash', 'qris', 'transfer'].forEach(function (m) {
+        var detail = document.getElementById('detail-' + m);
+        if (detail) detail.classList.toggle('active', m === metode);
+      });
+    }
+    document.querySelectorAll('.method-radio').forEach(function (radio) {
+      radio.addEventListener('change', function () { showMethod(this.value); });
+    });
+  </script>
+</body>
+</html>

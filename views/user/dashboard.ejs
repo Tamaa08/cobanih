@@ -15,6 +15,7 @@
         <a href="/user/katalog" class="nav-link">Katalog Buku</a>
         <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
         <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
         <a href="/user/riwayat" class="nav-link">Riwayat</a>
       </nav>
       <div class="sidebar-user">
@@ -40,6 +41,14 @@
           <p>Manfaatkan layanan perpustakaan untuk meminjam dan mengembalikan buku dengan mudah.</p>
         </div>
 
+        <% if (totalDenda > 0) { %>
+          <div class="alert alert-warning">
+            <strong>⚠️ Anda memiliki <%= totalDenda %> denda yang belum dibayar!</strong>
+            Total: <strong>Rp <%= (jumlahDenda || 0).toLocaleString('id-ID') %></strong>.
+            <a href="/user/denda" class="btn btn-warning btn-sm" style="margin-left:8px;">Bayar Sekarang</a>
+          </div>
+        <% } %>
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">📤</div>
@@ -50,6 +59,11 @@
             <div class="stat-icon">✅</div>
             <div class="stat-value"><%= stats.totalKembali %></div>
             <div class="stat-label">Sudah Dikembalikan</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💸</div>
+            <div class="stat-value"><%= stats.totalDenda %></div>
+            <div class="stat-label">Denda Dipinjam → Belum Bayar <a href="/user/denda">(detail)</a></div>
           </div>
         </div>
 

@@ -65,6 +65,22 @@ berbasis PostgreSQL (Supabase).
 │ ├─ created_at (TIMESTAMPTZ)                                │
 │ └─ UNIQUE (id_buku, id_anggota)                            │
 └────────────────────────────────────────────────────────────┘
+                │ 1 : N (id_anggota, FK → anggota.id, ON DELETE CASCADE)
+┌───────────────┴────────────────────────────────────────────┐
+│                          denda                             │
+│ ├─ id (UUID, PK)                                           │
+│ ├─ id_transaksi (UUID, FK → transaksi.id, ON DELETE CASCADE)│
+│ ├─ id_anggota (UUID, FK → anggota.id, ON DELETE CASCADE)   │
+│ ├─ id_buku (UUID, FK → buku.id, ON DELETE CASCADE)         │
+│ ├─ jenis VARCHAR: 'telat'|'rusak_hilang'                   │
+│ ├─ jumlah BIGINT, NOT NULL                                 │
+│ ├─ hari_keterlambatan INTEGER (0 untuk rusak_hilang)        │
+│ ├─ status VARCHAR: 'belum_bayar'|'lunas'                   │
+│ ├─ metode VARCHAR: 'cash'|'qris'|'transfer'|NULL           │
+│ ├─ tanggal_bayar TIMESTAMPTZ                               │
+│ ├─ keterangan TEXT                                          │
+│ └─ created_at TIMESTAMPTZ                                  │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ## Penjelasan Relasi
@@ -76,6 +92,8 @@ berbasis PostgreSQL (Supabase).
 | `buku` | `transaksi` | 1 : N | Satu buku dapat muncul di banyak transaksi (peminjaman berkali-kali). |
 | `buku` | `rating` | 1 : N | Satu buku dapat dinilai banyak anggota (setiap anggota 1× untuk buku yang sama). |
 | `anggota` | `rating` | 1 : N | Satu anggota dapat menilai banyak buku (1× per buku, UNIQUE id_buku+id_anggota). |
+| `transaksi` | `denda` | 1 : N | Satu transaksi dapat menghasilkan beberapa denda (telat atau rusak/hilang). |
+| `anggota` | `denda` | 1 : N | Satu anggota dapat memiliki banyak catatan denda. |
 
 ## Constraint Penting
 
@@ -84,6 +102,7 @@ berbasis PostgreSQL (Supabase).
 - `status` transaksi dibatasi `'dipinjam'` / `'dikembalikan'`.
 - `stok >= 0` (CHECK) — mencegah stok negatif.
 - `username` dan `nis` harus unik.
+- `denda.jumlah >= 0`, `denda.jenis` dibatasi `telat` / `rusak_hilang`, `denda.status` dibatasi `belum_bayar` / `lunas`.
 - Foreign key memakai `ON DELETE CASCADE` agar penghapusan bersih tanpa data yatim.
 
 ## Skenario Stok pada Transaksi

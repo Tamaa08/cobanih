@@ -19,6 +19,7 @@ keanggotaan siswa, transaksi peminjaman, dan pengembalian buku.
 7. **Pencarian** (buku, anggota, transaksi) tersedia di kedua sisi.
 8. **Role-Based Access Control** — siswa TIDAK dapat mengakses menu admin.
 9. **Rating & Deskripsi Buku** — siswa dapat memberi nilai bintang 1–5 (hanya untuk buku yang sudah dikembalikan) dan melihat rating rata-rata serta ringkasan/inti buku di halaman detail/katalog.
+10. **Denda** — siswa terlambat mengembalikan buku otomatis dikenakan **Rp 10.000 per hari**; buku rusak/hilang dikenakan **Rp 5.000.000** (dibuat admin). Denda muncul di akun siswa dan bisa dibayar dengan **Cash**, **QRIS**, atau **Transfer** (dengan tampilan barcode QRIS & rekening contoh).
 
 ## Alur Sistem (Flowmap)
 
@@ -59,11 +60,15 @@ Sudah anggota? → Login → Dashboard Siswa
    - **Detail Buku:** deskripsi lengkap, rating rata-rata, form penilaian
      bintang 1–5 (hanya aktif bila buku sudah dikembalikan).
    - **Pengembalian:** melihat buku yang sedang dipinjam, klik "Kembalikan".
+   - **Denda:** jika terlambat, otomatis muncul denda; siswa dapat membayar via
+     Cash / QRIS / Transfer dan melihat status pembayaran.
    - **Riwayat:** menampilkan riwayat transaksi pribadi.
 6. **Validasi bisnis:**
    - Menolak peminjaman bila stok habis / buku sedang dipinjam orang lain.
    - Menolak penghapusan buku/anggota yang masih memiliki peminjaman aktif.
    - Setiap peminjaman mengurangi stok; pengembalian menambah stok.
+   - Pengembalian melewati jatuh tempo (7 hari) → denda otomatis
+     Rp 10.000/hari; buku rusak/hilang → denda Rp 5.000.000 (oleh admin).
 
 ## Endpoint / Route Ringkas
 
@@ -95,3 +100,8 @@ Sudah anggota? → Login → Dashboard Siswa
 | POST | `/user/pengembalian/:id` | Proses pengembalian | Siswa |
 | GET | `/user/riwayat` | Riwayat transaksi pribadi | Siswa |
 | POST | `/user/rate` | Simpan rating bintang buku | Siswa |
+| GET | `/user/denda` | Daftar denda siswa | Siswa |
+| GET/POST | `/user/denda/:id/bayar` | Bayar denda (Cash/QRIS/Transfer) | Siswa |
+| GET | `/admin/denda` | Daftar & kelola denda | Admin |
+| POST | `/admin/denda` | Tambah denda rusak/hilang | Admin |
+| POST | `/admin/denda/:id/lunas` | Tandai denda lunas | Admin |

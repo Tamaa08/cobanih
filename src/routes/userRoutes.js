@@ -8,6 +8,11 @@ import {
 import { showPengembalian, processPengembalian } from '../controllers/userPengembalianController.js';
 import { showKatalog, showRiwayat, showBukuDetail } from '../controllers/userCariController.js';
 import { rateBook } from '../controllers/ratingController.js';
+import {
+  showDendaUser,
+  showBayarDenda,
+  prosesBayarDenda,
+} from '../controllers/userDendaController.js';
 
 const router = Router();
 
@@ -27,5 +32,9 @@ router.post('/pengembalian/:id', processPengembalian);
 router.get('/riwayat', showRiwayat);
 
 router.post('/rate', rateBook);
+
+router.get('/denda', showDendaUser);
+router.get('/denda/:id/bayar', showBayarDenda);
+router.post('/denda/:id/bayar', prosesBayarDenda);
 
 export default router;
