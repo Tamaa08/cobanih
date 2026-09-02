@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan Sekolah</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus Digital</div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+        <a href="/admin/laporan" class="nav-link active">Laporan</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Admin</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1><%= title %></h1>
+        <span class="badge badge-admin">Admin</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Filter Laporan Peminjaman Buku</h2>
+          </div>
+          <form action="/admin/laporan/pdf" method="GET" class="form-grid" target="_blank">
+            <div class="form-group">
+              <label for="tanggal_mulai">Dari Tanggal</label>
+              <input type="date" id="tanggal_mulai" name="tanggal_mulai">
+            </div>
+            <div class="form-group">
+              <label for="tanggal_selesai">Sampai Tanggal</label>
+              <input type="date" id="tanggal_selesai" name="tanggal_selesai">
+            </div>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="">Semua Status</option>
+                <option value="dipinjam">Dipinjam</option>
+                <option value="dikembalikan">Dikembalikan</option>
+              </select>
+            </div>
+            <div class="form-group form-group-full">
+              <p class="text-muted">Biarkan filter kosong untuk menampilkan seluruh transaksi.</p>
+            </div>
+            <div class="form-group form-group-full actions">
+              <button type="submit" class="btn btn-primary">
+                ⬇️ Download PDF
+              </button>
+              <a href="/admin/laporan/pdf" class="btn btn-outline" target="_blank">🖨️ Download Semua</a>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Cetak / Print</h2>
+          </div>
+          <p class="text-muted">
+            PDF yang di-download dapat langsung dibuka lalu dicetak (Ctrl+P / File → Print).
+            Gunakan filter tanggal & status untuk laporan sesuai periode yang diinginkan.
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

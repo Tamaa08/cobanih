@@ -80,6 +80,8 @@ Sudah anggota? → Login → Dashboard Siswa
 | POST | `/admin/transaksi/peminjaman` | Buat peminjaman | Admin |
 | POST | `/admin/transaksi/:id/kembalikan` | Proses pengembalian | Admin |
 | POST | `/admin/transaksi/:id/delete` | Hapus transaksi | Admin |
+| GET | `/admin/laporan` | Halaman form laporan | Admin |
+| GET | `/admin/laporan/pdf` | Generate/download PDF laporan | Admin |
 | GET | `/user/dashboard` | Dashboard siswa | Siswa |
 | GET | `/user/katalog` | Katalog + pencarian buku | Siswa |
 | GET/POST | `/user/peminjaman` | Lihat / pinjam buku | Siswa |

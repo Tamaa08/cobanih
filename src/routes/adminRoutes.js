@@ -22,6 +22,7 @@ import {
   updateStatusPengembalian,
   deleteTransaksi,
 } from '../controllers/transaksiController.js';
+import { showLaporan, generateLaporanPdf } from '../controllers/laporanController.js';
 
 const router = Router();
 
@@ -45,5 +46,8 @@ router.get('/transaksi', showTransaksi);
 router.post('/transaksi/peminjaman', createPeminjamanAdmin);
 router.post('/transaksi/:id/kembalikan', updateStatusPengembalian);
 router.post('/transaksi/:id/delete', deleteTransaksi);
+
+router.get('/laporan', showLaporan);
+router.get('/laporan/pdf', generateLaporanPdf);
 
 export default router;

@@ -67,6 +67,13 @@ Dokumentasi fungsi/endpoint penting pada aplikasi
 
 ---
 
+## 4b. Admin — Laporan Peminjaman (`laporanController.js`)
+
+| Fungsi | Endpoint | Deskripsi |
+|---|---|---|
+| `showLaporan` | GET `/admin/laporan` | Merender halaman form filter laporan (tanggal & status). |
+| `generateLaporanPdf` | GET `/admin/laporan/pdf` | Query transaksi sesuai filter, generate PDF via `pdfkit`, kirim sebagai file download (`application/pdf`). Memuat header, ringkasan, tabel, dan tanda tangan. |
+
 ## 5. Admin — Dashboard (`dashboardController.js`)
 
 | Fungsi | Endpoint | Deskripsi |

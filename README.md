@@ -13,6 +13,8 @@ Aplikasi **Perpustakaan Sekolah Digital** berbasis web untuk memudahkan siswa da
 | CRUD Data Buku | ❌ | ✅ |
 | CRUD Kelola Anggota | ❌ | ✅ |
 | Pencarian (buku, anggota, transaksi) | ✅ | ✅ |
+| Sampul Buku (upload & tampil) | ✅ (lihat) | ✅ (kelola) |
+| Laporan PDF (download & print) | ❌ | ✅ |
 
 ## Tech Stack
 
@@ -73,6 +75,22 @@ Buka `http://localhost:3000`
 |---|---|---|
 | Admin | `admin` | `admin123` |
 | Siswa | `budi` | `budi123` |
+
+## Fitur Laporan Peminjaman (PDF)
+
+Admin dapat membuat **laporan peminjaman buku dalam format PDF** yang bisa di-download dan di-print:
+
+1. Masuk sebagai admin → menu **Laporan**.
+2. Atur filter (opsional): **Dari Tanggal**, **Sampai Tanggal**, dan **Status** (dipinjam/dikembalikan).
+3. Klik **Download PDF** → file `laporan-peminjaman-*.pdf` terunduh.
+4. Buka PDF lalu **print** (Ctrl+P / File → Print).
+
+Isi laporan: header sekolah, periode & status filter, ringkasan (total/dipinjam/kembali),
+tabel transaksi (No, Buku, Anggota, Tanggal Pinjam, Tanggal Kembali, Status),
+dan lembar tanda tangan Kepala Perpustakaan.
+
+Untuk upload sampul buku: pada form tambah/edit buku, pilih gambar (JPG/PNG/WebP/GIF, max 5MB).
+Sampul otomatis muncul di daftar buku (admin) dan kartu buku (katalog/peminjaman siswa).
 
 ## Deployment ke Vercel
 
