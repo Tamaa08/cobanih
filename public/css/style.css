@@ -872,20 +872,17 @@ a:hover { text-decoration: underline; }
   text-align: center;
   border-radius: 20px;
   padding: 64px 28px;
-  color: #fff;
-  background-image: url('/img/bg-beranda.jpg');
-  background-size: cover; background-position: center;
+  color: var(--primary-dark);
+  background: linear-gradient(160deg, #d6e6ff 0%, #cfe0fa 100%);
+  box-shadow: var(--shadow);
   overflow: hidden;
   margin-top: 6px;
 }
-.landing-hero::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(8,24,51,.85) 0%, rgba(14,52,99,.72) 45%, rgba(24,74,140,.62) 100%);
-}
+.landing-hero::before { display: none; }
 .landing-hero > * { position: relative; z-index: 1; }
-.landing-title { font-size: 38px; line-height: 1.15; margin-bottom: 8px; }
-.landing-sub { font-size: 20px; font-weight: 600; color: #ffd54f; margin-bottom: 14px; }
-.landing-desc { max-width: 620px; margin: 0 auto 24px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,.92); }
+.landing-title { font-size: 38px; line-height: 1.15; margin-bottom: 8px; color: var(--primary-dark); }
+.landing-sub { font-size: 20px; font-weight: 600; color: var(--primary); margin-bottom: 14px; }
+.landing-desc { max-width: 620px; margin: 0 auto 24px; font-size: 16px; line-height: 1.6; color: #31456b; }
 .landing-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
 .btn-lg { padding: 12px 26px; font-size: 16px; }
