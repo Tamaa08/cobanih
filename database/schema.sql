@@ -157,15 +157,15 @@ CREATE INDEX IF NOT EXISTS idx_denda_status ON denda(status);
 
 -- ============================================================
 -- Password default:
---   admin   -> smasleman1
+--   admin1  -> smasleman1
 --   petugas1 -> petugassma1
 --   budi    -> budi123
 -- Hashes di bawah adalah bcrypt (10 rounds) dari password tersebut.
 -- ============================================================
 
--- 1) Buat User Admin
+-- 1) Buat User Admin (username: admin1)
 INSERT INTO users (username, password_hash, role, nama)
-VALUES ('admin', '$2a$10$3SWKMUib4aPGhEKKXDHdf.aHleUTYYnAVkeNRg0Cyd5Xyb6qsNF.m', 'admin', 'Administrator')
+VALUES ('admin1', '$2a$10$3SWKMUib4aPGhEKKXDHdf.aHleUTYYnAVkeNRg0Cyd5Xyb6qsNF.m', 'admin', 'Administrator')
 ON CONFLICT (username) DO NOTHING;
 
 -- 2) Buat User Petugas

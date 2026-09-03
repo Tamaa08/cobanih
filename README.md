@@ -73,7 +73,7 @@ Buka `http://localhost:3000`
 
 | Role | Username | Password |
 |---|---|---|
-| Admin | `admin` | `smasleman1` |
+| Admin | `admin1` | `smasleman1` |
 | Petugas | `petugas1` | `petugassma1` |
 | Siswa | `budi` | `budi123` |
 

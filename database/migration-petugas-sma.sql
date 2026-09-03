@@ -2,7 +2,7 @@
 -- Migrasi: Role Petugas + Branding SMA N 1 Sleman
 -- 1) Kolom isbn di tabel buku (pencarian ISBN)
 -- 2) Role 'petugas' pada tabel users
--- 3) Password admin -> smasleman1
+-- 3) Username admin -> admin1, password smasleman1
 -- 4) Akun petugas1 -> petugassma1 (role petugas)
 -- Jalankan di SQL Editor Supabase (sekali saja).
 -- ============================================================
@@ -14,10 +14,11 @@ ALTER TABLE public.buku ADD COLUMN IF NOT EXISTS isbn VARCHAR(30);
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_role_check;
 ALTER TABLE public.users ADD CONSTRAINT users_role_check CHECK (role IN ('admin', 'petugas', 'siswa'));
 
--- 3) Ubah password admin menjadi smasleman1
+-- 3) Ubah username admin menjadi admin1 + password smasleman1
+UPDATE public.users SET username = 'admin1' WHERE username = 'admin';
 UPDATE public.users
 SET password_hash = '$2a$10$3SWKMUib4aPGhEKKXDHdf.aHleUTYYnAVkeNRg0Cyd5Xyb6qsNF.m'
-WHERE username = 'admin';
+WHERE username = 'admin1';
 
 -- 4) Buat / perbarui akun petugas (petugas1 / petugassma1)
 INSERT INTO public.users (username, password_hash, role, nama)
