@@ -841,18 +841,31 @@ a:hover { text-decoration: underline; }
 
 /* ===== Landing Page ===== */
 .landing-body {
-  background: var(--bg);
   min-height: 100vh;
   color: var(--text);
+  background-image: url('/img/bg-beranda.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
 }
-.landing-wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.landing-body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(20,40,80,.72) 0%, rgba(14,52,99,.60) 45%, rgba(24,74,140,.55) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+.landing-wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 .landing-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 0; gap: 12px;
 }
 .landing-brand { display: flex; align-items: center; gap: 12px; }
 .landing-logo-img { width: 60px; height: auto; background: #fff; border-radius: 8px; padding: 3px; }
-.landing-brand-text { font-size: 17px; font-weight: 700; color: var(--primary-dark); }
+.landing-brand-text { font-size: 17px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
 
 .landing-hero {
   position: relative;
@@ -878,7 +891,7 @@ a:hover { text-decoration: underline; }
 .btn-lg { padding: 12px 26px; font-size: 16px; }
 
 .landing-section { margin-top: 48px; }
-.landing-h2 { font-size: 26px; color: var(--primary-dark); margin-bottom: 20px; text-align: center; }
+.landing-h2 { font-size: 26px; color: #fff; margin-bottom: 20px; text-align: center; }
 .landing-cards, .landing-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 20px; }
 .landing-card {
   background: var(--card); border-radius: 14px; padding: 24px; box-shadow: var(--shadow);
@@ -911,7 +924,7 @@ a:hover { text-decoration: underline; }
 
 .landing-footer {
   text-align: center; padding: 28px 0 36px;
-  font-size: 13px; color: var(--text-muted);
+  font-size: 13px; color: #e7ecf5;
 }
 
 @media (max-width: 560px) {
