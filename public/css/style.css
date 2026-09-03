@@ -50,6 +50,19 @@ a:hover { text-decoration: underline; }
 .auth-bg-decor-1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(255,255,255,.35), transparent 65%); top: -120px; left: -100px; }
 .auth-bg-decor-2 { width: 380px; height: 380px; background: radial-gradient(circle, rgba(255,213,79,.35), transparent 65%); bottom: -130px; right: -90px; }
 .auth-bg-decor-3 { width: 260px; height: 260px; background: radial-gradient(circle, rgba(106,90,205,.4), transparent 65%); top: 40%; left: 55%; }
+.auth-bg-logo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 560px auto;
+  opacity: .07;
+  pointer-events: none;
+}
+@media (max-width: 560px) {
+  .auth-bg-logo { background-size: 300px auto; }
+}
 
 /* Kartu login/daftar tunggal (rapi di desktop & mobile) */
 .auth-card-main {
