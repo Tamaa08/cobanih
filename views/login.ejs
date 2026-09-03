@@ -3,47 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Perpustakaan SMA N 1 Sleman</title>
+  <title>Masuk - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="auth-body">
-  <div class="auth-card">
-    <div class="auth-header">
-      <img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="auth-logo-img">
-      <h1>Perpustakaan Digital SMA N 1 Sleman</h1>
-      <p>SMA Negeri 1 Sleman · Yogyakarta</p>
-    </div>
+<body class="auth-body auth-split">
+  <div class="auth-bg-decor auth-bg-decor-1"></div>
+  <div class="auth-bg-decor auth-bg-decor-2"></div>
+  <div class="auth-bg-decor auth-bg-decor-3"></div>
 
-    <% if (error) { %>
-      <div class="alert alert-error"><%= error %></div>
-    <% } %>
-    <% if (message) { %>
-      <div class="alert alert-success"><%= message %></div>
-    <% } %>
-
-    <div class="role-tabs">
-      <button type="button" class="role-tab active" data-role="siswa">Siswa</button>
-      <button type="button" class="role-tab" data-role="petugas">Petugas</button>
-      <button type="button" class="role-tab" data-role="admin">Admin</button>
-    </div>
-
-    <form action="/login" method="POST" class="auth-form">
-      <input type="hidden" name="role" id="role-input" value="siswa">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required placeholder="Masukkan username">
+  <div class="auth-shell">
+    <aside class="auth-hero">
+      <div class="auth-hero-inner">
+        <img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="auth-logo-img hero-logo">
+        <h1 class="hero-title">Perpustakaan Digital</h1>
+        <p class="hero-sub">SMA Negeri 1 Sleman · Yogyakarta</p>
+        <div class="hero-divider"></div>
+        <p class="hero-desc">
+          Selamat datang di perpustakaan digital kami. Jelajahi koleksi buku, pinjam, dan kelola
+          peminjaman dengan mudah — semua dalam satu tempat.
+        </p>
+        <ul class="hero-features">
+          <li><span class="hf-icon">📚</span> Ribuan koleksi buku digital &amp; fisik</li>
+          <li><span class="hf-icon">🕒</span> Peminjaman online 1–30 hari</li>
+          <li><span class="hf-icon">🧾</span> Struk &amp; riwayat peminjaman otomatis</li>
+          <li><span class="hf-icon">⭐</span> Rating &amp; penilaian dari siswa</li>
+        </ul>
+        <p class="hero-foot">SMA N 1 Sleman · Unggul, Berbudaya, Berwawasan Lingkungan</p>
       </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Masukkan password">
-      </div>
-      <button type="submit" class="btn btn-primary btn-block">Login</button>
-    </form>
+    </aside>
 
-    <p class="auth-footer">
-      Belum menjadi anggota?
-      <a href="/register">Daftar di sini</a>
-    </p>
+    <div class="auth-card auth-card-login">
+      <div class="auth-header">
+        <img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="auth-logo-img">
+        <h1>Selamat Datang</h1>
+        <p>Masuk untuk melanjutkan</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+      <% } %>
+      <% if (message) { %>
+        <div class="alert alert-success"><%= message %></div>
+      <% } %>
+
+      <div class="role-tabs">
+        <button type="button" class="role-tab active" data-role="siswa">Siswa</button>
+        <button type="button" class="role-tab" data-role="petugas">Petugas</button>
+        <button type="button" class="role-tab" data-role="admin">Admin</button>
+      </div>
+
+      <form action="/login" method="POST" class="auth-form">
+        <input type="hidden" name="role" id="role-input" value="siswa">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required placeholder="Masukkan username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Masukkan password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+      </form>
+
+      <p class="auth-footer">
+        Belum menjadi anggota?
+        <a href="/register">Daftar di sini</a>
+      </p>
+    </div>
   </div>
 
   <script>

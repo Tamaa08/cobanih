@@ -6,57 +6,83 @@
   <title>Daftar Anggota - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="auth-body">
-  <div class="auth-card">
-    <div class="auth-header">
-      <img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="auth-logo-img">
-      <h1>Daftar Anggota</h1>
-      <p>Buat akun untuk meminjam buku di Perpustakaan SMA N 1 Sleman</p>
+<body class="auth-body auth-split">
+  <div class="auth-bg-decor auth-bg-decor-1"></div>
+  <div class="auth-bg-decor auth-bg-decor-2"></div>
+  <div class="auth-bg-decor auth-bg-decor-3"></div>
+
+  <div class="auth-shell">
+    <aside class="auth-hero">
+      <div class="auth-hero-inner">
+        <img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="auth-logo-img hero-logo">
+        <h1 class="hero-title">Perpustakaan Digital</h1>
+        <p class="hero-sub">SMA Negeri 1 Sleman · Yogyakarta</p>
+        <div class="hero-divider"></div>
+        <p class="hero-desc">
+          Bergabunglah sebagai anggota perpustakaan. Buat akun untuk mulai meminjam
+          buku, melihat koleksi, dan mengikuti perkembangan perpustakaan sekolah kami.
+        </p>
+        <ul class="hero-features">
+          <li><span class="hf-icon">👤</span> Gratis untuk seluruh siswa SMA N 1 Sleman</li>
+          <li><span class="hf-icon">📚</span> Akses koleksi buku kapan saja</li>
+          <li><span class="hf-icon">🕒</span> Peminjaman fleksibel 1–30 hari</li>
+          <li><span class="hf-icon">⭐</span> Beri rating &amp; ulasan untuk setiap buku</li>
+        </ul>
+        <p class="hero-foot">SMA N 1 Sleman · Unggul, Berbudaya, Berwawasan Lingkungan</p>
+      </div>
+    </aside>
+
+    <div class="auth-card auth-card-login">
+      <div class="auth-header">
+        <img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="auth-logo-img">
+        <h1>Daftar Anggota</h1>
+        <p>Buat akun untuk meminjam buku</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+      <% } %>
+      <% if (message) { %>
+        <div class="alert alert-success"><%= message %></div>
+      <% } %>
+
+      <form action="/register" method="POST" class="auth-form">
+        <div class="form-group">
+          <label for="nama">Nama Lengkap</label>
+          <input type="text" id="nama" name="nama" required placeholder="Nama lengkap">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="kelas">Kelas</label>
+            <input type="text" id="kelas" name="kelas" required placeholder="Mis. XI RPL 1">
+          </div>
+          <div class="form-group">
+            <label for="nis">NIS</label>
+            <input type="text" id="nis" name="nis" required placeholder="Nomor Induk Siswa">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required placeholder="Pilih username">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Min. 6 karakter">
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Konfirmasi Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required placeholder="Ulangi password">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Daftar</button>
+      </form>
+
+      <p class="auth-footer">
+        Sudah punya akun?
+        <a href="/login">Login di sini</a>
+      </p>
     </div>
-
-    <% if (error) { %>
-      <div class="alert alert-error"><%= error %></div>
-    <% } %>
-    <% if (message) { %>
-      <div class="alert alert-success"><%= message %></div>
-    <% } %>
-
-    <form action="/register" method="POST" class="auth-form">
-      <div class="form-group">
-        <label for="nama">Nama Lengkap</label>
-        <input type="text" id="nama" name="nama" required placeholder="Nama lengkap">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="kelas">Kelas</label>
-          <input type="text" id="kelas" name="kelas" required placeholder="Mis. XI RPL 1">
-        </div>
-        <div class="form-group">
-          <label for="nis">NIS</label>
-          <input type="text" id="nis" name="nis" required placeholder="Nomor Induk Siswa">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required placeholder="Pilih username">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required placeholder="Min. 6 karakter">
-        </div>
-        <div class="form-group">
-          <label for="confirm_password">Konfirmasi Password</label>
-          <input type="password" id="confirm_password" name="confirm_password" required placeholder="Ulangi password">
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary btn-block">Daftar</button>
-    </form>
-
-    <p class="auth-footer">
-      Sudah punya akun?
-      <a href="/login">Login di sini</a>
-    </p>
   </div>
 </body>
 </html>
