@@ -90,7 +90,15 @@
           img.parentNode.replaceChild(holder, img);
           render(holder);
         });
-        if (img.complete && img.naturalWidth === 0) img.dispatchEvent(new Event('error'));
+        // Hanya ganti jadi fake-cover bila gambar SUDAH mencoba dimuat dan memang gagal.
+        // Tunggu event 'load' dulu; jangan menilai prematur saat gambar belum selesai dimuat.
+        if (img.complete && img.naturalWidth === 0 &&
+            (img.getAttribute('src') || img.currentSrc)) {
+          img.dispatchEvent(new Event('error'));
+        } else if (img.complete && img.naturalWidth === 0) {
+          // src kosong -> bukan gambar valid
+          img.dispatchEvent(new Event('error'));
+        }
       })(imgs[j]);
     }
   }
