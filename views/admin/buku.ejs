@@ -6,6 +6,7 @@
   <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/fake-cover.js" defer></script>
+  <script src="/js/cover-preview.js" defer></script>
 </head>
 <body>
   <div class="layout">
@@ -100,8 +101,11 @@
               <input type="text" name="lokasi" placeholder="Mis. Rak A-1">
             </div>
             <div class="form-group form-group-full">
-              <label>URL Sampul Buku (opsional)</label>
-              <input type="url" name="cover_url" placeholder="https://contoh.com/sampul.jpg">
+              <label>URL Sampul Buku (opsional — tempel <strong>link langsung ke gambar</strong>, mis. dari imgbb.com)</label>
+              <input type="url" name="cover_url" id="cover-url-input" placeholder="https://contoh.com/sampul.jpg">
+              <div class="cover-current">Pratinjau:</div>
+              <img id="cover-live-preview" src="" alt="Pratinjau sampul" class="cover-preview" data-live-cover-preview style="display:none">
+              <div id="cover-no-preview" class="cover-preview" data-fake-cover></div>
             </div>
             <div class="form-group">
               <label>Rating Awal (0-5, opsional)</label>
