@@ -14,6 +14,7 @@ const contexts = {
   'login.ejs': { error: null, message: null, title: 'Login' },
   'register.ejs': { error: null, message: null, title: 'Daftar' },
   '404.ejs': { title: '404' },
+  'landing.ejs': { title: 'Landing' },
   'admin/dashboard.ejs': {
     title: 'Dashboard', currentUser: sampleUser,
     stats: { totalBuku: 1, totalAnggota: 1, totalPeminjaman: 1, totalSelesai: 1 },

@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
     if (req.session.user.role === 'admin') return res.redirect('/admin/dashboard');
     return res.redirect('/user/dashboard');
   }
-  res.redirect('/login');
+  res.render('landing', { title: 'Perpustakaan SMA N 1 Sleman' });
 });
 
 app.use((req, res) => {
