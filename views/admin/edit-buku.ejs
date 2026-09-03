@@ -42,7 +42,7 @@
             <h2>Form Edit Buku</h2>
             <a href="/admin/buku" class="btn btn-outline btn-sm">Kembali</a>
           </div>
-          <form action="/admin/buku/<%= buku.id %>/edit" method="POST" enctype="multipart/form-data" class="form-grid">
+          <form action="/admin/buku/<%= buku.id %>/edit" method="POST" class="form-grid">
             <div class="form-group">
               <label>Judul Buku</label>
               <input type="text" name="judul" value="<%= buku.judul %>" required>
@@ -71,13 +71,23 @@
               <label>Stok</label>
               <input type="number" name="stok" value="<%= buku.stok %>" min="0" required>
             </div>
+            <div class="form-group">
+              <label>Kualitas / Kondisi</label>
+              <select name="kualitas">
+                <option value="">- Pilih -</option>
+                <option value="Baru" <%= buku.kualitas === 'Baru' ? 'selected' : '' %>>Baru</option>
+                <option value="Baik" <%= buku.kualitas === 'Baik' ? 'selected' : '' %>>Baik</option>
+                <option value="Cukup" <%= buku.kualitas === 'Cukup' ? 'selected' : '' %>>Cukup</option>
+                <option value="Rusak" <%= buku.kualitas === 'Rusak' ? 'selected' : '' %>>Rusak</option>
+              </select>
+            </div>
             <div class="form-group form-group-full">
               <label>Lokasi Rak</label>
               <input type="text" name="lokasi" value="<%= buku.lokasi || '' %>">
             </div>
             <div class="form-group form-group-full">
-              <label>Sampul Buku (opsional, JPG/PNG/WebP/GIF, max 5MB)</label>
-              <input type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/gif">
+              <label>URL Sampul Buku (opsional — tempel link gambar, mis. dari imgbb.com)</label>
+              <input type="url" name="cover_url" value="<%= buku.cover_url || '' %>" placeholder="https://contoh.com/sampul.jpg">
               <% if (buku.cover_url) { %>
                 <div class="cover-current">Sampul saat ini:</div>
                 <img src="<%= buku.cover_url %>" alt="Sampul <%= buku.judul %>" class="cover-preview"

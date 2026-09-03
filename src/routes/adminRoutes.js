@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { isStaff } from '../middleware/auth.js';
-import { uploadCover } from '../middleware/upload.js';
 import { showDashboardAdmin } from '../controllers/dashboardController.js';
 import {
   showBuku,
@@ -58,9 +57,9 @@ router.post('/akun/:id/delete', adminOnly, deleteAkun);
 router.get('/dashboard', showDashboardAdmin);
 
 router.get('/buku', showBuku);
-router.post('/buku', uploadCover.single('cover'), createBuku);
+router.post('/buku', createBuku);
 router.get('/buku/:id/edit', renderEditBuku);
-router.post('/buku/:id/edit', uploadCover.single('cover'), updateBuku);
+router.post('/buku/:id/edit', updateBuku);
 router.post('/buku/:id/delete', deleteBuku);
 
 router.get('/anggota', showAnggota);

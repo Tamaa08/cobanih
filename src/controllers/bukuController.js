@@ -1,45 +1,18 @@
 import { supabase } from '../config/db.js';
-import crypto from 'crypto';
 
-const BUCKET = 'covers';
-
-async function ensureBucket() {
-  const { data: buckets } = await supabase.storage.listBuckets();
-  const exists = (buckets || []).some((b) => b.name === BUCKET);
-  if (!exists) {
-    await supabase.storage.createBucket(BUCKET, { public: true });
-  }
-}
-
-function getPublicUrl(path) {
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-export async function uploadCoverImage(file) {
-  if (!file) return null;
-  await ensureBucket();
-  const ext = file.originalname.split('.').pop().toLowerCase();
-  const fileName = `${Date.now()}_${crypto.randomBytes(6).toString('hex')}.${ext}`;
-  const { error: upErr } = await supabase.storage
-    .from(BUCKET)
-    .upload(fileName, file.buffer, {
-      contentType: file.mimetype,
-      upsert: false,
-    });
-  if (upErr) throw new Error('Gagal upload sampul: ' + upErr.message);
-  return getPublicUrl(fileName);
-}
-
-export async function deleteCoverImage(url) {
-  if (!url) return;
+// Deteksi kolom "kualitas" (ditambahkan lewat migrasi SQL di Supabase Dashboard).
+// Selama kolom belum ada, aplikasi tetap berfungsi penuh tanpa fitur kualitas;
+// begitu migrasi dijalankan, fitur kualitas aktif otomatis.
+let _kualitasAvailable = null;
+async function kualitasColumnExists() {
+  if (_kualitasAvailable !== null) return _kualitasAvailable;
   try {
-    const path = decodeURIComponent(url.split('/').pop() || '');
-    if (!path) return;
-    await supabase.storage.from(BUCKET).remove([path]);
+    const { error } = await supabase.from('buku').select('kualitas').limit(0);
+    _kualitasAvailable = !error;
   } catch {
-    // abaikan bila gagal menghapus file storage
+    _kualitasAvailable = false;
   }
+  return _kualitasAvailable;
 }
 
 export async function showBuku(req, res) {
@@ -81,7 +54,7 @@ export async function showBuku(req, res) {
 }
 
 export async function createBuku(req, res) {
-  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, rating, isbn } = req.body;
+  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, rating, isbn, kualitas, cover_url } = req.body;
 
   if (!judul || !penulis || !kategori || !stok) {
     req.session.error = 'Judul, penulis, kategori, dan stok wajib diisi';
@@ -101,27 +74,30 @@ export async function createBuku(req, res) {
       return res.redirect('/admin/buku');
     }
 
-    const cover_url = await uploadCoverImage(req.file);
-
     const ratingNum = parseFloat(rating);
     const initialRating = !isNaN(ratingNum) && ratingNum >= 0 && ratingNum <= 5 ? ratingNum : 0;
     const initialCount = initialRating > 0 ? 1 : 0;
 
+    const row = {
+      judul,
+      penulis,
+      penerbit: penerbit || null,
+      tahun_terbit: tahun_terbit ? parseInt(tahun_terbit) : null,
+      kategori,
+      stok: parseInt(stok) || 0,
+      lokasi: lokasi || null,
+      cover_url: cover_url || null,
+      deskripsi: deskripsi || null,
+      isbn: isbn || null,
+      rating: initialRating,
+      rating_count: initialCount,
+    };
+    if (await kualitasColumnExists()) {
+      row.kualitas = kualitas || null;
+    }
+
     const { error: err } = await supabase.from('buku').insert([
-      {
-        judul,
-        penulis,
-        penerbit: penerbit || null,
-        tahun_terbit: tahun_terbit ? parseInt(tahun_terbit) : null,
-        kategori,
-        stok: parseInt(stok) || 0,
-        lokasi: lokasi || null,
-        cover_url,
-        deskripsi: deskripsi || null,
-        isbn: isbn || null,
-        rating: initialRating,
-        rating_count: initialCount,
-      },
+      row,
     ]);
 
     if (err) throw err;
@@ -149,34 +125,28 @@ export async function renderEditBuku(req, res) {
 
 export async function updateBuku(req, res) {
   const { id } = req.params;
-  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, isbn } = req.body;
+  const { judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi, deskripsi, isbn, kualitas, cover_url } = req.body;
 
   try {
-    const { data: current } = await supabase.from('buku').select('cover_url').eq('id', id).single();
-
-    let cover_url = current ? current.cover_url : null;
-    if (req.file) {
-      const newUrl = await uploadCoverImage(req.file);
-      if (newUrl) {
-        await deleteCoverImage(cover_url);
-        cover_url = newUrl;
-      }
+    const fields = {
+      judul,
+      penulis,
+      penerbit: penerbit || null,
+      tahun_terbit: tahun_terbit ? parseInt(tahun_terbit) : null,
+      kategori,
+      stok: parseInt(stok) || 0,
+      lokasi: lokasi || null,
+      cover_url: cover_url || null,
+      deskripsi: deskripsi || null,
+      isbn: isbn || null,
+    };
+    if (await kualitasColumnExists()) {
+      fields.kualitas = kualitas || null;
     }
 
     const { error: err } = await supabase
       .from('buku')
-      .update({
-        judul,
-        penulis,
-        penerbit: penerbit || null,
-        tahun_terbit: tahun_terbit ? parseInt(tahun_terbit) : null,
-        kategori,
-        stok: parseInt(stok) || 0,
-        lokasi: lokasi || null,
-        cover_url,
-        deskripsi: deskripsi || null,
-        isbn: isbn || null,
-      })
+      .update(fields)
       .eq('id', id);
 
     if (err) throw err;
@@ -201,10 +171,8 @@ export async function deleteBuku(req, res) {
       return res.redirect('/admin/buku');
     }
 
-    const { data: bukuRow } = await supabase.from('buku').select('cover_url').eq('id', id).single();
     const { error: err } = await supabase.from('buku').delete().eq('id', id);
     if (err) throw err;
-    if (bukuRow) await deleteCoverImage(bukuRow.cover_url);
     req.session.message = 'Buku berhasil dihapus';
   } catch (e) {
     req.session.error = 'Gagal menghapus buku: ' + e.message;

@@ -66,6 +66,7 @@
             <p class="detail-author">oleh <strong><%= buku.penulis %></strong></p>
             <p class="detail-meta">
               <span class="badge"><%= buku.kategori %></span>
+              <% if (buku.kualitas) { %><span class="badge badge-buku-kualitas kualitas-<%= buku.kualitas.toLowerCase() %>">Kondisi: <%= buku.kualitas %></span><% } %>
               <span class="badge">Tahun: <%= buku.tahun_terbit || '-' %></span>
               <span class="badge">Penerbit: <%= buku.penerbit || '-' %></span>
               <% if (buku.isbn) { %><span class="badge">ISBN: <%= buku.isbn %></span><% } %>

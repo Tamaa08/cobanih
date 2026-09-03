@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS buku (
     cover_url TEXT,
     rating DOUBLE PRECISION NOT NULL DEFAULT 0,
     rating_count INTEGER NOT NULL DEFAULT 0,
+    kualitas VARCHAR(20),
     deskripsi TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -204,7 +205,7 @@ INSERT INTO buku (judul, penulis, penerbit, tahun_terbit, kategori, stok, lokasi
   ('Pemrograman Web', 'Budi Raharjo', 'Informatika', 2020, 'Teknologi', 3, 'Rak C-2', 4.4, 6, 'Buku pemrograman web praktis untuk pemula. Intinya: langkah demi langkah membangun aplikasi web dinamis dari dasar, mulai dari HTML, CSS, PHP, hingga MySQL.', '978-602-8758-64-2');
 
 -- Update untuk buku yang sudah ada di database lama (setelah migrasi kolom rating/deskripsi)
-UPDATE buku SET deskripsi = 'Novel ikonik yang menceritakan perjuangan sejumlah anak Belitung dalam mengejar pendidikan di SD Muhammadiyah yang sederhana. Intinya: semangat, persahabatan, dan tekad melawan keterbatasan demi meraih mimpi.', rating = 4.8, rating_count = 12 WHERE judul = 'Laskar Pelangi';
+UPDATE buku SET deskripsi = 'Novel ikonik yang menceritakan perjuangan sejumlah anak Belitung dalam mengejar pendidikan di SD Muhammadiyah yang sederhana. Intinya: semangat, persahabatan, dan tekad melawan keterbatasan demi meraih mimpi.', rating = 4.8, rating_count = 12, kualitas = 'Baik' WHERE judul = 'Laskar Pelangi';
 UPDATE buku SET deskripsi = 'Novel sejarah kolonial tentang Minke, pemuda pribumi terdidik di era Hindia Belanda. Intinya: kritik terhadap kolonialisme, diskriminasi rasial, dan pencarian jati diri bangsa.', rating = 4.7, rating_count = 9 WHERE judul = 'Bumi Manusia';
 UPDATE buku SET deskripsi = 'Buku praktis tentang filsafat Stoisisme yang relevan untuk kehidupan modern. Intinya: mengendalikan apa yang bisa dikendalikan, menjaga ketenangan batin, dan tidak larut dalam hal di luar kendali.', rating = 4.6, rating_count = 8 WHERE judul = 'Filosofi Teras';
 UPDATE buku SET deskripsi = 'Buku pengembangan diri tentang kekuatan kebiasaan kecil. Intinya: perubahan besar datang dari perbaikan 1% setiap hari secara konsisten, bukan dari tujuan besar yang instan.', rating = 4.7, rating_count = 10 WHERE judul = 'Atomic Habits';
@@ -212,3 +213,7 @@ UPDATE buku SET deskripsi = 'Kisah enam sahabat santri di Pondok Madani yang mas
 UPDATE buku SET deskripsi = 'Sekuel Laskar Pelangi tentang Ikal, Arai, dan Jimbron yang bermimpi besar dari Belitung untuk melanjutkan pendidikan sampai ke luar negeri. Intinya: keberanian bermimpi besar dan setia kawan.', rating = 4.5, rating_count = 6 WHERE judul = 'Sang Pemimpi';
 UPDATE buku SET deskripsi = 'Buku teks matematika diskrit untuk mahasiswa informatika. Intinya: dasar-dasar logika, himpunan, relasi, graf, dan kombinatorik sebagai fondasi berpikir komputasional.', rating = 4.3, rating_count = 5 WHERE judul = 'Matematika Informatika';
 UPDATE buku SET deskripsi = 'Buku pemrograman web praktis untuk pemula. Intinya: langkah demi langkah membangun aplikasi web dinamis dari dasar, mulai dari HTML, CSS, PHP, hingga MySQL.', rating = 4.4, rating_count = 6 WHERE judul = 'Pemrograman Web';
+
+-- Set kualitas (kondisi) untuk semua buku contoh
+UPDATE buku SET kualitas = 'Baik'
+WHERE judul IN ('Laskar Pelangi','Bumi Manusia','Filosofi Teras','Atomic Habits','Negeri 5 Menara','Sang Pemimpi','Matematika Informatika','Pemrograman Web');

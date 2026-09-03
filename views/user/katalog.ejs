@@ -96,6 +96,7 @@
                     <% } %>
                     <p class="book-meta">
                       <span class="badge"><%= b.kategori %></span>
+                      <% if (b.kualitas) { %><span class="badge badge-buku-kualitas kualitas-<%= b.kualitas.toLowerCase() %>">Kondisi: <%= b.kualitas %></span><% } %>
                       <% if (b.isbn) { %><span class="badge">ISBN: <%= b.isbn %></span><% } %>
                       <span class="badge <%= b.stok > 0 ? 'badge-success' : 'badge-danger' %>">
                         Stok: <%= b.stok %>
