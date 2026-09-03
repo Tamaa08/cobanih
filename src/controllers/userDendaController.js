@@ -28,7 +28,7 @@ export async function showDendaUser(req, res) {
     if (anggota) {
       const { data } = await supabase
         .from('denda')
-        .select('*, buku(judul, cover_url), transaksi(tanggal_pinjam, tanggal_kembali, tanggal_kembali_aktual)')
+        .select('*, buku(judul, cover_url, penulis, kategori), transaksi(tanggal_pinjam, tanggal_kembali, tanggal_kembali_aktual)')
         .eq('id_anggota', anggota.id)
         .order('created_at', { ascending: false });
       denda = data || [];
@@ -68,7 +68,7 @@ export async function showBayarDenda(req, res) {
 
     const { data: denda } = await supabase
       .from('denda')
-      .select('*, buku(judul, cover_url), transaksi(tanggal_pinjam, tanggal_kembali, tanggal_kembali_aktual)')
+      .select('*, buku(judul, cover_url, penulis, kategori), transaksi(tanggal_pinjam, tanggal_kembali, tanggal_kembali_aktual)')
       .eq('id', id)
       .single();
 

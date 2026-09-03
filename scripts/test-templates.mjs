@@ -89,7 +89,7 @@ const contexts = {
   },
   'user/denda.ejs': {
     title: 'Denda', currentUser: sampleSiswa, totalBelumBayar: 10000,
-    denda: [{ id: 1, jenis: 'telat', jumlah: 10000, hari_keterlambatan: 1, status: 'belum_bayar', keterangan: 'k', buku: { judul: 'J', cover_url: null } }],
+    denda: [{ id: 1, jenis: 'telat', jumlah: 10000, hari_keterlambatan: 1, status: 'belum_bayar', keterangan: 'k', buku: { judul: 'J', cover_url: null, penulis: 'P', kategori: 'Fiksi' } }],
     message: null, error: null,
   },
   'user/bayar-denda.ejs': {

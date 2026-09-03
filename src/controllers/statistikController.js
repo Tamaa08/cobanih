@@ -75,7 +75,7 @@ export async function showStatistik(req, res) {
     // Siapa yang sedang meminjam sekarang (belum dikembalikan)
     const { data: active, error: errActive } = await supabase
       .from('transaksi')
-      .select('*, buku(judul, cover_url), anggota(nama, nis, kelas)')
+      .select('*, buku(judul, cover_url, penulis, kategori), anggota(nama, nis, kelas)')
       .eq('status', 'dipinjam')
       .order('tanggal_pinjam', { ascending: false });
     if (errActive) throw errActive;

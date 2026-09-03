@@ -559,3 +559,31 @@ a:hover { text-decoration: underline; }
 .akun-edit-form .form-group { margin-bottom: 8px; }
 .akun-edit-form .form-group label { display: block; font-size: 12px; color: #55637a; margin-bottom: 3px; }
 .akun-edit-form select, .akun-edit-form input { width: 100%; }
+
+/* ===== Fake sampul (placeholder bertema) ===== */
+[data-fake-cover] { display: flex; align-items: center; justify-content: center; background: #eef2f8; color: #8ba0c0; overflow: hidden; }
+.fake-cover-inner {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 100%; height: 100%; gap: 5px; text-align: center; padding: 8px;
+  color: #fff; font-family: inherit;
+}
+.fake-cover-initial {
+  font-weight: 800; font-size: 1.6em; line-height: 1; letter-spacing: .02em;
+  text-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+.fake-cover-cat {
+  font-size: .66em; text-transform: uppercase; letter-spacing: .12em; font-weight: 600;
+  background: rgba(255,255,255,.22); padding: 2px 8px; border-radius: 999px;
+}
+.fake-cover-title {
+  font-size: .82em; font-weight: 700; line-height: 1.2; max-width: 100%;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.fake-cover-author { font-size: .62em; opacity: .85; max-width: 100%; }
+
+/* Ukuran per konteks */
+.book-cover[data-fake-cover] { width: 100%; height: 100%; min-height: 150px; border-radius: 10px; }
+.cover-thumb[data-fake-cover] { width: 54px; height: 74px; border-radius: 6px; font-size: .9em; }
+.cover-img[data-fake-cover] { width: 100%; height: 100%; }
+.detail-cover-placeholder[data-fake-cover] { width: 100%; height: 100%; border-radius: 12px; }
+.cover-preview[data-fake-cover] { width: 140px; height: 200px; border-radius: 6px; font-size: 1em; }

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/fake-cover.js" defer></script>
 </head>
 <body>
   <div class="layout">
@@ -73,9 +74,10 @@
                 <div class="book-card">
                   <div class="book-cover">
                     <% if (b.cover_url) { %>
-                      <img src="<%= b.cover_url %>" alt="<%= b.judul %>" class="cover-img">
+                      <img src="<%= b.cover_url %>" alt="<%= b.judul %>" class="cover-img"
+                        data-fake-cover-fallback data-judul="<%= b.judul %>" data-penulis="<%= b.penulis %>" data-kategori="<%= b.kategori %>">
                     <% } else { %>
-                      <span class="cover-emoji">📖</span>
+                      <div class="cover-emoji" data-fake-cover data-judul="<%= b.judul %>" data-penulis="<%= b.penulis %>" data-kategori="<%= b.kategori %>"></div>
                     <% } %>
                   </div>
                   <div class="book-info">

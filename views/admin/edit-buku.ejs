@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/fake-cover.js" defer></script>
 </head>
 <body>
   <div class="layout">
@@ -79,7 +80,11 @@
               <input type="file" name="cover" accept="image/jpeg,image/png,image/webp,image/gif">
               <% if (buku.cover_url) { %>
                 <div class="cover-current">Sampul saat ini:</div>
-                <img src="<%= buku.cover_url %>" alt="Sampul <%= buku.judul %>" class="cover-preview">
+                <img src="<%= buku.cover_url %>" alt="Sampul <%= buku.judul %>" class="cover-preview"
+                  data-fake-cover-fallback data-judul="<%= buku.judul %>" data-penulis="<%= buku.penulis %>" data-kategori="<%= buku.kategori %>">
+              <% } else { %>
+                <div class="cover-current">Pratinjau sampul (placeholder otomatis):</div>
+                <div class="cover-preview" data-fake-cover data-judul="<%= buku.judul %>" data-penulis="<%= buku.penulis %>" data-kategori="<%= buku.kategori %>"></div>
               <% } %>
             </div>
             <div class="form-group form-group-full">

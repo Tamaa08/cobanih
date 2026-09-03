@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
   <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/fake-cover.js" defer></script>
 </head>
 <body>
   <div class="layout">
@@ -163,8 +164,13 @@
                     <td><%= i + 1 %></td>
                     <td>
                       <div class="denda-buku">
-                        <% if (t.buku && t.buku.cover_url) { %>
-                          <img src="<%= t.buku.cover_url %>" alt="<%= t.buku.judul %>" class="cover-thumb">
+                        <% if (t.buku) { %>
+                          <% if (t.buku.cover_url) { %>
+                            <img src="<%= t.buku.cover_url %>" alt="<%= t.buku.judul %>" class="cover-thumb"
+                              data-fake-cover-fallback data-judul="<%= t.buku.judul %>" data-penulis="<%= t.buku.penulis || '' %>" data-kategori="<%= t.buku.kategori || '' %>">
+                          <% } else { %>
+                            <div class="cover-thumb" data-fake-cover data-judul="<%= t.buku.judul %>" data-penulis="<%= t.buku.penulis || '' %>" data-kategori="<%= t.buku.kategori || '' %>"></div>
+                          <% } %>
                         <% } %>
                         <%= t.buku ? t.buku.judul : '-' %>
                       </div>
