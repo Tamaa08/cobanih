@@ -17,6 +17,7 @@
         <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
         <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
         <a href="/user/riwayat" class="nav-link">Riwayat</a>
+        <a href="/user/bantuan" class="nav-link">Bantuan</a>
       </nav>
       <div class="sidebar-user">
         <span class="sidebar-user-role">Siswa</span>
@@ -57,6 +58,14 @@
             <h2>Selamat Datang, <%= nama %>! 👋</h2>
           </div>
           <p>Manfaatkan layanan perpustakaan untuk meminjam dan mengembalikan buku dengan mudah.</p>
+        </div>
+
+        <div class="cs-inline">
+          <div>
+            <strong>💬 Butuh bantuan atau lupa password?</strong>
+            <p>Hubungi Admin/Petugas Perpustakaan SMA N 1 Sleman untuk dibantu reset password akun Anda.</p>
+          </div>
+          <a href="/user/bantuan" class="btn btn-primary btn-sm">Lihat Contact CS</a>
         </div>
 
         <% if (totalDenda > 0) { %>

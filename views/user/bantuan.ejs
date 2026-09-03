@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+        <a href="/user/bantuan" class="nav-link active">Bantuan</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role"><%= currentUser.role %></span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Bantuan &amp; Customer Service</h1>
+        <div class="topbar-right">
+          <div class="live-clock" id="liveClock">--:--:-- WIB</div>
+          <span class="badge"><%= currentUser.role %></span>
+        </div>
+      </header>
+
+      <script>
+        function tickClock() {
+          const el = document.getElementById('liveClock');
+          if (el) {
+            try {
+              el.textContent = new Date().toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB';
+            } catch (e) {
+              el.textContent = new Date().toLocaleTimeString('id-ID') + ' WIB';
+            }
+          }
+        }
+        tickClock();
+        setInterval(tickClock, 1000);
+      </script>
+
+      <div class="content">
+        <div class="card">
+          <div class="card-header">
+            <h2>💬 Pusat Bantuan Perpustakaan</h2>
+          </div>
+          <p>
+            Punya kendala? Hubungi Admin/Petugas Perpustakaan SMA N 1 Sleman. Tim kami siap membantu
+            Anda seputar peminjaman, pengembalian, denda, hingga masalah akun.
+          </p>
+        </div>
+
+        <div class="cs-grid">
+          <div class="cs-box">
+            <span class="cs-box-icon">🔑</span>
+            <h3>Lupa / Ganti Password</h3>
+            <p>
+              Tidak dapat masuk karena lupa atau salah kata sandi? Hubungi admin untuk mereset
+              password akun Anda. Siapkan username atau NIS Anda agar proses lebih cepat.
+            </p>
+            <span class="cs-box-tag">Admin &amp; Petugas Perpustakaan</span>
+          </div>
+          <div class="cs-box">
+            <span class="cs-box-icon">📕</span>
+            <h3>Peminjaman &amp; Pengembalian</h3>
+            <p>
+              Pertanyaan seputar cara meminjam, batas waktu, atau perpanjangan peminjaman buku dapat
+              ditanyakan langsung kepada petugas perpustakaan.
+            </p>
+            <span class="cs-box-tag">Senin–Jumat · 07.00–16.00 WIB</span>
+          </div>
+          <div class="cs-box">
+            <span class="cs-box-icon">💳</span>
+            <h3>Denda &amp; Pembayaran</h3>
+            <p>
+              Butuh penjelasan mengenai denda keterlambatan atau cara membayar? Hubungi petugas untuk
+              konsultasi dan penyelesaian admin denda Anda.
+            </p>
+            <span class="cs-box-tag">Layanan Siswa</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>📞 Kontak Customer Service</h2>
+          </div>
+          <div class="cs-contacts-wide">
+            <div class="cs-contact-item">
+              <span class="cs-icon">📞</span>
+              <div>
+                <span class="cs-label">Telepon</span>
+                <span class="cs-value">(0274) 868434</span>
+              </div>
+            </div>
+            <div class="cs-contact-item">
+              <span class="cs-icon">✉️</span>
+              <div>
+                <span class="cs-label">Email</span>
+                <span class="cs-value">info@sman1sleman.sch.id</span>
+              </div>
+            </div>
+            <div class="cs-contact-item">
+              <span class="cs-icon">📍</span>
+              <div>
+                <span class="cs-label">Lokasi Perpustakaan</span>
+                <span class="cs-value">Jl. Magelang Km 14,4 Medari, Caturharjo, Sleman, Yogyakarta</span>
+              </div>
+            </div>
+          </div>
+          <a href="mailto:info@sman1sleman.sch.id" class="btn btn-primary">💬 Hubungi Customer Service</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

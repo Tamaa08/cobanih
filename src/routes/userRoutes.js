@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { isSiswa } from '../middleware/auth.js';
 import { showDashboardUser } from '../controllers/userDashboardController.js';
+import { showBantuan } from '../controllers/userBantuanController.js';
 import {
   showPeminjamanBooking,
   createPeminjamanUser,
@@ -20,6 +21,8 @@ const router = Router();
 router.use(isSiswa);
 
 router.get('/dashboard', showDashboardUser);
+
+router.get('/bantuan', showBantuan);
 
 router.get('/katalog', showKatalog);
 router.get('/buku/:id', showBukuDetail);

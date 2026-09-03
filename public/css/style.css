@@ -129,6 +129,123 @@ a:hover { text-decoration: underline; }
   .auth-card-login { padding: 36px 28px; }
 }
 
+/* ===== Customer Service / Bantuan ===== */
+.cs-card {
+  margin-top: 22px;
+  border: 1px solid #dbe4f1;
+  background: linear-gradient(135deg, #f4f8ff 0%, #eef3fb 100%);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cs-card-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cs-badge {
+  background: var(--primary);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.cs-title { color: var(--primary-dark); font-size: 13.5px; }
+.cs-desc { font-size: 12.5px; line-height: 1.6; color: #55637a; margin: 0; }
+.cs-contacts { display: flex; flex-direction: column; gap: 8px; }
+.cs-contact { display: flex; align-items: flex-start; gap: 9px; }
+.cs-icon {
+  width: 30px; height: 30px; flex-shrink: 0;
+  background: #fff; border: 1px solid #dbe4f1; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.cs-contact div { display: flex; flex-direction: column; line-height: 1.3; }
+.cs-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; color: #8ba0c0; }
+.cs-value { font-size: 13px; font-weight: 600; color: var(--primary-dark); }
+.cs-btn {
+  text-align: center;
+  background: var(--primary); color: #fff;
+  padding: 10px 14px; border-radius: 9px;
+  font-size: 13.5px; font-weight: 600; text-decoration: none;
+  transition: background .15s;
+}
+.cs-btn:hover { background: var(--primary-dark); text-decoration: none; }
+
+/* Customer Service: halaman bantuan & dashboard */
+.cs-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #f4f8ff 0%, #eef3fb 100%);
+  border: 1px solid #dbe4f1;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+}
+.cs-inline strong { color: var(--primary-dark); font-size: 14px; }
+.cs-inline p { margin: 4px 0 0; font-size: 13px; color: #55637a; }
+.cs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.cs-box {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow);
+}
+.cs-box-icon {
+  width: 44px; height: 44px;
+  background: var(--primary-light);
+  border-radius: 11px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.cs-box h3 { font-size: 15px; color: var(--primary-dark); margin: 0; }
+.cs-box p { font-size: 13px; line-height: 1.6; color: #55637a; margin: 0; }
+.cs-box-tag {
+  margin-top: auto;
+  align-self: flex-start;
+  font-size: 11px; font-weight: 600;
+  background: #eef3fb; color: var(--primary);
+  padding: 4px 10px; border-radius: 999px;
+}
+.cs-contacts-wide {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.cs-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fafbfd;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.cs-contact-item .cs-icon {
+  width: 36px; height: 36px;
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+}
+.cs-contact-item .cs-value { font-size: 14px; }
+.cs-contact-item div { display: flex; flex-direction: column; gap: 2px; line-height: 1.35; }
+.cs-contact-item .cs-label { font-size: 11px; }
+@media (max-width: 560px) {
+  .cs-inline { flex-direction: column; align-items: flex-start; }
+}
+
 /* ===== Layout ===== */
 .layout { display: flex; min-height: 100vh; }
 

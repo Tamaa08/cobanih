@@ -77,6 +77,7 @@ const contexts = {
     totalDenda: 1, jumlahDenda: 10000,
     myTrx: [{ buku: { judul: 'J' }, tanggal_pinjam: new Date().toISOString(), tanggal_kembali: new Date().toISOString(), status: 'dipinjam' }],
   },
+  'user/bantuan.ejs': { title: 'Bantuan', currentUser: sampleSiswa },
   'user/katalog.ejs': { title: 'Katalog', currentUser: sampleSiswa, buku: [{ id: 1, judul: 'J', penulis: 'P', kategori: 'K', isbn: '978-1', stok: 2, cover_url: null, rating: 4.2, rating_count: 3, deskripsi: 'Desc' }], pinjamIds: new Set(), search: '', kategori: '', kategoriList: ['Fiksi'], message: null, error: null },
   'user/peminjaman.ejs': { title: 'Pinjam', currentUser: sampleSiswa, buku: [{ id: 1, judul: 'J', penulis: 'P', kategori: 'K', isbn: '978-1', stok: 2, cover_url: null, rating: 4.2, rating_count: 3, deskripsi: 'Desc' }], pinjamIds: new Set(), search: '', kategori: '', kategoriList: ['Fiksi'], message: null, error: null },
   'user/detail.ejs': { title: 'Detail', currentUser: sampleSiswa, buku: { id: 1, judul: 'J', penulis: 'P', penerbit: 'X', tahun_terbit: 2000, kategori: 'K', stok: 2, lokasi: 'L', cover_url: null, rating: 4.2, rating_count: 3, deskripsi: 'Inti buku.' }, myRating: 5, canRate: true, terpinjam: false, message: null, error: null },
