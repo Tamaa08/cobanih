@@ -125,15 +125,19 @@ export async function createPeminjamanUser(req, res) {
     kembali.setDate(kembali.getDate() + durasiHari);
     kembali.setHours(23, 59, 59, 999);
 
-    const { error: err } = await supabase.from('transaksi').insert([
-      {
-        id_anggota: anggota.id,
-        id_buku,
-        tanggal_pinjam: now.toISOString(),
-        tanggal_kembali: kembali.toISOString(),
-        status: 'dipinjam',
-      },
-    ]);
+    const { data: trx, error: err } = await supabase
+      .from('transaksi')
+      .insert([
+        {
+          id_anggota: anggota.id,
+          id_buku,
+          tanggal_pinjam: now.toISOString(),
+          tanggal_kembali: kembali.toISOString(),
+          status: 'dipinjam',
+        },
+      ])
+      .select()
+      .single();
 
     if (err) throw err;
 
@@ -143,9 +147,61 @@ export async function createPeminjamanUser(req, res) {
       .eq('id', id_buku);
 
     if (stokErr) throw stokErr;
-    req.session.message = 'Buku berhasil dipinjam';
+
+    req.session.struk = {
+      idTransaksi: trx.id,
+      jumlahBuku: 1,
+      durasiHari,
+    };
+    return res.redirect('/user/struk/' + trx.id);
   } catch (e) {
     req.session.error = 'Gagal meminjam buku: ' + e.message;
   }
   res.redirect('/user/peminjaman');
+}
+
+export async function showStruk(req, res) {
+  const { id } = req.params;
+  const message = req.session.message || null;
+  const error = req.session.error || null;
+  delete req.session.message;
+  delete req.session.error;
+
+  try {
+    const { data: anggota } = await supabase
+      .from('anggota')
+      .select('*')
+      .eq('user_id', req.session.user.id)
+      .maybeSingle();
+
+    const { data: trx } = await supabase
+      .from('transaksi')
+      .select('*, buku(judul, penulis, penerbit, lokasi, kategori), anggota(nama, nis, kelas)')
+      .eq('id', id)
+      .single();
+
+    if (!trx || !anggota || trx.id_anggota !== anggota.id) {
+      req.session.error = 'Transaksi tidak ditemukan';
+      return res.redirect('/user/peminjaman');
+    }
+
+    const durasiHari = req.session.struk && req.session.struk.durasiHari
+      ? req.session.struk.durasiHari
+      : Math.max(1, Math.round((new Date(trx.tanggal_kembali) - new Date(trx.tanggal_pinjam)) / (1000 * 60 * 60 * 24)));
+    delete req.session.struk;
+
+    res.render('user/struk', {
+      trx,
+      durasiHari,
+      jumlahBuku: 1,
+      petugas: req.session.user.username,
+      waktuCetak: new Date(),
+      message,
+      error,
+      title: 'Struk Peminjaman',
+    });
+  } catch (e) {
+    req.session.error = 'Gagal memuat struk: ' + e.message;
+    res.redirect('/user/peminjaman');
+  }
 }

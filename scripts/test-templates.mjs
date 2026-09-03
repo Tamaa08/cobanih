@@ -82,6 +82,11 @@ const contexts = {
   'user/detail.ejs': { title: 'Detail', currentUser: sampleSiswa, buku: { id: 1, judul: 'J', penulis: 'P', penerbit: 'X', tahun_terbit: 2000, kategori: 'K', stok: 2, lokasi: 'L', cover_url: null, rating: 4.2, rating_count: 3, deskripsi: 'Inti buku.' }, myRating: 5, canRate: true, terpinjam: false, message: null, error: null },
   'user/pengembalian.ejs': { title: 'Kembali', currentUser: sampleSiswa, myPinjam: [{ id: 1, buku: { judul: 'J', penulis: 'P' }, tanggal_pinjam: new Date().toISOString(), tanggal_kembali: new Date().toISOString() }], message: null, error: null },
   'user/riwayat.ejs': { title: 'Riwayat', currentUser: sampleSiswa, trx: [{ id: 1, buku: { judul: 'J' }, tanggal_pinjam: new Date().toISOString(), tanggal_kembali_aktual: new Date().toISOString(), status: 'dikembalikan' }], search: '', message: null, error: null },
+  'user/struk.ejs': {
+    title: 'Struk', currentUser: sampleSiswa,
+    trx: { id: 'uuid-1234', tanggal_pinjam: new Date().toISOString(), tanggal_kembali: new Date().toISOString(), buku: { judul: 'J', penulis: 'P', kategori: 'K', lokasi: 'Rak' }, anggota: { nama: 'N', nis: 'X', kelas: 'K' } },
+    durasiHari: 7, jumlahBuku: 1, message: null, error: null,
+  },
   'user/denda.ejs': {
     title: 'Denda', currentUser: sampleSiswa, totalBelumBayar: 10000,
     denda: [{ id: 1, jenis: 'telat', jumlah: 10000, hari_keterlambatan: 1, status: 'belum_bayar', keterangan: 'k', buku: { judul: 'J', cover_url: null } }],

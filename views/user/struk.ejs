@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Struk Peminjaman - Perpustakaan SMA N 1 Sleman</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .struk-wrap { max-width: 460px; margin: 0 auto; }
+    .struk { background: #fff; border: 1px solid #dfe5ee; border-radius: 12px; padding: 22px; box-shadow: 0 4px 18px rgba(20,40,80,.06); }
+    .struk-head { text-align: center; border-bottom: 2px dashed #c8d2e2; padding-bottom: 12px; margin-bottom: 12px; }
+    .struk-head h1 { margin: 0; font-size: 18px; color: #22365c; }
+    .struk-head p { margin: 2px 0; font-size: 12px; color: #5a6b85; }
+    .struk-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px dotted #e3e9f2; }
+    .struk-row .lbl { color: #5a6b85; }
+    .struk-row .val { font-weight: 600; text-align: right; color: #1c2e4a; }
+    .struk-total { margin-top: 10px; padding-top: 10px; border-top: 2px dashed #c8d2e2; }
+    .struk-dashed { text-align: center; margin: 14px 0; color: #8ba0c0; letter-spacing: 4px; font-size: 13px; }
+    .struk-foot { text-align: center; font-size: 12px; color: #5a6b85; margin-top: 12px; }
+    .struk-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .struk-actions .btn { flex: 1; text-align: center; }
+    @media print {
+      body { background: #fff; }
+      .sidebar, .topbar, .struk-actions, .no-print { display: none !important; }
+      .main { margin: 0 !important; padding: 0 !important; }
+      .struk-wrap { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">📚 Perpus SMA N 1 Sleman</div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link active">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar no-print">
+        <h1>Struk Peminjaman</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="struk-wrap">
+          <div class="struk">
+            <div class="struk-head">
+              <h1>📚 PERPUSTAKAAN SMA N 1 SLEMAN</h1>
+              <p>Jalan Kemasan No. 36, Triharjo, Sleman, Yogyakarta</p>
+              <p>STRIK PEMINJAMAN BUKU</p>
+            </div>
+
+            <div class="struk-row">
+              <span class="lbl">No. Transaksi</span>
+              <span class="val">#<%= trx.id.toString().slice(0, 8) %></span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">Tanggal Pinjam</span>
+              <span class="val"><%= new Date(trx.tanggal_pinjam).toLocaleString('id-ID') %></span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">Jatuh Tempo</span>
+              <span class="val"><%= new Date(trx.tanggal_kembali).toLocaleString('id-ID') %></span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">Durasi</span>
+              <span class="val"><%= durasiHari %> hari</span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">Peminjam</span>
+              <span class="val"><%= trx.anggota ? trx.anggota.nama : '-' %></span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">NIS / Kelas</span>
+              <span class="val"><%= trx.anggota ? (trx.anggota.nis + ' • ' + trx.anggota.kelas) : '-' %></span>
+            </div>
+
+            <div class="struk-dashed">- - - - - - - - - - - - - - - -</div>
+
+            <div class="struk-row">
+              <span class="lbl">Judul Buku</span>
+              <span class="val"><%= trx.buku ? trx.buku.judul : '-' %></span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">Penulis</span>
+              <span class="val"><%= trx.buku ? trx.buku.penulis : '-' %></span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">Kategori</span>
+              <span class="val"><%= trx.buku ? (trx.buku.kategori || '-') : '-' %></span>
+            </div>
+            <div class="struk-row">
+              <span class="lbl">Lokasi Rak</span>
+              <span class="val"><%= trx.buku ? (trx.buku.lokasi || '-') : '-' %></span>
+            </div>
+
+            <div class="struk-total"></div>
+
+            <div class="struk-foot">
+              <p>Kembalikan sebelum tanggal jatuh tempo untuk menghindari denda.</p>
+              <p>Terima kasih telah meminjam di Perpustakaan SMA N 1 Sleman 📖</p>
+            </div>
+          </div>
+
+          <div class="struk-actions no-print">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak Struk</button>
+            <a href="/user/peminjaman" class="btn btn-outline">Selesai</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

@@ -4,6 +4,7 @@ import { showDashboardUser } from '../controllers/userDashboardController.js';
 import {
   showPeminjamanBooking,
   createPeminjamanUser,
+  showStruk,
 } from '../controllers/userPeminjamanController.js';
 import { showPengembalian, processPengembalian } from '../controllers/userPengembalianController.js';
 import { showKatalog, showRiwayat, showBukuDetail } from '../controllers/userCariController.js';
@@ -25,6 +26,7 @@ router.get('/buku/:id', showBukuDetail);
 
 router.get('/peminjaman', showPeminjamanBooking);
 router.post('/peminjaman', createPeminjamanUser);
+router.get('/struk/:id', showStruk);
 
 router.get('/pengembalian', showPengembalian);
 router.post('/pengembalian/:id', processPengembalian);

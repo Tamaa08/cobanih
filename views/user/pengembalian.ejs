@@ -72,7 +72,8 @@
                     <td><%= t.buku ? t.buku.judul : '-' %><br><small class="text-muted"><%= t.buku ? t.buku.penulis : '' %></small></td>
                     <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
                     <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
-                    <td>
+                    <td class="actions">
+                      <a href="/user/struk/<%= t.id %>" class="btn btn-outline btn-sm" target="_blank">Struk</a>
                       <form action="/user/pengembalian/<%= t.id %>" method="POST" onsubmit="return confirm('Kembalikan buku ini?')">
                         <button type="submit" class="btn btn-success btn-sm">Kembalikan</button>
                       </form>
