@@ -35,10 +35,22 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0e2a52 0%, #1e4d8c 45%, #2c5aa0 100%);
+  background-image: url('/img/bg-beranda.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   padding: 24px;
   position: relative;
   overflow: hidden;
+}
+.auth-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(8,24,51,.82) 0%, rgba(14,52,99,.7) 45%, rgba(24,74,140,.6) 100%);
+  z-index: 0;
+  pointer-events: none;
 }
 .auth-bg-decor {
   position: absolute;
@@ -50,19 +62,6 @@ a:hover { text-decoration: underline; }
 .auth-bg-decor-1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(255,255,255,.35), transparent 65%); top: -120px; left: -100px; }
 .auth-bg-decor-2 { width: 380px; height: 380px; background: radial-gradient(circle, rgba(255,213,79,.35), transparent 65%); bottom: -130px; right: -90px; }
 .auth-bg-decor-3 { width: 260px; height: 260px; background: radial-gradient(circle, rgba(106,90,205,.4), transparent 65%); top: 40%; left: 55%; }
-.auth-bg-logo {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 560px auto;
-  opacity: .07;
-  pointer-events: none;
-}
-@media (max-width: 560px) {
-  .auth-bg-logo { background-size: 300px auto; }
-}
 
 /* Kartu login/daftar tunggal (rapi di desktop & mobile) */
 .auth-card-main {
