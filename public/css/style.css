@@ -85,24 +85,71 @@ a:hover { text-decoration: underline; }
 .auth-hero-inner {
   position: relative;
   z-index: 2;
-  padding: 48px 40px;
+  padding: 40px 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  max-height: 100%;
 }
-.hero-logo { filter: drop-shadow(0 4px 12px rgba(0,0,0,.25)); margin-bottom: 20px; }
+.hero-logo { filter: drop-shadow(0 4px 12px rgba(0,0,0,.25)); margin-bottom: 18px; }
 .hero-title { font-size: 30px; font-weight: 800; line-height: 1.15; margin-bottom: 6px; letter-spacing: -.3px; }
-.hero-sub { font-size: 15px; opacity: .9; margin-bottom: 18px; }
-.hero-divider { width: 64px; height: 3px; background: #ffd54f; border-radius: 3px; margin-bottom: 20px; }
-.hero-desc { font-size: 14.5px; line-height: 1.65; opacity: .92; margin-bottom: 24px; }
-.hero-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin: 0 0 28px; padding: 0; }
+.hero-sub { font-size: 15px; opacity: .9; margin-bottom: 16px; }
+.hero-divider { width: 64px; height: 3px; background: #ffd54f; border-radius: 3px; margin-bottom: 18px; }
+.hero-desc { font-size: 14.5px; line-height: 1.65; opacity: .92; margin-bottom: 20px; }
+.hero-features { list-style: none; display: flex; flex-direction: column; gap: 11px; margin: 0 0 22px; padding: 0; }
 .hero-features li { display: flex; align-items: center; gap: 11px; font-size: 14px; opacity: .95; }
 .hf-icon {
   width: 34px; height: 34px; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center;
   background: rgba(255,255,255,.14); border-radius: 9px; font-size: 17px;
 }
-.hero-foot { font-size: 12px; opacity: .7; letter-spacing: .3px; }
+
+/* Prosedur & S&K di hero beranda */
+.hero-block {
+  background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.hero-block[open] > .hero-block-title { margin-bottom: 12px; }
+.hero-block-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+  font-size: 14.5px;
+  color: #ffd54f;
+}
+.hero-block-title::-webkit-details-marker { display: none; }
+.hero-block-title::after {
+  content: '▾';
+  margin-left: auto;
+  color: #fff;
+  font-size: 13px;
+  transition: transform .2s;
+}
+.hero-block[open] > .hero-block-title::after { transform: rotate(180deg); }
+.hero-block .hf-icon { background: rgba(255,213,79,.2); }
+.prosedur-list { margin: 0; padding-left: 4px; list-style: none; counter-reset: prosedur; display: flex; flex-direction: column; gap: 9px; }
+.prosedur-list li { position: relative; padding-left: 32px; font-size: 12.5px; line-height: 1.45; counter-increment: prosedur; opacity: .95; }
+.prosedur-list li::before {
+  content: counter(prosedur);
+  position: absolute; left: 0; top: 0;
+  width: 22px; height: 22px;
+  background: #ffd54f; color: #1e3f73;
+  font-weight: 800; font-size: 12px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.prosedur-list li strong { display: block; font-size: 13px; color: #fff; }
+.prosedur-list li span { color: rgba(255,255,255,.85); }
+.sk-list { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+.sk-list li { font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,.9); }
+.hero-foot { font-size: 12px; opacity: .7; letter-spacing: .3px; margin-top: 4px; }
 
 /* Card (panel kanan) */
 .auth-card {
