@@ -53,14 +53,91 @@
       </script>
 
       <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
         <div class="card">
           <div class="card-header">
             <h2>💬 Pusat Bantuan Perpustakaan</h2>
           </div>
           <p>
-            Punya kendala? Hubungi Admin/Petugas Perpustakaan SMA N 1 Sleman. Tim kami siap membantu
-            Anda seputar peminjaman, pengembalian, denda, hingga masalah akun.
+            Punya kendala? Kirim pertanyaan Anda di bawah ini. Admin/Petugas Perpustakaan SMA N 1 Sleman
+            akan menjawab seputar peminjaman, pengembalian, denda, hingga masalah akun.
           </p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>📝 Kirim Pertanyaan</h2>
+          </div>
+          <form action="/user/bantuan" method="POST">
+            <div class="form-group">
+              <label for="subjek">Subjek</label>
+              <input type="text" id="subjek" name="subjek" placeholder="Contoh: Kendala login / perpanjang peminjaman" required>
+            </div>
+            <div class="form-group">
+              <label for="pesan">Isi Pertanyaan</label>
+              <textarea id="pesan" name="pesan" rows="4" placeholder="Tuliskan kendala atau pertanyaan Anda..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Kirim Pertanyaan</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>📬 Riwayat Pertanyaan Saya</h2>
+          </div>
+          <% if (tiket.length === 0) { %>
+            <div class="empty">Belum ada pertanyaan yang Anda kirim.</div>
+          <% } else { %>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Subjek</th>
+                    <th>Status</th>
+                    <th>Tanggal</th>
+                    <th>Jawaban Admin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% tiket.forEach((t, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td>
+                      <strong><%= t.subjek %></strong><br>
+                      <small class="text-muted"><%= t.pesan %></small>
+                    </td>
+                    <td>
+                      <span class="badge <%= t.status === 'menunggu' ? 'badge-warning' : t.status === 'dibalas' ? 'badge-success' : 'badge-default' %>">
+                        <%= t.status %>
+                      </span>
+                    </td>
+                    <td><%= new Date(t.created_at).toLocaleDateString('id-ID') %><br><small class="text-muted"><%= new Date(t.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %></small></td>
+                    <td>
+                      <% if (t.jawaban) { %>
+                        <span class="text-muted"><%= t.jawaban %></span>
+                      <% } else { %>
+                        <span class="text-muted">Menunggu jawaban admin...</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
         </div>
 
         <div class="cs-grid">

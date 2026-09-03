@@ -32,6 +32,11 @@ import {
 } from '../controllers/akunController.js';
 import { showStatistik } from '../controllers/statistikController.js';
 import {
+  showBantuanAdmin,
+  jawabBantuan,
+  tandaiSelesaiBantuan,
+} from '../controllers/adminBantuanController.js';
+import {
   showDenda,
   createDendaRusakHilang,
   markDendaLunas,
@@ -81,6 +86,10 @@ router.get('/laporan/excel', generateLaporanExcel);
 router.get('/laporan/cetak', renderLaporanCetak);
 
 router.get('/statistik', showStatistik);
+
+router.get('/bantuan', showBantuanAdmin);
+router.post('/bantuan/:id/jawab', jawabBantuan);
+router.post('/bantuan/:id/selesai', tandaiSelesaiBantuan);
 
 router.get('/denda', showDenda);
 router.post('/denda', createDendaRusakHilang);

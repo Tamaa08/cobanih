@@ -712,6 +712,8 @@ a:hover { text-decoration: underline; }
 }
 .actions { display: flex; gap: 6px; align-items: center; }
 .actions form { margin: 0; }
+.inline-form { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.jawab-input { padding: 7px 10px; border: 1px solid #d0d7e2; border-radius: 8px; min-width: 180px; font-size: 13px; }
 
 /* ===== Denda & pembayaran ===== */
 .denda-total { text-align: center; padding: 20px; margin-bottom: 20px; }

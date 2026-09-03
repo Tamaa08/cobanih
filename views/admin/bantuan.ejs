@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="sidebar-logo"><span>Perpus SMA N 1 Sleman</span></div>
+      <nav class="sidebar-nav">
+        <% if (currentUser.role === 'admin') { %>
+        <a href="/admin/akun" class="nav-link">Kelola Akun</a>
+        <% } %>
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+        <a href="/admin/denda" class="nav-link">Denda</a>
+        <a href="/admin/statistik" class="nav-link">Statistik &amp; Grafik</a>
+        <a href="/admin/bantuan" class="nav-link active">Bantuan</a>
+        <a href="/admin/laporan" class="nav-link">Laporan</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role"><%= currentUser.role === 'petugas' ? 'Petugas Perpustakaan' : 'Admin' %></span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Kelola Bantuan Pengguna</h1>
+        <span class="badge <%= currentUser.role === 'petugas' ? 'badge-petugas' : 'badge-admin' %>"><%= currentUser.role === 'petugas' ? 'Petugas' : 'Admin' %></span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <h2>Kotak Masuk Bantuan</h2>
+            <form action="/admin/bantuan" method="GET" class="search-form">
+              <select name="status" class="filter-select" onchange="this.form.submit()">
+                <option value="">Semua Status</option>
+                <% statusList.forEach((s) => { %>
+                  <option value="<%= s %>" <%= statusFilter === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option>
+                <% }) %>
+              </select>
+              <noscript><button type="submit" class="btn btn-outline">Filter</button></noscript>
+            </form>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Pengirim</th>
+                  <th>Subjek</th>
+                  <th>Pesan</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                  <th>Jawaban</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (tiket.length === 0) { %>
+                  <tr><td colspan="8" class="empty">Belum ada bantuan masuk.</td></tr>
+                <% } else { %>
+                  <% tiket.forEach((t, i) => { %>
+                  <tr>
+                    <td><%= i + 1 %></td>
+                    <td><strong><%= (t.pengirim && t.pengirim.nama) || '-' %></strong><br><small class="text-muted"><%= (t.pengirim && t.pengirim.username) || '' %></small></td>
+                    <td><strong><%= t.subjek %></strong><br><small class="text-muted"><%= t.pesan %></small></td>
+                    <td class="desc-cell"><%= t.pesan %></td>
+                    <td>
+                      <span class="badge <%= t.status === 'menunggu' ? 'badge-warning' : t.status === 'dibalas' ? 'badge-success' : 'badge-default' %>">
+                        <%= t.status %>
+                      </span>
+                    </td>
+                    <td><%= new Date(t.created_at).toLocaleDateString('id-ID') %><br><small class="text-muted"><%= new Date(t.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %></small></td>
+                    <td class="desc-cell">
+                      <% if (t.jawaban) { %>
+                        <span class="text-muted"><%= t.jawaban %></span><br>
+                        <small class="text-muted">— <%= (t.penjawab && t.penjawab.nama) || 'Admin' %></small>
+                      <% } else { %>
+                        <span class="text-muted">Belum ada jawaban</span>
+                      <% } %>
+                    </td>
+                    <td class="actions">
+                      <form action="/admin/bantuan/<%= t.id %>/jawab" method="POST" class="inline-form" onsubmit="return confirmJawab(this)">
+                        <input type="text" name="jawaban" placeholder="Tulis jawaban..." required class="jawab-input">
+                        <button type="submit" class="btn btn-primary btn-sm">Jawab</button>
+                      </form>
+                      <% if (t.status !== 'selesai') { %>
+                        <form action="/admin/bantuan/<%= t.id %>/selesai" method="POST" style="display:inline">
+                          <button type="submit" class="btn btn-success btn-sm">Selesai</button>
+                        </form>
+                      <% } %>
+                    </td>
+                  </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    function confirmJawab(form) {
+      const val = form.querySelector('input[name=jawaban]').value.trim();
+      return val.length > 0;
+    }
+  </script>
+</body>
+</html>
