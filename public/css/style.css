@@ -893,6 +893,7 @@ a:hover { text-decoration: underline; }
 .landing-sub { font-size: 20px; font-weight: 600; color: var(--primary); margin-bottom: 14px; }
 .landing-desc { max-width: 620px; margin: 0 auto 24px; font-size: 16px; line-height: 1.6; color: #31456b; }
 .landing-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.landing-credit { margin-top: 20px; font-size: 13px; color: rgba(255,255,255,.85); letter-spacing: .3px; }
 
 .btn-lg { padding: 12px 26px; font-size: 16px; }
 
