@@ -12,7 +12,7 @@ Aplikasi web **perpustakaan sekolah digital** untuk pengelolaan **peminjaman buk
 | Auth/Sesi     | Custom JWT (library `jose`) dalam cookie httpOnly            |
 | Password hash | `bcryptjs`                                                  |
 | Hosting       | Vercel (deploy-ready)                                       |
-| Repository    | https://github.com/Xzrii1/jajalke                           |
+| Repository    | https://github.com/Tamaa08/cobanih                          |
 | WireFrame     | [casediagram](casediagram.jfif) [Activitydiagram](Code_Generated_Image.jpg) [algorithm](Gemini_Generated_Image_keyfs0keyfs0keyf.jpg) [mockup](Code_Generated_Image(1).jpg) [flowchart](Code_Generated_Image(2).jpg) [ERD](Code_Generated_Image(3).jpg)                              |
 
 
