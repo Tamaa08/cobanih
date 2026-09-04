@@ -197,3 +197,10 @@ ON CONFLICT (nis) DO NOTHING;
 -- 3) Data contoh buku (20 judul + cover asli) TIDAK dimasukkan di sini.
 --    Jalankan file terpisah: database/seed-buku-20.sql
 --    di Supabase Dashboard -> SQL Editor.
+
+-- ============================================================
+-- FITUR TAMBAHAN (bantuan, komentar ulasan, pengaturan denda,
+-- status persetujuan pinjam/kembali, pembayaran_denda):
+--   Jalankan file terpisah: database/migration-fitur-baru.sql
+--   di Supabase Dashboard -> SQL Editor (sekali saja).
+-- ============================================================

@@ -1,5 +1,9 @@
 import { supabase } from '../config/db.js';
 
+function isMissingTable(err) {
+  return !!err && (/schema cache|could not find the table/i.test(err.message || ''));
+}
+
 export async function showBantuan(req, res) {
   const message = req.session.message || null;
   const error = req.session.error || null;
@@ -7,29 +11,39 @@ export async function showBantuan(req, res) {
   delete req.session.error;
   const userId = req.session.user ? req.session.user.id : null;
 
+  let tiket = [];
+  let tableReady = true;
   try {
-    const { data: tiket, error: err } = await supabase
+    const { data, error: err } = await supabase
       .from('bantuan')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (err && err.message && !err.message.includes('could not find the table')) throw err;
-
-    res.render('user/bantuan', {
-      tiket: tiket || [],
-      message,
-      error,
-      title: 'Bantuan & Customer Service',
-    });
+    if (err && !isMissingTable(err)) throw err;
+    if (isMissingTable(err)) tableReady = false;
+    else tiket = data || [];
   } catch (e) {
-    res.render('user/bantuan', {
-      tiket: [],
-      message,
-      error: e.message,
-      title: 'Bantuan & Customer Service',
-    });
+    // Jika tabel belum dibuat, tampilkan pesan ramah alih-alih error mentah.
+    if (!isMissingTable(e)) {
+      return res.render('user/bantuan', {
+        tiket: [],
+        tableReady,
+        message,
+        error: e.message,
+        title: 'Bantuan & Customer Service',
+      });
+    }
+    tableReady = false;
   }
+
+  res.render('user/bantuan', {
+    tiket,
+    tableReady,
+    message,
+    error,
+    title: 'Bantuan & Customer Service',
+  });
 }
 
 export async function kirimBantuan(req, res) {
@@ -50,7 +64,13 @@ export async function kirimBantuan(req, res) {
         status: 'menunggu',
       },
     ]);
-    if (err) throw err;
+    if (err) {
+      if (isMissingTable(err)) {
+        req.session.error = 'Fitur bantuan sedang disiapkan. Silakan hubungi petugas langsung.';
+        return res.redirect('/user/bantuan');
+      }
+      throw err;
+    }
     req.session.message = 'Pertanyaan Anda berhasil dikirim. Admin akan segera membalas.';
   } catch (e) {
     req.session.error = 'Gagal mengirim bantuan: ' + e.message;

@@ -37,7 +37,7 @@ export async function showPeminjamanBooking(req, res) {
     const { data: sudahDipinjam, error: err2 } = await supabase
       .from('transaksi')
       .select('id_buku, id_anggota')
-      .eq('status', 'dipinjam');
+      .in('status', ['pending', 'dipinjam', 'menunggu_kembali']);
 
     const pinjamIds = new Set((sudahDipinjam || []).filter((t) => t.id_anggota === anggota?.id).map((t) => t.id_buku));
 
@@ -107,11 +107,11 @@ export async function createPeminjamanUser(req, res) {
       .select('id')
       .eq('id_buku', id_buku)
       .eq('id_anggota', anggota.id)
-      .eq('status', 'dipinjam')
+      .in('status', ['pending', 'dipinjam', 'menunggu_kembali'])
       .maybeSingle();
 
     if (existing) {
-      req.session.error = 'Anda masih meminjam buku ini. Kembalikan dulu sebelum meminjam lagi';
+      req.session.error = 'Anda masih memiliki pengajuan/peminjaman aktif untuk buku ini. Kembalikan dulu sebelum meminjam lagi';
       return res.redirect('/user/peminjaman');
     }
 
@@ -133,7 +133,7 @@ export async function createPeminjamanUser(req, res) {
           id_buku,
           tanggal_pinjam: now.toISOString(),
           tanggal_kembali: kembali.toISOString(),
-          status: 'dipinjam',
+          status: 'pending',
         },
       ])
       .select()
@@ -141,19 +141,8 @@ export async function createPeminjamanUser(req, res) {
 
     if (err) throw err;
 
-    const { error: stokErr } = await supabase
-      .from('buku')
-      .update({ stok: buku.stok - 1 })
-      .eq('id', id_buku);
-
-    if (stokErr) throw stokErr;
-
-    req.session.struk = {
-      idTransaksi: trx.id,
-      jumlahBuku: 1,
-      durasiHari,
-    };
-    return res.redirect('/user/struk/' + trx.id);
+    req.session.message = 'Permintaan peminjaman dikirim. Menunggu persetujuan petugas. Stok akan berkurang setelah disetujui.';
+    return res.redirect('/user/peminjaman');
   } catch (e) {
     req.session.error = 'Gagal meminjam buku: ' + e.message;
   }

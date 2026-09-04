@@ -21,7 +21,8 @@
         <a href="/admin/denda" class="nav-link">Denda</a>
         <a href="/admin/statistik" class="nav-link">Statistik & Grafik</a>
         <a href="/admin/bantuan" class="nav-link">Bantuan</a>
-<a href="/admin/laporan" class="nav-link">Laporan</a>
+        <a href="/admin/laporan" class="nav-link">Laporan</a>
+        <a href="/admin/pengaturan" class="nav-link">Pengaturan</a>
       </nav>
       <div class="sidebar-user">
         <span class="sidebar-user-role"><%= currentUser.role === 'petugas' ? 'Petugas Perpustakaan' : 'Admin' %></span>
@@ -96,8 +97,9 @@
               <input type="text" name="search" value="<%= search %>" placeholder="Cari ID/status/anggota...">
               <select name="status" class="filter-select">
                 <option value="">Semua Status</option>
-                <option value="dipinjam" <%= status === 'dipinjam' ? 'selected' : '' %>>Dipinjam</option>
-                <option value="dikembalikan" <%= status === 'dikembalikan' ? 'selected' : '' %>>Dikembalikan</option>
+                <% statusList.forEach((s) => { %>
+                  <option value="<%= s %>" <%= status === s ? 'selected' : '' %>><%= s.charAt(0).toUpperCase() + s.slice(1) %></option>
+                <% }) %>
               </select>
               <button type="submit" class="btn btn-outline">Cari</button>
               <% if (search || status) { %>
@@ -130,16 +132,27 @@
                     <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
                     <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
                     <td>
-                      <span class="badge <%= t.status === 'dipinjam' ? 'badge-warning' : 'badge-success' %>">
-                        <%= t.status %>
+                      <% const sBadge = t.status === 'pending' ? 'badge-default' : t.status === 'dipinjam' ? 'badge-warning' : t.status === 'menunggu_kembali' ? 'badge-petugas' : t.status === 'ditolak' ? 'badge-danger' : 'badge-success'; %>
+                      <span class="badge <%= sBadge %>">
+                        <%= t.status === 'pending' ? 'Menunggu Persetujuan' : t.status === 'menunggu_kembali' ? 'Menunggu Kembali' : t.status === 'ditolak' ? 'Ditolak' : t.status === 'dipinjam' ? 'Dipinjam' : 'Dikembalikan' %>
                       </span>
                     </td>
                     <td class="actions">
-                      <a href="/admin/transaksi/<%= t.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
-                      <% if (t.status === 'dipinjam') { %>
-                        <form action="/admin/transaksi/<%= t.id %>/kembalikan" method="POST">
-                          <button type="submit" class="btn btn-success btn-sm">Terima Pengembalian</button>
+                      <% if (t.status === 'pending') { %>
+                        <form action="/admin/transaksi/<%= t.id %>/setujui" method="POST">
+                          <button type="submit" class="btn btn-success btn-sm">Setujui</button>
                         </form>
+                        <form action="/admin/transaksi/<%= t.id %>/tolak" method="POST" onsubmit="return confirm('Tolak permintaan ini?')">
+                          <button type="submit" class="btn btn-danger btn-sm">Tolak</button>
+                        </form>
+                      <% } else if (t.status === 'menunggu_kembali') { %>
+                        <form action="/admin/transaksi/<%= t.id %>/setujui-kembali" method="POST">
+                          <button type="submit" class="btn btn-success btn-sm">Setujui Kembali</button>
+                        </form>
+                      <% } else if (t.status === 'dipinjam') { %>
+                        <a href="/admin/transaksi/<%= t.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
+                      <% } else { %>
+                        <a href="/admin/transaksi/<%= t.id %>/edit" class="btn btn-outline btn-sm">Edit</a>
                       <% } %>
                       <form action="/admin/transaksi/<%= t.id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus transaksi ini?')">
                         <button type="submit" class="btn btn-danger btn-sm">Hapus</button>

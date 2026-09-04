@@ -18,7 +18,7 @@
         <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
         <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
         <a href="/user/riwayat" class="nav-link">Riwayat</a>
-        <a href="/user/bantuan" class="nav-link">Bantuan</a>
+        <a href="/user/bantuan" class="nav-link">Bantuan</a><a href="/user/profil" class="nav-link">Profil</a>
       </nav>
       <div class="sidebar-user">
         <span class="sidebar-user-role">Siswa</span>
@@ -135,8 +135,38 @@
               <% if (myRating) { %>
                 <p class="text-muted">Rating Anda saat ini: <%= myRating %> / 5. Pilih lagi untuk mengubah.</p>
               <% } %>
+              <div class="form-group" style="margin-top:12px">
+                <label for="komentarUlasan">Ulasan / Komentar (opsional)</label>
+                <textarea id="komentarUlasan" name="komentar" rows="3" placeholder="Tulis ulasan singkat tentang buku ini..."><%= myKomentar || '' %></textarea>
+              </div>
               <button type="submit" class="btn btn-primary">Simpan Rating</button>
             </form>
+          <% } %>
+
+          <% if (daftarRating && daftarRating.length > 0) { %>
+          <div class="card" style="margin-top:16px">
+            <div class="card-header">
+              <h2>Ulasan Pembaca</h2>
+            </div>
+            <ul class="ulasan-list">
+              <% daftarRating.forEach((r) => { %>
+              <li class="ulasan-item">
+                <div class="ulasan-head">
+                  <span class="ulasan-name"><%= r.anggota ? r.anggota.nama : 'Anonim' %></span>
+                  <span class="stars stars-sm">
+                    <% for (let s = 1; s <= 5; s++) { %>
+                      <span class="star <%= s <= r.nilai ? 'star-on' : 'star-off' %>">★</span>
+                    <% } %>
+                    <em class="text-muted"><%= r.nilai %>/5</em>
+                  </span>
+                </div>
+                <% if (r.komentar) { %>
+                  <p class="ulasan-body"><%= r.komentar %></p>
+                <% } %>
+              </li>
+              <% }) %>
+            </ul>
+          </div>
           <% } %>
         </div>
       </div>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="sidebar-logo"><span>Perpus SMA N 1 Sleman</span></div>
+      <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+        <a href="/admin/buku" class="nav-link">Kelola Data Buku</a>
+        <a href="/admin/anggota" class="nav-link">Kelola Anggota</a>
+        <a href="/admin/transaksi" class="nav-link">Transaksi</a>
+        <a href="/admin/denda" class="nav-link">Denda</a>
+        <a href="/admin/statistik" class="nav-link">Statistik &amp; Grafik</a>
+        <a href="/admin/bantuan" class="nav-link">Bantuan</a>
+        <a href="/admin/laporan" class="nav-link">Laporan</a>
+        <a href="/admin/pengaturan" class="nav-link active">Pengaturan</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role"><%= currentUser.role === 'petugas' ? 'Petugas Perpustakaan' : 'Admin' %></span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Pengaturan Aplikasi</h1>
+        <span class="badge badge-admin">Admin</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Tarif Denda Keterlambatan</h2>
+          </div>
+          <% if (typeof tableReady !== 'undefined' && tableReady === false) { %>
+            <p class="text-muted">
+              Fitur pengaturan belum aktif. Jalankan migrasi SQL tabel <code>pengaturan</code> di SQL Editor Supabase.
+            </p>
+          <% } else { %>
+            <form action="/admin/pengaturan" method="POST" style="max-width:420px">
+              <div class="form-group">
+                <label for="denda_per_hari">Denda per hari (Rupiah)</label>
+                <input type="number" id="denda_per_hari" name="denda_per_hari" min="0" max="5000000"
+                       value="<%= dendaPerHari %>" required>
+                <small class="text-muted">Dikali jumlah hari keterlambatan saat buku dikembalikan terlambat.</small>
+              </div>
+              <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

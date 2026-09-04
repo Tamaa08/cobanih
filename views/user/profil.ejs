@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Perpustakaan SMA N 1 Sleman</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand"><img src="/img/logo-sma-n1-sleman.png" alt="Logo SMA N 1 Sleman" class="sidebar-logo"><span>Perpus SMA N 1 Sleman</span></div>
+      <nav class="sidebar-nav">
+        <a href="/user/dashboard" class="nav-link">Dashboard</a>
+        <a href="/user/katalog" class="nav-link">Katalog Buku</a>
+        <a href="/user/peminjaman" class="nav-link">Peminjaman</a>
+        <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
+        <a href="/user/denda" class="nav-link">Denda &amp; Pembayaran</a>
+        <a href="/user/riwayat" class="nav-link">Riwayat</a>
+        <a href="/user/bantuan" class="nav-link">Bantuan</a>
+        <a href="/user/profil" class="nav-link active">Profil</a>
+      </nav>
+      <div class="sidebar-user">
+        <span class="sidebar-user-role">Siswa</span>
+        <span class="sidebar-user-name"><%= currentUser.username %></span>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline btn-sm">Logout</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1>Profil Saya</h1>
+        <span class="badge badge-siswa">Siswa</span>
+      </header>
+
+      <div class="content">
+        <% if (message) { %>
+          <div class="alert alert-success alert-dismissible">
+            <%= message %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error alert-dismissible">
+            <%= error %>
+            <button class="alert-close" onclick="this.parentElement.style.display='none'">&times;</button>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Data Diri</h2>
+          </div>
+          <table class="table table-striped" style="max-width:520px">
+            <tbody>
+              <tr><th style="width:180px">Nama</th><td><%= anggota ? anggota.nama : '-' %></td></tr>
+              <tr><th>Username</th><td><%= username %></td></tr>
+              <tr><th>NIS</th><td><%= anggota ? anggota.nis : '-' %></td></tr>
+              <tr><th>Kelas</th><td><%= anggota ? anggota.kelas : '-' %></td></tr>
+              <tr><th>Status</th>
+                <td>
+                  <% if (anggota) { %>
+                    <span class="badge <%= anggota.status === 'aktif' ? 'badge-success' : 'badge-warning' %>"><%= anggota.status %></span>
+                  <% } else { %>
+                    <span class="badge badge-warning">Belum terdaftar</span>
+                  <% } %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Ringkasan</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value"><%= denda.length %></div>
+              <div class="stat-label">Total Denda</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" style="color:var(--danger)"><%= formatRupiah(totalBelumBayar) %></div>
+              <div class="stat-label">Belum Dibayar</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Denda Belum Lunas</h2>
+          </div>
+          <% if (denda.filter((d) => d.status === 'belum_bayar').length === 0) { %>
+            <p class="text-muted">Tidak ada denda yang belum lunas. Semua bersih.</p>
+          <% } else { %>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Buku</th>
+                    <th>Jenis</th>
+                    <th>Jumlah</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% denda.filter((d) => d.status === 'belum_bayar').forEach((dd) => { %>
+                  <tr>
+                    <td><%= dd.buku ? dd.buku.judul : '-' %></td>
+                    <td><%= dd.jenis === 'telat' ? 'Keterlambatan' : 'Rusak/Hilang' %></td>
+                    <td><%= formatRupiah(dd.jumlah) %></td>
+                    <td><span class="badge badge-warning">Belum Bayar</span></td>
+                    <td><a href="/user/denda/<%= dd.id %>/bayar" class="btn btn-primary btn-sm">Bayar</a></td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

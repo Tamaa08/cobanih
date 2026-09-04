@@ -17,7 +17,7 @@
         <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
         <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
         <a href="/user/riwayat" class="nav-link">Riwayat</a>
-        <a href="/user/bantuan" class="nav-link">Bantuan</a>
+        <a href="/user/bantuan" class="nav-link">Bantuan</a><a href="/user/profil" class="nav-link">Profil</a>
       </nav>
       <div class="sidebar-user">
         <span class="sidebar-user-role">Siswa</span>
@@ -121,9 +121,9 @@
                     <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
                     <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
                     <td>
-                      <span class="badge <%= t.status === 'dipinjam' ? 'badge-warning' : 'badge-success' %>">
-                        <%= t.status %>
-                      </span>
+                      <% const sB = t.status === 'dipinjam' ? 'badge-warning' : t.status === 'pending' ? 'badge-default' : t.status === 'menunggu_kembali' ? 'badge-petugas' : t.status === 'ditolak' ? 'badge-danger' : 'badge-success'; %>
+                      <% const sL = t.status === 'pending' ? 'Menunggu Persetujuan' : t.status === 'menunggu_kembali' ? 'Menunggu Kembali' : t.status === 'ditolak' ? 'Ditolak' : t.status === 'dipinjam' ? 'Dipinjam' : 'Dikembalikan'; %>
+                      <span class="badge <%= sB %>"><%= sL %></span>
                     </td>
                   </tr>
                   <% }) %>

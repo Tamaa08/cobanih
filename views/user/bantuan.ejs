@@ -17,7 +17,7 @@
         <a href="/user/pengembalian" class="nav-link">Pengembalian</a>
         <a href="/user/denda" class="nav-link">Denda & Pembayaran</a>
         <a href="/user/riwayat" class="nav-link">Riwayat</a>
-        <a href="/user/bantuan" class="nav-link active">Bantuan</a>
+        <a href="/user/bantuan" class="nav-link active">Bantuan</a><a href="/user/profil" class="nav-link">Profil</a>
       </nav>
       <div class="sidebar-user">
         <span class="sidebar-user-role"><%= currentUser.role %></span>
@@ -97,7 +97,9 @@
           <div class="card-header">
             <h2>📬 Riwayat Pertanyaan Saya</h2>
           </div>
-          <% if (tiket.length === 0) { %>
+          <% if (typeof tableReady !== 'undefined' && tableReady === false) { %>
+            <div class="empty">Fitur riwayat pertanyaan belum aktif. Kirim tetap bisa dicoba; jika tidak tersimpan, silakan hubungi petugas / admin perpustakaan langsung.</div>
+          <% } else if (tiket.length === 0) { %>
             <div class="empty">Belum ada pertanyaan yang Anda kirim.</div>
           <% } else { %>
             <div class="table-responsive">

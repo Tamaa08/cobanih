@@ -1,5 +1,9 @@
 import { supabase } from '../config/db.js';
 
+function isMissingTable(err) {
+  return !!err && (/schema cache|could not find the table/i.test(err.message || ''));
+}
+
 export async function showBantuanAdmin(req, res) {
   const statusFilter = req.query.status || '';
   const message = req.session.message || null;
@@ -7,6 +11,8 @@ export async function showBantuanAdmin(req, res) {
   delete req.session.message;
   delete req.session.error;
 
+  let tiket = [];
+  let tableReady = true;
   try {
     let query = supabase
       .from('bantuan')
@@ -15,37 +21,45 @@ export async function showBantuanAdmin(req, res) {
 
     if (statusFilter) query = query.eq('status', statusFilter);
 
-    const { data: tiket, error: err } = await query;
-    if (err) throw err;
+    const { data, error: err } = await query;
+    if (err && !isMissingTable(err)) throw err;
+    if (isMissingTable(err)) tableReady = false;
+    else tiket = data || [];
+  } catch (e) {
+    if (!isMissingTable(e)) {
+      return res.render('admin/bantuan', {
+        tiket: [],
+        statusFilter,
+        statusList: ['menunggu', 'dibalas', 'selesai'],
+        belumBalas: 0,
+        tableReady,
+        message,
+        error: e.message,
+        title: 'Kelola Bantuan',
+      });
+    }
+    tableReady = false;
+  }
 
-    // Hitung belumm-dibalas untuk badge
-    const { count: belumBalas } = await supabase
+  let belumBalas = 0;
+  if (tableReady) {
+    const { count } = await supabase
       .from('bantuan')
       .select('*', { count: 'exact', head: true })
       .neq('status', 'selesai');
-
-    const statusList = ['menunggu', 'dibalas', 'selesai'];
-
-    res.render('admin/bantuan', {
-      tiket: tiket || [],
-      statusFilter,
-      statusList,
-      belumBalas: belumBalas || 0,
-      message,
-      error,
-      title: 'Kelola Bantuan',
-    });
-  } catch (e) {
-    res.render('admin/bantuan', {
-      tiket: [],
-      statusFilter,
-      statusList: ['menunggu', 'dibalas', 'selesai'],
-      belumBalas: 0,
-      message: null,
-      error: e.message,
-      title: 'Kelola Bantuan',
-    });
+    belumBalas = count || 0;
   }
+
+  res.render('admin/bantuan', {
+    tiket,
+    statusFilter,
+    statusList: ['menunggu', 'dibalas', 'selesai'],
+    belumBalas,
+    tableReady,
+    message,
+    error,
+    title: 'Kelola Bantuan',
+  });
 }
 
 export async function jawabBantuan(req, res) {
@@ -69,7 +83,13 @@ export async function jawabBantuan(req, res) {
       })
       .eq('id', id);
 
-    if (err) throw err;
+    if (err) {
+      if (isMissingTable(err)) {
+        req.session.error = 'Fitur bantuan belum aktif. Pastikan tabel bantuan sudah dibuat.';
+        return res.redirect('/admin/bantuan');
+      }
+      throw err;
+    }
     req.session.message = 'Bantuan berhasil dijawab';
   } catch (e) {
     req.session.error = 'Gagal menjawab bantuan: ' + e.message;

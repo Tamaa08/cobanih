@@ -10,17 +10,16 @@ import {
 import { showPengembalian, processPengembalian } from '../controllers/userPengembalianController.js';
 import { showKatalog, showRiwayat, showBukuDetail } from '../controllers/userCariController.js';
 import { rateBook } from '../controllers/ratingController.js';
-import {
-  showDendaUser,
-  showBayarDenda,
-  prosesBayarDenda,
-} from '../controllers/userDendaController.js';
+import { showDendaUser, showBayarDenda, prosesBayarDenda } from '../controllers/userDendaController.js';
+import { showProfil } from '../controllers/userProfilController.js';
 
 const router = Router();
 
 router.use(isSiswa);
 
 router.get('/dashboard', showDashboardUser);
+
+router.get('/profil', showProfil);
 
 router.get('/bantuan', showBantuan);
 router.post('/bantuan', kirimBantuan);

@@ -76,15 +76,18 @@ export async function showBukuDetail(req, res) {
       .maybeSingle();
 
     let myRating = null;
+    let myKomentar = null;
     let canRate = false;
+    let daftarRating = [];
     if (anggota) {
       const { data: rating } = await supabase
         .from('rating')
-        .select('nilai')
+        .select('nilai, komentar')
         .eq('id_buku', id)
         .eq('id_anggota', anggota.id)
         .maybeSingle();
       myRating = rating ? rating.nilai : null;
+      myKomentar = rating ? rating.komentar : null;
 
       const { data: returned } = await supabase
         .from('transaksi')
@@ -95,6 +98,14 @@ export async function showBukuDetail(req, res) {
         .limit(1);
       canRate = returned && returned.length > 0;
     }
+
+    const { data: ratingRows, error: ratingErr } = await supabase
+      .from('rating')
+      .select('*, anggota(nama)')
+      .eq('id_buku', id)
+      .order('created_at', { ascending: false });
+    if (ratingErr) throw new Error(ratingErr.message);
+    daftarRating = ratingRows || [];
 
     const { data: dipinjam, error: err2 } = await supabase
       .from('transaksi')
@@ -107,8 +118,10 @@ export async function showBukuDetail(req, res) {
     res.render('user/detail', {
       buku,
       myRating,
+      myKomentar,
       canRate,
       terpinjam,
+      daftarRating,
       message,
       error,
       title: buku.judul,

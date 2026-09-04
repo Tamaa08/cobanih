@@ -1,5 +1,4 @@
 import { supabase } from '../config/db.js';
-import { buatDendaTelat } from '../utils/fungsiDenda.js';
 
 export async function showPengembalian(req, res) {
   const message = req.session.message || null;
@@ -67,30 +66,20 @@ export async function processPengembalian(req, res) {
     }
 
     if (trx.status !== 'dipinjam') {
-      req.session.error = 'Buku ini sudah dikembalikan';
+      req.session.error = 'Buku ini tidak berstatus dipinjam';
       return res.redirect('/user/pengembalian');
     }
 
     const { error: err } = await supabase
       .from('transaksi')
-      .update({ status: 'dikembalikan', tanggal_kembali_aktual: new Date().toISOString() })
+      .update({ status: 'menunggu_kembali', tanggal_kembali_aktual: null })
       .eq('id', id);
 
     if (err) throw err;
 
-    const { data: buku } = await supabase.from('buku').select('stok').eq('id', trx.id_buku).single();
-    await supabase.from('buku').update({ stok: buku.stok + 1 }).eq('id', trx.id_buku);
-
-    try {
-      const denda = await buatDendaTelat(trx);
-      req.session.message = denda
-        ? 'Buku berhasil dikembalikan, namun Anda terkena denda keterlambatan'
-        : 'Buku berhasil dikembalikan';
-    } catch {
-      req.session.message = 'Buku berhasil dikembalikan';
-    }
+    req.session.message = 'Pengajuan pengembalian dikirim. Tunggu konfirmasi petugas.';
   } catch (e) {
-    req.session.error = 'Gagal mengembalikan buku: ' + e.message;
+    req.session.error = 'Gagal mengajukan pengembalian: ' + e.message;
   }
   res.redirect('/user/pengembalian');
 }

@@ -22,6 +22,7 @@
         <a href="/admin/statistik" class="nav-link">Statistik &amp; Grafik</a>
         <a href="/admin/bantuan" class="nav-link active">Bantuan</a>
         <a href="/admin/laporan" class="nav-link">Laporan</a>
+        <a href="/admin/pengaturan" class="nav-link">Pengaturan</a>
       </nav>
       <div class="sidebar-user">
         <span class="sidebar-user-role"><%= currentUser.role === 'petugas' ? 'Petugas Perpustakaan' : 'Admin' %></span>
@@ -67,6 +68,9 @@
           </div>
 
           <div class="table-responsive">
+            <% if (typeof tableReady !== 'undefined' && tableReady === false) { %>
+              <div class="empty">Fitur bantuan belum aktif. Jalankan migrasi SQL tabel <code>bantuan</code> di SQL Editor Supabase agar bisa menerima pertanyaan pengguna.</div>
+            <% } else { %>
             <table class="table">
               <thead>
                 <tr>
@@ -120,6 +124,7 @@
                 <% } %>
               </tbody>
             </table>
+            <% } %>
           </div>
         </div>
       </div>

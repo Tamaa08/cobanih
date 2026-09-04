@@ -1,7 +1,7 @@
 import { supabase } from '../config/db.js';
 
 export async function rateBook(req, res) {
-  const { id_buku, nilai } = req.body;
+  const { id_buku, nilai, komentar } = req.body;
   const ratingValue = parseInt(nilai);
 
   if (!id_buku || isNaN(ratingValue) || ratingValue < 1 || ratingValue > 5) {
@@ -34,9 +34,13 @@ export async function rateBook(req, res) {
       return res.redirect(`/user/buku/${id_buku}`);
     }
 
+    const komentarTrimmed = (komentar || '').trim();
+    const upsertData = { id_buku, id_anggota: anggota.id, nilai: ratingValue };
+    if (komentarTrimmed) upsertData.komentar = komentarTrimmed;
+
     const { error: upsertErr } = await supabase
       .from('rating')
-      .upsert({ id_buku, id_anggota: anggota.id, nilai: ratingValue }, { onConflict: 'id_buku,id_anggota' });
+      .upsert(upsertData, { onConflict: 'id_buku,id_anggota' });
 
     if (upsertErr) throw new Error(upsertErr.message);
 
@@ -55,7 +59,9 @@ export async function rateBook(req, res) {
 
     if (updateErr) throw new Error(updateErr.message);
 
-    req.session.message = 'Rating bintang berhasil disimpan';
+    req.session.message = komentarTrimmed
+      ? 'Rating dan ulasan berhasil disimpan'
+      : 'Rating bintang berhasil disimpan';
   } catch (e) {
     req.session.error = 'Gagal menyimpan rating: ' + e.message;
   }

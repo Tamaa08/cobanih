@@ -1,11 +1,11 @@
 import express from 'express';
-import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import { cookieSession } from './middleware/session.js';
 
 dotenv.config();
 
@@ -34,12 +34,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'rahasia-sesi-app-perpustakaan',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 8 },
-  })
+  cookieSession()
 );
 
 app.use((req, res, next) => {

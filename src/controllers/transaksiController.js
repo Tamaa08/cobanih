@@ -1,6 +1,8 @@
 import { supabase } from '../config/db.js';
 import { buatDendaTelat } from '../utils/fungsiDenda.js';
 
+const STATUS_LIST = ['pending', 'dipinjam', 'menunggu_kembali', 'dikembalikan', 'ditolak'];
+
 export async function showTransaksi(req, res) {
   const search = req.query.search || '';
   const status = req.query.status || '';
@@ -15,8 +17,7 @@ export async function showTransaksi(req, res) {
       .select('*, buku(judul, penulis), anggota(nama, nis)')
       .order('tanggal_pinjam', { ascending: false });
 
-    if (status === 'dipinjam') query = query.eq('status', 'dipinjam');
-    else if (status === 'dikembalikan') query = query.eq('status', 'dikembalikan');
+    if (status && STATUS_LIST.includes(status)) query = query.eq('status', status);
 
     if (search) {
       const idSearch = parseInt(search);
@@ -42,12 +43,19 @@ export async function showTransaksi(req, res) {
       .order('nama');
     if (anggotaErr) throw anggotaErr;
 
+    const { count: countPending } = await supabase
+      .from('transaksi')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
     res.render('admin/transaksi', {
       transaksi,
       buku,
       anggota,
       search,
       status,
+      statusList: STATUS_LIST,
+      countPending: countPending || 0,
       message,
       error,
       title: 'Manajemen Transaksi',
@@ -59,11 +67,102 @@ export async function showTransaksi(req, res) {
       anggota: [],
       search,
       status,
+      statusList: STATUS_LIST,
+      countPending: 0,
       message: null,
       error: e.message,
       title: 'Manajemen Transaksi',
     });
   }
+}
+
+export async function setujuiPeminjaman(req, res) {
+  const { id } = req.params;
+  try {
+    const { data: trx } = await supabase.from('transaksi').select('*').eq('id', id).single();
+    if (!trx) {
+      req.session.error = 'Transaksi tidak ditemukan';
+      return res.redirect('/admin/transaksi');
+    }
+    if (trx.status !== 'pending') {
+      req.session.error = 'Hanya permintaan dengan status awaiting yang bisa disetujui';
+      return res.redirect('/admin/transaksi');
+    }
+
+    const { data: buku } = await supabase.from('buku').select('stok').eq('id', trx.id_buku).single();
+    if (!buku || buku.stok <= 0) {
+      req.session.error = 'Stok buku habis, permintaan ditolak';
+      await supabase.from('transaksi').update({ status: 'ditolak' }).eq('id', id);
+      return res.redirect('/admin/transaksi');
+    }
+
+    const { error: err } = await supabase
+      .from('transaksi')
+      .update({ status: 'dipinjam' })
+      .eq('id', id);
+    if (err) throw err;
+
+    await supabase.from('buku').update({ stok: buku.stok - 1 }).eq('id', trx.id_buku);
+    req.session.message = 'Peminjaman disetujui, stok berkurang';
+  } catch (e) {
+    req.session.error = 'Gagal menyetujui peminjaman: ' + e.message;
+  }
+  res.redirect('/admin/transaksi');
+}
+
+export async function tolakPeminjaman(req, res) {
+  const { id } = req.params;
+  try {
+    const { data: trx } = await supabase.from('transaksi').select('*').eq('id', id).single();
+    if (!trx || trx.status !== 'pending') {
+      req.session.error = 'Permintaan tidak ditemukan atau bukan status menunggu';
+      return res.redirect('/admin/transaksi');
+    }
+    const { error: err } = await supabase.from('transaksi').update({ status: 'ditolak' }).eq('id', id);
+    if (err) throw err;
+    req.session.message = 'Permintaan peminjaman ditolak';
+  } catch (e) {
+    req.session.error = 'Gagal menolak peminjaman: ' + e.message;
+  }
+  res.redirect('/admin/transaksi');
+}
+
+export async function setujuiPengembalian(req, res) {
+  const { id } = req.params;
+  try {
+    const { data: trx } = await supabase.from('transaksi').select('*').eq('id', id).single();
+    if (!trx) {
+      req.session.error = 'Transaksi tidak ditemukan';
+      return res.redirect('/admin/transaksi');
+    }
+    if (trx.status !== 'menunggu_kembali') {
+      req.session.error = 'Hanya pengajuan pengembalian yang bisa dikonfirmasi';
+      return res.redirect('/admin/transaksi');
+    }
+
+    const { error: err } = await supabase
+      .from('transaksi')
+      .update({ status: 'dikembalikan', tanggal_kembali_aktual: new Date().toISOString() })
+      .eq('id', id);
+    if (err) throw err;
+
+    const { data: buku } = await supabase.from('buku').select('stok').eq('id', trx.id_buku).single();
+    if (buku) {
+      await supabase.from('buku').update({ stok: buku.stok + 1 }).eq('id', trx.id_buku);
+    }
+
+    try {
+      const denda = await buatDendaTelat({ ...trx, status: 'dikembalikan', tanggal_kembali_aktual: new Date() });
+      req.session.message = denda
+        ? 'Pengembalian disetujui, anggota terkena denda keterlambatan'
+        : 'Pengembalian disetujui';
+    } catch {
+      req.session.message = 'Pengembalian disetujui';
+    }
+  } catch (e) {
+    req.session.error = 'Gagal mengonfirmasi pengembalian: ' + e.message;
+  }
+  res.redirect('/admin/transaksi');
 }
 
 export async function createPeminjamanAdmin(req, res) {
@@ -161,9 +260,10 @@ export async function updateTransaksi(req, res) {
       return res.redirect('/admin/transaksi/' + id + '/edit');
     }
 
-    const wasActive = trx.status === 'dipinjam';
-    const newStatus = status === 'dikembalikan' ? 'dikembalikan' : 'dipinjam';
-    const nowActive = newStatus === 'dipinjam';
+    const holdsStock = (s) => s === 'dipinjam';
+    const wasActive = holdsStock(trx.status);
+    const newStatus = status === 'dipinjam' ? 'dipinjam' : status === 'ditolak' ? 'ditolak' : 'dikembalikan';
+    const nowActive = holdsStock(newStatus);
 
     const patch = { status: newStatus };
     if (tanggal_pinjam) patch.tanggal_pinjam = new Date(tanggal_pinjam).toISOString();
@@ -209,50 +309,6 @@ export async function updateTransaksi(req, res) {
     req.session.message = 'Transaksi berhasil diperbarui';
   } catch (e) {
     req.session.error = 'Gagal memperbarui transaksi: ' + e.message;
-  }
-  res.redirect('/admin/transaksi');
-}
-
-export async function updateStatusPengembalian(req, res) {
-  const { id } = req.params;
-
-  try {
-    const { data: trx } = await supabase.from('transaksi').select('*').eq('id', id).single();
-    if (!trx) {
-      req.session.error = 'Transaksi tidak ditemukan';
-      return res.redirect('/admin/transaksi');
-    }
-
-    if (trx.status !== 'dipinjam') {
-      req.session.error = 'Transaksi sudah dikembalikan';
-      return res.redirect('/admin/transaksi');
-    }
-
-    const { error: err } = await supabase
-      .from('transaksi')
-      .update({ status: 'dikembalikan', tanggal_kembali_aktual: new Date().toISOString() })
-      .eq('id', id);
-
-    if (err) throw err;
-
-    const { data: buku } = await supabase.from('buku').select('stok').eq('id', trx.id_buku).single();
-    const { error: stokErr } = await supabase
-      .from('buku')
-      .update({ stok: buku.stok + 1 })
-      .eq('id', trx.id_buku);
-
-    if (stokErr) throw stokErr;
-
-    try {
-      const denda = await buatDendaTelat(trx);
-      req.session.message = denda
-        ? 'Buku berhasil dikembalikan, anggota terkena denda keterlambatan'
-        : 'Buku berhasil dikembalikan';
-    } catch {
-      req.session.message = 'Buku berhasil dikembalikan';
-    }
-  } catch (e) {
-    req.session.error = 'Gagal memproses pengembalian: ' + e.message;
   }
   res.redirect('/admin/transaksi');
 }

@@ -18,10 +18,12 @@ import {
 import {
   showTransaksi,
   createPeminjamanAdmin,
-  updateStatusPengembalian,
   renderEditTransaksi,
   updateTransaksi,
   deleteTransaksi,
+  setujuiPeminjaman,
+  tolakPeminjaman,
+  setujuiPengembalian,
 } from '../controllers/transaksiController.js';
 import { showLaporan, generateLaporanPdf, generateLaporanExcel, renderLaporanCetak } from '../controllers/laporanController.js';
 import {
@@ -31,6 +33,7 @@ import {
   deleteAkun,
 } from '../controllers/akunController.js';
 import { showStatistik } from '../controllers/statistikController.js';
+import { showPengaturan, updatePengaturan } from '../controllers/pengaturanController.js';
 import {
   showBantuanAdmin,
   jawabBantuan,
@@ -75,9 +78,10 @@ router.post('/anggota/:id/delete', deleteAnggota);
 
 router.get('/transaksi', showTransaksi);
 router.post('/transaksi/peminjaman', createPeminjamanAdmin);
+router.post('/transaksi/:id/setujui', setujuiPeminjaman);
+router.post('/transaksi/:id/tolak', tolakPeminjaman);
+router.post('/transaksi/:id/setujui-kembali', setujuiPengembalian);
 router.get('/transaksi/:id/edit', renderEditTransaksi);
-router.post('/transaksi/:id/edit', updateTransaksi);
-router.post('/transaksi/:id/kembalikan', updateStatusPengembalian);
 router.post('/transaksi/:id/delete', deleteTransaksi);
 
 router.get('/laporan', showLaporan);
@@ -86,6 +90,9 @@ router.get('/laporan/excel', generateLaporanExcel);
 router.get('/laporan/cetak', renderLaporanCetak);
 
 router.get('/statistik', showStatistik);
+
+router.get('/pengaturan', showPengaturan);
+router.post('/pengaturan', updatePengaturan);
 
 router.get('/bantuan', showBantuanAdmin);
 router.post('/bantuan/:id/jawab', jawabBantuan);
