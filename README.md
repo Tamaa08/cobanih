@@ -1,4 +1,4 @@
-# Perpustakaan Sekolah Digital (jajalke)
+# Perpustakaan Sekolah Digital (cobanih)
 
 Aplikasi web **perpustakaan sekolah digital** untuk pengelolaan **peminjaman buku** berbasis web, dengan tiga peran pengguna: **Admin** (pengelola penuh), **Petugas** (petugas perpustakaan / mini-admin), dan **Siswa** (anggota). Dibuat sebagai proyek UKK "Pengembangan Aplikasi Peminjaman Buku".
 
