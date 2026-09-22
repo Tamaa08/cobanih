@@ -503,6 +503,31 @@ a:hover { text-decoration: underline; }
 .table th, .table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
 .table th { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
 .table tr:hover { background: #fafbfd; }
+
+/* ===== Kartu Identitas (petugas/admin) ===== */
+.identitas-details { margin-top: 6px; }
+.identitas-details summary {
+  cursor: pointer; user-select: none;
+  display: inline-block; font-size: 12px; font-weight: 600;
+  color: var(--primary); background: var(--primary-light);
+  border: 1px solid var(--primary); border-radius: 999px;
+  padding: 3px 12px; transition: background .15s;
+}
+.identitas-details summary:hover { background: #e3edff; }
+.identitas-card {
+  margin-top: 8px; max-width: 260px;
+  background: linear-gradient(135deg, #f4f8ff, #eaf1fb);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; box-shadow: var(--shadow);
+}
+.identitas-card::before {
+  content: 'KARTU IDENTITAS';
+  display: block; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  color: var(--primary-dark); margin-bottom: 8px; text-transform: uppercase;
+}
+.identitas-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 4px 0; border-bottom: 1px dashed #ccd9ef; }
+.identitas-row:last-child { border-bottom: none; }
+.identitas-row span { color: var(--text-muted); font-weight: 600; white-space: nowrap; }
 .empty { text-align: center; color: var(--text-muted); padding: 30px !important; }
 .actions { display: flex; gap: 6px; align-items: center; }
 

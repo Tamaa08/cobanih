@@ -203,4 +203,7 @@ ON CONFLICT (nis) DO NOTHING;
 -- status persetujuan pinjam/kembali, pembayaran_denda):
 --   Jalankan file terpisah: database/migration-fitur-baru.sql
 --   di Supabase Dashboard -> SQL Editor (sekali saja).
+
+-- Kartu Identitas (kolom alamat & tanggal_lahir di anggota):
+--   Jalankan file terpisah: database/migration-kartu-identitas.sql
 -- ============================================================

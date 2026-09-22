@@ -128,7 +128,21 @@
                   <tr>
                     <td>#<%= t.id %></td>
                     <td><%= t.buku ? t.buku.judul : '-' %></td>
-                    <td><%= t.anggota ? t.anggota.nama : '-' %></td>
+                    <td>
+                      <strong><%= t.anggota ? t.anggota.nama : '-' %></strong>
+                      <% if (t.anggota) { %>
+                        <details class="identitas-details">
+                          <summary>Kartu Identitas</summary>
+                          <div class="identitas-card">
+                            <div class="identitas-row"><span>Nama</span><%= t.anggota.nama || '-' %></div>
+                            <div class="identitas-row"><span>Kelas</span><%= t.anggota.kelas || '-' %></div>
+                            <div class="identitas-row"><span>NIS</span><%= t.anggota.nis || '-' %></div>
+                            <div class="identitas-row"><span>Alamat</span><%= t.anggota.alamat || '-' %></div>
+                            <div class="identitas-row"><span>Tgl Lahir</span><%= t.anggota.tanggal_lahir ? new Date(t.anggota.tanggal_lahir).toLocaleDateString('id-ID') : '-' %></div>
+                          </div>
+                        </details>
+                      <% } %>
+                    </td>
                     <td><%= new Date(t.tanggal_pinjam).toLocaleDateString('id-ID') %></td>
                     <td><%= new Date(t.tanggal_kembali).toLocaleDateString('id-ID') %></td>
                     <td>

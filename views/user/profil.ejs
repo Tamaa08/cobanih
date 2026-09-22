@@ -59,6 +59,8 @@
               <tr><th>Username</th><td><%= username %></td></tr>
               <tr><th>NIS</th><td><%= anggota ? anggota.nis : '-' %></td></tr>
               <tr><th>Kelas</th><td><%= anggota ? anggota.kelas : '-' %></td></tr>
+              <tr><th>Alamat</th><td><%= anggota ? (anggota.alamat || '-') : '-' %></td></tr>
+              <tr><th>Tanggal Lahir</th><td><%= anggota && anggota.tanggal_lahir ? new Date(anggota.tanggal_lahir).toLocaleDateString('id-ID') : '-' %></td></tr>
               <tr><th>Status</th>
                 <td>
                   <% if (anggota) { %>

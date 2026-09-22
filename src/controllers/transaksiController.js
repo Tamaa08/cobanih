@@ -12,9 +12,10 @@ export async function showTransaksi(req, res) {
   delete req.session.error;
 
   try {
+    const selectAnggota = 'nama, nis, kelas, alamat, tanggal_lahir';
     let query = supabase
       .from('transaksi')
-      .select('*, buku(judul, penulis), anggota(nama, nis)')
+      .select('*, buku(judul, penulis), anggota(' + selectAnggota + ')')
       .order('tanggal_pinjam', { ascending: false });
 
     if (status && STATUS_LIST.includes(status)) query = query.eq('status', status);
@@ -28,8 +29,21 @@ export async function showTransaksi(req, res) {
       }
     }
 
-    const { data: transaksi, error: err } = await query;
-    if (err) throw err;
+    const { data, error: err } = await query;
+    if (err) {
+      if (/column '?alamat|'tanggal_lahir' column|column .* does not exist/i.test(err.message || '')) {
+        const { data: trx2, error: err2 } = await supabase
+          .from('transaksi')
+          .select('*, buku(judul, penulis), anggota(nama, nis, kelas)')
+          .order('tanggal_pinjam', { ascending: false });
+        if (err2) throw err2;
+        transaksi = trx2;
+      } else {
+        throw err;
+      }
+    } else {
+      transaksi = data;
+    }
 
     const { data: buku, error: bukuErr } = await supabase
       .from('buku')
@@ -230,7 +244,7 @@ export async function renderEditTransaksi(req, res) {
   try {
     const { data: trx } = await supabase
       .from('transaksi')
-      .select('*, buku(judul, penulis), anggota(nama, nis)')
+      .select('*, buku(judul, penulis), anggota(nama, nis, kelas, alamat, tanggal_lahir)')
       .eq('id', id)
       .single();
     if (!trx) {

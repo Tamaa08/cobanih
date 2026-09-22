@@ -1,12 +1,13 @@
 import { supabase } from '../config/db.js';
 import bcrypt from 'bcryptjs';
+import { identitasTersedia } from '../utils/identitas.js';
 
 export async function showRegister(req, res) {
   res.render('register', { error: null, message: null, title: 'Daftar Anggota' });
 }
 
 export async function register(req, res) {
-  const { nama, kelas, nis, username, password, confirm_password } = req.body;
+  const { nama, kelas, nis, username, password, confirm_password, alamat, tanggal_lahir } = req.body;
   let error = null;
 
   if (!nama || !kelas || !nis || !username || !password) {
@@ -57,9 +58,15 @@ export async function register(req, res) {
       return res.render('register', { error, message: null, title: 'Daftar Anggota' });
     }
 
+    const identitas = await identitasTersedia();
+    const anggotaData = { nama, kelas, nis, user_id: newUser.id, status: 'aktif' };
+    if (identitas) {
+      anggotaData.alamat = alamat || null;
+      anggotaData.tanggal_lahir = tanggal_lahir || null;
+    }
     const { error: anggotaErr } = await supabase
       .from('anggota')
-      .insert([{ nama, kelas, nis, user_id: newUser.id, status: 'aktif' }]);
+      .insert([anggotaData]);
 
     if (anggotaErr) {
       error = 'Gagal membuat data anggota: ' + anggotaErr.message;

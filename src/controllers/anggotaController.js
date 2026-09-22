@@ -1,4 +1,5 @@
 import { supabase } from '../config/db.js';
+import { identitasTersedia } from '../utils/identitas.js';
 
 export async function showAnggota(req, res) {
   const search = req.query.search || '';
@@ -30,7 +31,7 @@ export async function showAnggota(req, res) {
 }
 
 export async function createAnggota(req, res) {
-  const { nama, kelas, nis, username, password } = req.body;
+  const { nama, kelas, nis, username, password, alamat, tanggal_lahir } = req.body;
 
   if (!nama || !kelas || !nis || !username || !password) {
     req.session.error = 'Semua field wajib diisi';
@@ -71,9 +72,13 @@ export async function createAnggota(req, res) {
 
     if (userErr) throw userErr;
 
-    const { error: err } = await supabase.from('anggota').insert([
-      { nama, kelas, nis, user_id: newUser.id, status: 'aktif' },
-    ]);
+    const identitas = await identitasTersedia();
+    const anggotaData = { nama, kelas, nis, user_id: newUser.id, status: 'aktif' };
+    if (identitas) {
+      anggotaData.alamat = alamat || null;
+      anggotaData.tanggal_lahir = tanggal_lahir || null;
+    }
+    const { error: err } = await supabase.from('anggota').insert([anggotaData]);
 
     if (err) throw err;
     req.session.message = 'Anggota berhasil ditambahkan';
@@ -100,7 +105,7 @@ export async function renderEditAnggota(req, res) {
 
 export async function updateAnggota(req, res) {
   const { id } = req.params;
-  const { nama, kelas, nis, status, password } = req.body;
+  const { nama, kelas, nis, status, password, alamat, tanggal_lahir } = req.body;
 
   try {
     if (password && password.length > 0 && password.length < 6) {
@@ -108,10 +113,12 @@ export async function updateAnggota(req, res) {
       return res.redirect('/admin/anggota/' + id + '/edit');
     }
 
-    const { error: err } = await supabase
-      .from('anggota')
-      .update({ nama, kelas, nis, status })
-      .eq('id', id);
+    const patch = { nama, kelas, nis, status };
+    if (await identitasTersedia()) {
+      patch.alamat = alamat || null;
+      patch.tanggal_lahir = tanggal_lahir || null;
+    }
+    const { error: err } = await supabase.from('anggota').update(patch).eq('id', id);
 
     if (err) throw err;
 
