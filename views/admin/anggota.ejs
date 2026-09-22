@@ -114,20 +114,36 @@
                   <th>Nama</th>
                   <th>NIS</th>
                   <th>Kelas</th>
+                  <th>Alamat</th>
+                  <th>Tgl Lahir</th>
                   <th>Status</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 <% if (anggota.length === 0) { %>
-                  <tr><td colspan="6" class="empty">Tidak ada anggota ditemukan</td></tr>
+                  <tr><td colspan="8" class="empty">Tidak ada anggota ditemukan</td></tr>
                 <% } else { %>
                   <% anggota.forEach((a, i) => { %>
                   <tr>
                     <td><%= i + 1 %></td>
-                    <td><strong><%= a.nama %></strong></td>
+                    <td>
+                      <strong><%= a.nama %></strong>
+                      <details class="identitas-details">
+                        <summary>Kartu Identitas</summary>
+                        <div class="identitas-card">
+                          <div class="identitas-row"><span>Nama</span><%= a.nama || '-' %></div>
+                          <div class="identitas-row"><span>Kelas</span><%= a.kelas || '-' %></div>
+                          <div class="identitas-row"><span>NIS</span><%= a.nis || '-' %></div>
+                          <div class="identitas-row"><span>Alamat</span><%= a.alamat || '-' %></div>
+                          <div class="identitas-row"><span>Tgl Lahir</span><%= a.tanggal_lahir ? new Date(a.tanggal_lahir).toLocaleDateString('id-ID') : '-' %></div>
+                        </div>
+                      </details>
+                    </td>
                     <td><%= a.nis %></td>
                     <td><%= a.kelas %></td>
+                    <td><%= a.alamat || '-' %></td>
+                    <td><%= a.tanggal_lahir ? new Date(a.tanggal_lahir).toLocaleDateString('id-ID') : '-' %></td>
                     <td>
                       <span class="badge <%= a.status === 'aktif' ? 'badge-success' : 'badge-danger' %>">
                         <%= a.status %>

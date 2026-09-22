@@ -41,7 +41,7 @@ const contexts = {
     search: '', kategori: '', kategoriList: ['Fiksi', 'Sains'], message: null, error: null,
   },
   'admin/edit-buku.ejs': { title: 'Edit', currentUser: sampleUser, buku: { id: 1, judul: 'J', penulis: 'P', penerbit: null, tahun_terbit: 2000, kategori: 'K', isbn: '978-1', stok: 2, lokasi: null, cover_url: null, deskripsi: null }, error: null },
-  'admin/anggota.ejs': { title: 'Anggota', currentUser: sampleUser, anggota: [{ id: 1, nama: 'N', nis: 'X', kelas: 'K', status: 'aktif' }], search: '', message: null, error: null },
+  'admin/anggota.ejs': { title: 'Anggota', currentUser: sampleUser, anggota: [{ id: 1, nama: 'N', nis: 'X', kelas: 'K', alamat: 'Jl. Test', tanggal_lahir: '2007-05-21', status: 'aktif' }], search: '', message: null, error: null },
   'admin/edit-anggota.ejs': { title: 'Edit', currentUser: sampleUser, anggota: { id: 1, nama: 'N', kelas: 'K', nis: 'X', status: 'aktif' }, error: null },
   'admin/akun.ejs': {
     title: 'Kelola Akun', currentUser: sampleUser,
