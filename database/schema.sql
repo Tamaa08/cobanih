@@ -86,6 +86,14 @@ CREATE TABLE IF NOT EXISTS transaksi (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Diperluas ke VARCHAR(25) setelah fitur status persetujuan
+-- pinjam/kembali ('menunggu_kembali' = 15 karakter tidak muat di 15).
+ALTER TABLE transaksi ALTER COLUMN status TYPE VARCHAR(25);
+ALTER TABLE transaksi DROP CONSTRAINT IF EXISTS transaksi_status_check;
+ALTER TABLE transaksi
+  ADD CONSTRAINT transaksi_status_check
+  CHECK (status IN ('pending', 'dipinjam', 'dikembalikan', 'terlambat', 'ditolak', 'menunggu_kembali'));
+
 -- Indeks untuk mempercepat pencarian
 CREATE INDEX IF NOT EXISTS idx_buku_judul ON buku(lower(judul));
 CREATE INDEX IF NOT EXISTS idx_buku_kategori ON buku(lower(kategori));
@@ -206,4 +214,7 @@ ON CONFLICT (nis) DO NOTHING;
 
 -- Kartu Identitas (kolom alamat & tanggal_lahir di anggota):
 --   Jalankan file terpisah: database/migration-kartu-identitas.sql
+
+-- Fix "menunggu_kembali" value too long (kolom status transaksi):
+--   Jalankan file terpisah: database/migration-fix-status-length.sql
 -- ============================================================

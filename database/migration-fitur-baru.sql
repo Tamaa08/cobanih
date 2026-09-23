@@ -49,7 +49,10 @@ ALTER TABLE public.pengaturan DISABLE ROW LEVEL SECURITY;
 -- ------------------------------------------------------------
 -- 4) STATUS PERSETUJUAN PINJAM/KEMBALI
 --    (transaksi yang sudah ada tetap valid dgn status lama)
+--    Kolom status diperluas ke VARCHAR(25) karena "menunggu_kembali"
+--    berjumlah 15 karakter (tidak muat di VARCHAR(15)).
 -- ------------------------------------------------------------
+ALTER TABLE public.transaksi ALTER COLUMN status TYPE VARCHAR(25);
 ALTER TABLE public.transaksi
   DROP CONSTRAINT IF EXISTS transaksi_status_check;
 ALTER TABLE public.transaksi
