@@ -61,7 +61,22 @@
           <div class="jam-op-icon">🕘</div>
           <div class="jam-op-info">
             <strong>Jam Operasional Perpustakaan</strong>
-            <span><%= jamOperasional ? jamOperasional.teks : 'Senin - Jumat · 08:00 - 16:00 WIB' %></span>
+            <div class="jam-op-days">
+              <% if (jamOperasional && jamOperasional.rows && jamOperasional.rows.length) { %>
+                <% jamOperasional.rows.forEach(function(r) { %>
+                  <span class="jam-op-day <%= r.isToday ? 'jam-op-today' : '' %>">
+                    <b><%= r.label %></b>
+                    <% if (r.libur) { %>
+                      <i class="jam-op-libur">Libur</i>
+                    <% } else { %>
+                      <i><%= r.text %></i>
+                    <% } %>
+                  </span>
+                <% }) %>
+              <% } else { %>
+                <span style="font-size:13px;color:#55637a;">Senin - Sabtu · 08:00 - 16:00 WIB (Minggu libur)</span>
+              <% } %>
+            </div>
           </div>
           <% if (currentUser.role === 'petugas') { %>
             <a href="/admin/pengaturan" class="btn btn-primary btn-sm">Ubah</a>

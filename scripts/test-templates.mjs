@@ -22,7 +22,7 @@ const contexts = {
     recentTrx: [{ buku: { judul: 'B1' }, anggota: { nama: 'A' }, tanggal_pinjam: new Date().toISOString(), status: 'dipinjam' }],
     activeLoans: [{ buku: { judul: 'B1' }, anggota: { nama: 'A', kelas: 'X' }, tanggal_kembali: new Date().toISOString(), overdue: false, sisaHari: 3 }],
     chart: { tokens: ['01 Sep', '02 Sep'], daily: [1, 0] },
-    jamOperasional: { jamBuka: '08:00', jamTutup: '16:00', hariOperasional: 'Senin - Jumat', teks: 'Senin - Jumat · 08:00 - 16:00 WIB' },
+    jamOperasional: { rows: [{ key: 'senin', label: 'Senin', libur: false, buka: '08:00', tutup: '16:00', text: '08.00 - 16.00 WIB' }, { key: 'minggu', label: 'Minggu', libur: true, text: null }] },
   },
   'admin/statistik.ejs': {
     title: 'Statistik', currentUser: sampleUser,
@@ -80,12 +80,12 @@ const contexts = {
     statusFilter: '', statusList: ['menunggu', 'dibalas', 'selesai'],
     belumBalas: 1, tableReady: true, message: null, error: null,
   },
-  'admin/pengaturan.ejs': { title: 'Pengaturan', currentUser: sampleUser, dendaPerHari: 10000, jamOperasional: { jamBuka: '08:00', jamTutup: '16:00', hariOperasional: 'Senin - Jumat' }, tableReady: true, message: null, error: null },
+  'admin/pengaturan.ejs': { title: 'Pengaturan', currentUser: sampleUser, dendaPerHari: 10000, jamOperasional: { rows: [{ key: 'senin', label: 'Senin', libur: false, buka: '08:00', tutup: '16:00', text: '08.00 - 16.00 WIB' }, { key: 'minggu', label: 'Minggu', libur: true, text: null }] }, tableReady: true, message: null, error: null },
   'user/dashboard.ejs': {
     title: 'Dashboard', currentUser: sampleSiswa, nama: 'Budi', anggota: { id: 1 }, stats: { totalPinjam: 1, totalKembali: 1, totalDenda: 1 },
     totalDenda: 1, jumlahDenda: 10000,
     myTrx: [{ buku: { judul: 'J' }, tanggal_pinjam: new Date().toISOString(), tanggal_kembali: new Date().toISOString(), status: 'dipinjam' }],
-    jamOperasional: { jamBuka: '08:00', jamTutup: '16:00', hariOperasional: 'Senin - Jumat', teks: 'Senin - Jumat · 08:00 - 16:00 WIB' },
+    jamOperasional: { rows: [{ key: 'senin', label: 'Senin', libur: false, buka: '08:00', tutup: '16:00', text: '08.00 - 16.00 WIB' }, { key: 'minggu', label: 'Minggu', libur: true, text: null }] },
   },
   'user/bantuan.ejs': { title: 'Bantuan', currentUser: sampleSiswa, tiket: [], tableReady: true, message: null, error: null },
   'user/profil.ejs': { title: 'Profil', currentUser: sampleSiswa, anggota: { nama: 'Budi', nis: '20230001', kelas: 'XI RPL 1', status: 'aktif' }, username: 'budi', role: 'siswa', denda: [{ id: 1, status: 'belum_bayar', jenis: 'telat', jumlah: 10000, buku: { judul: 'J' } }], totalBelumBayar: 10000, formatRupiah: (v) => 'Rp ' + (v || 0).toLocaleString('id-ID'), message: null, error: null },

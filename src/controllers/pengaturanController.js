@@ -1,11 +1,7 @@
 import { supabase } from '../config/db.js';
-import { getJamOperasional } from '../utils/jamOperasional.js';
+import { getJamOperasional, DAFTAR_HARI } from '../utils/jamOperasional.js';
 
-const DESKRIPSI_JAM = {
-  jam_buka: 'Jam buka perpustakaan (format HH:MM)',
-  jam_tutup: 'Jam tutup perpustakaan (format HH:MM)',
-  hari_operasional: 'Hari layanan perpustakaan',
-};
+const DESKRIPSI = 'Jam operasional perpustakaan per hari (senin-sabtu, minggu libur)';
 
 export async function showPengaturan(req, res) {
   const message = req.session.message || null;
@@ -15,25 +11,20 @@ export async function showPengaturan(req, res) {
 
   let dendaPerHari = 10000;
   let tableReady = true;
-  let jamOperasional = { jamBuka: '08:00', jamTutup: '16:00', hariOperasional: 'Senin - Jumat' };
   try {
     const { data } = await supabase
       .from('pengaturan')
-      .select('key, value')
-      .in('key', ['denda_per_hari', 'jam_buka', 'jam_tutup', 'hari_operasional']);
-    for (const row of data || []) {
-      if (row.key === 'denda_per_hari' && row.value) dendaPerHari = parseInt(row.value) || dendaPerHari;
-      else if (row.key === 'jam_buka' && row.value) jamOperasional.jamBuka = row.value;
-      else if (row.key === 'jam_tutup' && row.value) jamOperasional.jamTutup = row.value;
-      else if (row.key === 'hari_operasional' && row.value) jamOperasional.hariOperasional = row.value;
-    }
+      .select('value')
+      .eq('key', 'denda_per_hari')
+      .maybeSingle();
+    if (data && data.value) dendaPerHari = parseInt(data.value) || dendaPerHari;
   } catch (e) {
     if (/schema cache|could not find the table/i.test(e.message || '')) {
       tableReady = false;
     } else {
       return res.render('admin/pengaturan', {
         dendaPerHari,
-        jamOperasional,
+        jamOperasional: { rows: [], tableReady: false },
         tableReady,
         message,
         error: e.message,
@@ -41,6 +32,8 @@ export async function showPengaturan(req, res) {
       });
     }
   }
+
+  const jamOperasional = await getJamOperasional();
 
   res.render('admin/pengaturan', {
     dendaPerHari,
@@ -82,6 +75,13 @@ export async function updatePengaturan(req, res) {
   res.redirect('/admin/pengaturan');
 }
 
+function validHHMM(v) {
+  return /^\d{2}:\d{2}$/.test(v) && (() => {
+    const [h, m] = v.split(':').map(Number);
+    return h >= 0 && h <= 23 && m >= 0 && m <= 59;
+  })();
+}
+
 export async function updateJamOperasional(req, res) {
   const isPetugas = req.session.user && req.session.user.role === 'petugas';
   if (!isPetugas) {
@@ -89,31 +89,43 @@ export async function updateJamOperasional(req, res) {
     return res.redirect('/admin/pengaturan');
   }
 
-  const format = /^([01]\d|2[0-3]):([0-5]\d)$/;
-  const jamBuka = String(req.body.jam_buka || '').trim();
-  const jamTutup = String(req.body.jam_tutup || '').trim();
-  const hariOperasional = String(req.body.hari_operasional || '').trim();
-
-  if (!format.test(jamBuka) || !format.test(jamTutup)) {
-    req.session.error = 'Jam operasional harus dalam format HH:MM, contoh 08:00 sampai 16:00';
-    return res.redirect('/admin/pengaturan');
+  const clean = {};
+  for (const { key, label } of DAFTAR_HARI) {
+    if (req.body[key + '_libur']) continue; // libur -> tidak disimpan
+    const buka = String(req.body[key + '_buka'] || '').trim();
+    const tutup = String(req.body[key + '_tutup'] || '').trim();
+    if (!validHHMM(buka) || !validHHMM(tutup)) {
+      req.session.error = `Format jam untuk ${label} tidak valid. Gunakan HH:MM.`;
+      return res.redirect('/admin/pengaturan');
+    }
+    if (buka >= tutup) {
+      req.session.error = `Jam tutup untuk ${label} harus setelah jam buka. Atau centang 'Libur' jika perpustakaan tidak buka hari itu.`;
+      return res.redirect('/admin/pengaturan');
+    }
+    clean[key] = { buka, tutup };
   }
-  if (!hariOperasional) {
-    req.session.error = 'Hari operasional tidak boleh kosong';
+
+  if (Object.keys(clean).length === 0) {
+    req.session.error = 'Minimal satu hari operasional harus diisi (jangan centang Libur semua).';
     return res.redirect('/admin/pengaturan');
   }
 
   try {
-    const rows = [
-      { key: 'jam_buka', value: jamBuka, deskripsi: DESKRIPSI_JAM.jam_buka, updated_at: new Date().toISOString() },
-      { key: 'jam_tutup', value: jamTutup, deskripsi: DESKRIPSI_JAM.jam_tutup, updated_at: new Date().toISOString() },
-      { key: 'hari_operasional', value: hariOperasional, deskripsi: DESKRIPSI_JAM.hari_operasional, updated_at: new Date().toISOString() },
-    ];
-    const { error: err } = await supabase.from('pengaturan').upsert(rows, { onConflict: 'key' });
+    const { error: err } = await supabase
+      .from('pengaturan')
+      .upsert(
+        {
+          key: 'jam_operasional',
+          value: JSON.stringify(clean),
+          deskripsi: DESKRIPSI,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'key' }
+      );
     if (err) {
       throw new Error(err.message);
     }
-    req.session.message = 'Jam operasional berhasil diperbarui menjadi ' + hariOperasional + ' · ' + jamBuka + ' - ' + jamTutup + ' WIB';
+    req.session.message = 'Jam operasional berhasil diperbarui.';
   } catch (e) {
     req.session.error = 'Gagal memperbarui jam operasional: ' + e.message;
   }

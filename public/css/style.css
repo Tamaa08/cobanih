@@ -246,6 +246,71 @@ a:hover { text-decoration: underline; }
 .jam-op-info strong { color: var(--primary-dark); font-size: 14px; }
 .jam-op-info span { font-size: 13px; color: #38577e; }
 .jam-operasional .btn { margin-left: auto; }
+.jam-op-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.jam-op-day {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #dbe4f1;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #38577e;
+}
+.jam-op-day b { color: #23304d; font-weight: 700; }
+.jam-op-day i { font-style: normal; color: #38577e; }
+.jam-op-day .jam-op-libur { color: #b03a3a; font-weight: 600; }
+.jam-op-today {
+  background: var(--primary, #3498db);
+  border-color: var(--primary, #3498db);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(52,152,219,.35);
+}
+.jam-op-today b { color: #fff; }
+.jam-op-today i { color: #eaf4ff; }
+
+/* Form jam operasional (petugas) */
+.jam-op-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  border: 1px solid #e2e9f4;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #fafcff;
+}
+.jam-op-check {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px !important;
+  color: #6b7686 !important;
+  margin: 0 !important;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.jam-op-check input { width: 15px; height: 15px; margin: 0; }
+.jam-op-hari {
+  flex: 1;
+  font-weight: 700;
+  font-size: 14px;
+  color: #23304d;
+}
+.jam-op-form input[type="time"] {
+  padding: 6px 8px;
+  border: 1px solid #d5dfee;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #fff;
+}
+.jam-op-form input[type="time"]:disabled { opacity: .45; background: #eef2f8; }
 .cs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

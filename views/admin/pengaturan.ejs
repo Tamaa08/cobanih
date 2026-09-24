@@ -80,31 +80,40 @@
               Fitur pengaturan belum aktif. Jalankan migrasi SQL tabel <code>pengaturan</code> di SQL Editor Supabase.
             </p>
           <% } else if (currentUser.role === 'petugas') { %>
-            <form action="/admin/pengaturan/jam-operasional" method="POST" style="max-width:420px">
-              <div class="form-group">
-                <label for="jam_buka">Jam buka (HH:MM)</label>
-                <input type="time" id="jam_buka" name="jam_buka" value="<%= jamOperasional.jamBuka %>" required>
-              </div>
-              <div class="form-group">
-                <label for="jam_tutup">Jam tutup (HH:MM)</label>
-                <input type="time" id="jam_tutup" name="jam_tutup" value="<%= jamOperasional.jamTutup %>" required>
-              </div>
-              <div class="form-group">
-                <label for="hari_operasional">Hari operasional</label>
-                <input type="text" id="hari_operasional" name="hari_operasional"
-                       value="<%= jamOperasional.hariOperasional %>" required
-                       placeholder="contoh: Senin - Jumat">
-                <small class="text-muted">Contoh: Senin - Jumat / Senin - Sabtu.</small>
-              </div>
+            <form action="/admin/pengaturan/jam-operasional" method="POST" style="max-width:560px">
+              <p class="text-muted" style="margin-top:0">
+                Centang <b>Libur</b> bila perpustakaan tutup di hari itu. Hanya petugas yang dapat mengubah jam operasional.
+              </p>
+              <% jamOperasional.rows.forEach(function(r) { %>
+                <div class="form-group jam-op-form">
+                  <label class="jam-op-check">
+                    <input type="checkbox" name="<%= r.key %>_libur" value="1" <%= r.libur ? 'checked' : '' %>>
+                    Libur
+                  </label>
+                  <span class="jam-op-hari"><%= r.label %></span>
+                  <input type="time" name="<%= r.key %>_buka" value="<%= r.buka %>" <%= r.libur ? 'disabled' : '' %>>
+                  <span class="text-muted">–</span>
+                  <input type="time" name="<%= r.key %>_tutup" value="<%= r.tutup %>" <%= r.libur ? 'disabled' : '' %>>
+                </div>
+              <% }) %>
               <button type="submit" class="btn btn-primary">Simpan Jam Operasional</button>
-              <p class="text-muted" style="margin-top:10px">Hanya petugas yang dapat mengubah jam operasional.</p>
             </form>
           <% } else { %>
             <p class="text-muted">
-              Jam operasional saat ini:
-              <strong><%= jamOperasional.hariOperasional %> · <%= jamOperasional.jamBuka %> - <%= jamOperasional.jamTutup %> WIB</strong>.
-              Hanya petugas perpustakaan yang dapat mengubah jam operasional.
+              Jam operasional saat ini (hanya petugas yang dapat mengubah):
             </p>
+            <div class="jam-op-days">
+              <% jamOperasional.rows.forEach(function(r) { %>
+                <span class="jam-op-day <%= r.isToday ? 'jam-op-today' : '' %>">
+                  <b><%= r.label %></b>
+                  <% if (r.libur) { %>
+                    <i class="jam-op-libur">Libur</i>
+                  <% } else { %>
+                    <i><%= r.text %></i>
+                  <% } %>
+                </span>
+              <% }) %>
+            </div>
           <% } %>
         </div>
       </div>
