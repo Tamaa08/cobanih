@@ -1,4 +1,5 @@
 import { supabase } from '../config/db.js';
+import { getJamOperasional } from '../utils/jamOperasional.js';
 
 export async function showDashboardAdmin(req, res) {
   try {
@@ -65,6 +66,8 @@ export async function showDashboardAdmin(req, res) {
       if (dayMap.has(key)) daily[dayMap.get(key)] = (daily[dayMap.get(key)] || 0) + 1;
     }
 
+    const jamOperasional = await getJamOperasional();
+
     res.render('admin/dashboard', {
       title: 'Dashboard Admin',
       stats: { totalBuku, totalAnggota, totalPeminjaman, totalSelesai },
@@ -74,6 +77,7 @@ export async function showDashboardAdmin(req, res) {
       activeLoans,
       chart: { tokens: chartTokens, daily },
       user: req.session.user,
+      jamOperasional,
     });
   } catch (e) {
     res.render('admin/dashboard', {
@@ -85,6 +89,7 @@ export async function showDashboardAdmin(req, res) {
       activeLoans: [],
       chart: { tokens: [], daily: [] },
       user: req.session.user,
+      jamOperasional: null,
     });
   }
 }

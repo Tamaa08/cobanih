@@ -33,7 +33,7 @@ import {
   deleteAkun,
 } from '../controllers/akunController.js';
 import { showStatistik } from '../controllers/statistikController.js';
-import { showPengaturan, updatePengaturan } from '../controllers/pengaturanController.js';
+import { showPengaturan, updatePengaturan, updateJamOperasional } from '../controllers/pengaturanController.js';
 import {
   showBantuanAdmin,
   jawabBantuan,
@@ -93,6 +93,7 @@ router.get('/statistik', showStatistik);
 
 router.get('/pengaturan', showPengaturan);
 router.post('/pengaturan', updatePengaturan);
+router.post('/pengaturan/jam-operasional', updateJamOperasional);
 
 router.get('/bantuan', showBantuanAdmin);
 router.post('/bantuan/:id/jawab', jawabBantuan);

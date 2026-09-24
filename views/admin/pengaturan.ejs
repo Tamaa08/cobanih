@@ -70,6 +70,43 @@
             </form>
           <% } %>
         </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Jam Operasional Perpustakaan</h2>
+          </div>
+          <% if (typeof tableReady !== 'undefined' && tableReady === false) { %>
+            <p class="text-muted">
+              Fitur pengaturan belum aktif. Jalankan migrasi SQL tabel <code>pengaturan</code> di SQL Editor Supabase.
+            </p>
+          <% } else if (currentUser.role === 'petugas') { %>
+            <form action="/admin/pengaturan/jam-operasional" method="POST" style="max-width:420px">
+              <div class="form-group">
+                <label for="jam_buka">Jam buka (HH:MM)</label>
+                <input type="time" id="jam_buka" name="jam_buka" value="<%= jamOperasional.jamBuka %>" required>
+              </div>
+              <div class="form-group">
+                <label for="jam_tutup">Jam tutup (HH:MM)</label>
+                <input type="time" id="jam_tutup" name="jam_tutup" value="<%= jamOperasional.jamTutup %>" required>
+              </div>
+              <div class="form-group">
+                <label for="hari_operasional">Hari operasional</label>
+                <input type="text" id="hari_operasional" name="hari_operasional"
+                       value="<%= jamOperasional.hariOperasional %>" required
+                       placeholder="contoh: Senin - Jumat">
+                <small class="text-muted">Contoh: Senin - Jumat / Senin - Sabtu.</small>
+              </div>
+              <button type="submit" class="btn btn-primary">Simpan Jam Operasional</button>
+              <p class="text-muted" style="margin-top:10px">Hanya petugas yang dapat mengubah jam operasional.</p>
+            </form>
+          <% } else { %>
+            <p class="text-muted">
+              Jam operasional saat ini:
+              <strong><%= jamOperasional.hariOperasional %> · <%= jamOperasional.jamBuka %> - <%= jamOperasional.jamTutup %> WIB</strong>.
+              Hanya petugas perpustakaan yang dapat mengubah jam operasional.
+            </p>
+          <% } %>
+        </div>
       </div>
     </main>
   </div>

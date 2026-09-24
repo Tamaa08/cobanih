@@ -1,4 +1,5 @@
 import { supabase } from '../config/db.js';
+import { getJamOperasional } from '../utils/jamOperasional.js';
 
 export async function showDashboardUser(req, res) {
   try {
@@ -50,6 +51,8 @@ export async function showDashboardUser(req, res) {
       jumlahDenda = (dendaBelum || []).reduce((s, d) => s + (d.jumlah || 0), 0);
     }
 
+    const jamOperasional = await getJamOperasional();
+
     res.render('user/dashboard', {
       title: 'Dashboard Siswa',
       nama: user.nama || 'Siswa',
@@ -58,6 +61,7 @@ export async function showDashboardUser(req, res) {
       totalDenda,
       jumlahDenda,
       myTrx,
+      jamOperasional,
     });
   } catch (e) {
     res.render('user/dashboard', {
@@ -68,6 +72,7 @@ export async function showDashboardUser(req, res) {
       totalDenda: 0,
       jumlahDenda: 0,
       myTrx: [],
+      jamOperasional: null,
     });
   }
 }

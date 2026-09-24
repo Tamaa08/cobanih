@@ -57,6 +57,17 @@
       </script>
 
       <div class="content">
+        <div class="jam-operasional">
+          <div class="jam-op-icon">🕘</div>
+          <div class="jam-op-info">
+            <strong>Jam Operasional Perpustakaan</strong>
+            <span><%= jamOperasional ? jamOperasional.teks : 'Senin - Jumat · 08:00 - 16:00 WIB' %></span>
+          </div>
+          <% if (currentUser.role === 'petugas') { %>
+            <a href="/admin/pengaturan" class="btn btn-primary btn-sm">Ubah</a>
+          <% } %>
+        </div>
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon">📖</div>
